@@ -10,6 +10,8 @@ import matplotlib.pyplot as plt
 
 class Runthread(QtCore.QThread):
     _raw_data = pyqtSignal(list)
+    _done_trigger = pyqtSignal()
+    _ProgressBar = pyqtSignal(list)
     def __init__(self):
         super(Runthread, self).__init__()
         self.scope      = None
@@ -18,27 +20,32 @@ class Runthread(QtCore.QThread):
         self.UI_Value   = None
 
     def run(self):
+        self.default_control_setup()
+        self._done_trigger.emit()
+        
+    def default_control_setup(self):
         self.setup(self.UI_Value["Rate"]["Record"],
                    self.UI_Value["Rate"]["Sample"],
                    self.UI_Value["Display"]["Wave"],
                    self.UI_Value["Display"]["GRA"])
-        self.set_channel(self.UI_Value["Signal"]["CLK"],
-                        1,
-                        1,
-                        1,
-                        "20E+6")
-        self.set_channel(self.UI_Value["Signal"]["DATA"],
-                        1,
-                        1,
-                        -1,
-                        "20E+6")
+        self.set_channel(self.UI_Value["Signal"]["CLK"]["Channel"],
+                        self.UI_Value["Signal"]["CLK"]["Scale"],
+                        self.UI_Value["Signal"]["CLK"]["Offset"],
+                        self.UI_Value["Signal"]["CLK"]["Position"],
+                        self.UI_Value["Signal"]["CLK"]["Bandwidth"],)
+        self.set_channel(self.UI_Value["Signal"]["DATA"]["Channel"],
+                        self.UI_Value["Signal"]["DATA"]["Scale"],
+                        self.UI_Value["Signal"]["DATA"]["Offset"],
+                        self.UI_Value["Signal"]["DATA"]["Position"],
+                        self.UI_Value["Signal"]["DATA"]["Bandwidth"],)
         self.set_trigger(self.UI_Value["Trigger"]["Source"],
                         self.UI_Value["Trigger"]["Level"],
                         self.UI_Value["Trigger"]["Slop"])
-        self.set_time_scale(10E-6)
+        self.set_time_scale(self.UI_Value["Horizontal"]["Time Scale"],
+                            self.UI_Value["Horizontal"]["Time Scale Unit"])
         self.single_data()
-        self.get_rawdata(self.UI_Value["Signal"]["CLK"])
-        self.get_rawdata(self.UI_Value["Signal"]["DATA"])
+        self.get_rawdata(self.UI_Value["Signal"]["CLK"]["Channel"])
+        self.get_rawdata(self.UI_Value["Signal"]["DATA"]["Channel"])
 
     def setup(self,RECOrdlength, SAMPLERate, Display_wav, Display_gra):
         self.scope = DPO4000()
@@ -77,10 +84,10 @@ class Runthread(QtCore.QThread):
         self.scope.do_command('TRIGger:A:EDGE:SLOpe %s'   %(SLOpe))
         self.scope.close()
     
-    def set_time_scale(self, T_scale):
+    def set_time_scale(self, T_scale, T_Unit):
         self.scope = DPO4000()
         self.scope.connected(self.visa_add)
-        self.scope.do_command('HORIZONTAL:SCALE %s' %(T_scale))
+        self.scope.do_command('HORIZONTAL:SCALE %s%s' %(T_scale, T_Unit))
         self.scope.close()
 
     def check_single_state(self):
@@ -107,41 +114,61 @@ class Runthread(QtCore.QThread):
         self.check_single_state() # check state off while loop
         self.scope.close()
     
+    def _waveform_params(self):
+        return {
+            'xin':  float(self.scope.do_query("wfmpre:xincr?")),
+            'ymu':  float(self.scope.do_query("wfmpre:ymult?")),
+            'xze':  float(self.scope.do_query("wfmpre:xzero?")),
+            'yze':  float(self.scope.do_query("wfmpre:yzero?")),
+            'pt_o': float(self.scope.do_query("wfmpre:pt_off?")),
+            'yof':  float(self.scope.do_query("wfmpre:yoff?")),
+            'xun':  str(self.scope.do_query("wfmpre:xun?")),
+            'yun':  str(self.scope.do_query("wfmpre:yun?")),
+        }
+
     def get_rawdata(self, ch_num):
+        self._ProgressBar.emit([ch_num,1])
+
         self.scope = DPO4000()
         self.scope.connected(self.visa_add)
+        self._ProgressBar.emit([ch_num,5])
 
         # curve configuration
         self.scope.do_command('data:source %s' %(ch_num))
         self.scope.do_command('data:encdg SRIBINARY') # signed integer
+        self.scope.do_command('wfmoutpre:BYT_Nr 1') # 1 byte per sample
+        self._ProgressBar.emit([ch_num,10])
         
         self.scope.do_command('data:start 1')
         acq_record = int(self.scope.do_query('horizontal:recordlength?'))
         self.scope.do_command('data:stop {}'.format(acq_record))
-        self.scope.do_command('wfmoutpre:byt_n 1') # 1 byte per sample
+        
+        self._ProgressBar.emit([ch_num,20])
 
-        bin_wave = self.scope.get_raw_bin()
+        #bin_wave = self.scope.get_raw_bin()
+        raw_wave = self.scope.get_raw()
+        self._ProgressBar.emit([ch_num,50])
 
-        # retrieve scaling factors
-        wfm_record      = int(self.scope.do_query('wfmoutpre:nr_pt?'))
-        pre_trig_record = int(self.scope.do_query('wfmoutpre:pt_off?'))
-        t_scale         = float(self.scope.do_query('wfmoutpre:xincr?'))
-        t_sub           = float(self.scope.do_query('wfmoutpre:xzero?')) # sub-sample trigger correction
-        v_scale         = float(self.scope.do_query('wfmoutpre:ymult?')) # volts / level
-        v_off           = float(self.scope.do_query('wfmoutpre:yzero?')) # reference voltage
-        v_pos           = float(self.scope.do_query('wfmoutpre:yoff?')) # reference position (level)
+        # Get scale and offset factors
+        wp = self._waveform_params()
 
-        # create scaled vectors
-        # horizontal (time)
-        total_time = t_scale * wfm_record
-        t_start = (-pre_trig_record * t_scale) + t_sub
-        t_stop = t_start + total_time
-        scaled_time = np.linspace(t_start, t_stop, num=wfm_record, endpoint=False)
-        # vertical (voltage)
-        unscaled_wave = np.array(bin_wave, dtype='double') # data type conversion
-        scaled_wave = (unscaled_wave - v_pos) * v_scale + v_off
+        print(raw_wave[0:20])
+        print(raw_wave[1])
+        headerlen   = 2+int(raw_wave[1])
+        print(headerlen)
+        header      = raw_wave[:headerlen]
+        ADC_rawdata = raw_wave[headerlen:-1]
+        ADC_rawdata = np.array(unpack('%sB' % len(ADC_rawdata),ADC_rawdata))
 
-        self._raw_data.emit([ch_num,list(scaled_wave)])
+        Volts = list((ADC_rawdata - wp["yof"]) * wp["ymu"]  + wp["yze"])
+        Time  = np.arange(0, wp['xin'] * len(Volts), wp['xin'])
 
+        self._ProgressBar.emit([ch_num,80])
+        self._raw_data.emit([ch_num,Volts ])
+        self._ProgressBar.emit([ch_num,100])
 
         self.scope.close()
+
+        np.save('./tmp/%s_time'%(ch_num),Time)
+        np.save('./tmp/%s_wave'%(ch_num),Volts )
+        return Volts , Time

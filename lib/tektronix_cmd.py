@@ -78,7 +78,7 @@ class DPO4000():
 
     def get_raw(self):
         try:
-            time.sleep(0.1)
+            #time.sleep(0.1)
             self.do_command('CURVE?')
             raw_data = self.scope.read_raw()
             print("(raw)        : Execute the Command Successfully : %s" %("CURVE?"))
@@ -89,7 +89,7 @@ class DPO4000():
     
     def get_raw_bin(self):
         try:
-            time.sleep(0.1)
+            #time.sleep(0.1)
             bin_wave = self.scope.query_binary_values('curve?', datatype='b', container=np.array, chunk_size = 1024*50)
             print("(raw)        : Execute the Command Successfully : %s" %("CURVE?"))
             return bin_wave
