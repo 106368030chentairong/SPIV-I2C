@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>1200</width>
-    <height>700</height>
+    <height>705</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -137,20 +137,6 @@
                <item row="0" column="0">
                 <layout class="QHBoxLayout" name="horizontalLayout_2">
                  <item>
-                  <widget class="QPushButton" name="PB_test">
-                   <property name="text">
-                    <string>test</string>
-                   </property>
-                  </widget>
-                 </item>
-                 <item>
-                  <widget class="Line" name="line">
-                   <property name="orientation">
-                    <enum>Qt::Vertical</enum>
-                   </property>
-                  </widget>
-                 </item>
-                 <item>
                   <layout class="QVBoxLayout" name="verticalLayout_11">
                    <item>
                     <widget class="QLabel" name="label_3">
@@ -160,14 +146,25 @@
                        <height>50</height>
                       </size>
                      </property>
+                     <property name="font">
+                      <font>
+                       <weight>75</weight>
+                       <italic>true</italic>
+                       <bold>true</bold>
+                       <underline>true</underline>
+                      </font>
+                     </property>
                      <property name="text">
-                      <string>Signal Assignment :</string>
+                      <string>Signal Assignment</string>
+                     </property>
+                     <property name="alignment">
+                      <set>Qt::AlignCenter</set>
                      </property>
                     </widget>
                    </item>
                    <item>
-                    <layout class="QHBoxLayout" name="horizontalLayout_6">
-                     <item>
+                    <layout class="QGridLayout" name="gridLayout_6">
+                     <item row="0" column="0">
                       <widget class="QLabel" name="label">
                        <property name="minimumSize">
                         <size>
@@ -189,8 +186,8 @@
                        </property>
                       </widget>
                      </item>
-                     <item>
-                      <widget class="QComboBox" name="comboBox">
+                     <item row="0" column="1">
+                      <widget class="QComboBox" name="CB_CLK_CH">
                        <item>
                         <property name="text">
                          <string>CH1</string>
@@ -213,14 +210,7 @@
                        </item>
                       </widget>
                      </item>
-                    </layout>
-                   </item>
-                   <item>
-                    <layout class="QHBoxLayout" name="horizontalLayout_7">
-                     <property name="sizeConstraint">
-                      <enum>QLayout::SetDefaultConstraint</enum>
-                     </property>
-                     <item>
+                     <item row="1" column="0">
                       <widget class="QLabel" name="label_2">
                        <property name="maximumSize">
                         <size>
@@ -239,8 +229,13 @@
                        </property>
                       </widget>
                      </item>
-                     <item>
-                      <widget class="QComboBox" name="comboBox_2">
+                     <item row="1" column="1">
+                      <widget class="QComboBox" name="CB_DATA_CH">
+                       <item>
+                        <property name="text">
+                         <string>CH3</string>
+                        </property>
+                       </item>
                        <item>
                         <property name="text">
                          <string>CH1</string>
@@ -249,11 +244,6 @@
                        <item>
                         <property name="text">
                          <string>CH2</string>
-                        </property>
-                       </item>
-                       <item>
-                        <property name="text">
-                         <string>CH3</string>
                         </property>
                        </item>
                        <item>
@@ -284,8 +274,19 @@
                        <height>20</height>
                       </size>
                      </property>
+                     <property name="font">
+                      <font>
+                       <weight>75</weight>
+                       <italic>true</italic>
+                       <bold>true</bold>
+                       <underline>true</underline>
+                      </font>
+                     </property>
                      <property name="text">
-                      <string>Rate :</string>
+                      <string>Rate</string>
+                     </property>
+                     <property name="alignment">
+                      <set>Qt::AlignCenter</set>
                      </property>
                     </widget>
                    </item>
@@ -294,12 +295,37 @@
                      <item>
                       <widget class="QLabel" name="label_7">
                        <property name="text">
-                        <string>Record Rate :</string>
+                        <string>Record Rate : </string>
                        </property>
                       </widget>
                      </item>
                      <item>
-                      <widget class="QComboBox" name="comboBox_4">
+                      <widget class="QComboBox" name="CB_RR">
+                       <item>
+                        <property name="text">
+                         <string>1E+6</string>
+                        </property>
+                       </item>
+                       <item>
+                        <property name="text">
+                         <string>1000</string>
+                        </property>
+                       </item>
+                       <item>
+                        <property name="text">
+                         <string>10E+3</string>
+                        </property>
+                       </item>
+                       <item>
+                        <property name="text">
+                         <string>100E+3</string>
+                        </property>
+                       </item>
+                       <item>
+                        <property name="text">
+                         <string>5E+6</string>
+                        </property>
+                       </item>
                        <item>
                         <property name="text">
                          <string>10E+6</string>
@@ -320,12 +346,37 @@
                         </size>
                        </property>
                        <property name="text">
-                        <string>Sample Rate :</string>
+                        <string>Sample Rate : </string>
                        </property>
                       </widget>
                      </item>
                      <item>
-                      <widget class="QComboBox" name="comboBox_3">
+                      <widget class="QComboBox" name="CB_SR">
+                       <item>
+                        <property name="text">
+                         <string>1E+6</string>
+                        </property>
+                       </item>
+                       <item>
+                        <property name="text">
+                         <string>1000</string>
+                        </property>
+                       </item>
+                       <item>
+                        <property name="text">
+                         <string>10E+3</string>
+                        </property>
+                       </item>
+                       <item>
+                        <property name="text">
+                         <string>100E+3</string>
+                        </property>
+                       </item>
+                       <item>
+                        <property name="text">
+                         <string>5E+6</string>
+                        </property>
+                       </item>
                        <item>
                         <property name="text">
                          <string>10E+6</string>
@@ -343,8 +394,19 @@
                        <height>20</height>
                       </size>
                      </property>
+                     <property name="font">
+                      <font>
+                       <weight>75</weight>
+                       <italic>true</italic>
+                       <bold>true</bold>
+                       <underline>true</underline>
+                      </font>
+                     </property>
                      <property name="text">
-                      <string>Display Intensit :</string>
+                      <string>Display Intensit</string>
+                     </property>
+                     <property name="alignment">
+                      <set>Qt::AlignCenter</set>
                      </property>
                     </widget>
                    </item>
@@ -365,12 +427,12 @@
                         </size>
                        </property>
                        <property name="text">
-                        <string>WAVEform :</string>
+                        <string>WAVEform : </string>
                        </property>
                       </widget>
                      </item>
                      <item>
-                      <widget class="QSpinBox" name="spinBox">
+                      <widget class="QSpinBox" name="SB_Display_WAVE">
                        <property name="minimum">
                         <number>1</number>
                        </property>
@@ -395,12 +457,12 @@
                         </size>
                        </property>
                        <property name="text">
-                        <string>GRAticule :</string>
+                        <string>GRAticule : </string>
                        </property>
                       </widget>
                      </item>
                      <item>
-                      <widget class="QSpinBox" name="spinBox_2">
+                      <widget class="QSpinBox" name="SB_Display_GRA">
                        <property name="minimum">
                         <number>1</number>
                        </property>
@@ -433,8 +495,21 @@
                        <height>50</height>
                       </size>
                      </property>
+                     <property name="font">
+                      <font>
+                       <pointsize>9</pointsize>
+                       <weight>75</weight>
+                       <italic>true</italic>
+                       <bold>true</bold>
+                       <underline>true</underline>
+                       <strikeout>false</strikeout>
+                      </font>
+                     </property>
                      <property name="text">
-                      <string>Trigger :</string>
+                      <string>Trigger</string>
+                     </property>
+                     <property name="alignment">
+                      <set>Qt::AlignCenter</set>
                      </property>
                     </widget>
                    </item>
@@ -450,15 +525,60 @@
                      <item row="1" column="0">
                       <widget class="QLabel" name="label_5">
                        <property name="text">
-                        <string>Slope :</string>
+                        <string>Slope : </string>
+                       </property>
+                      </widget>
+                     </item>
+                     <item row="0" column="1">
+                      <widget class="QComboBox" name="CB_Trigger_CH">
+                       <item>
+                        <property name="text">
+                         <string>CH1</string>
+                        </property>
+                       </item>
+                       <item>
+                        <property name="text">
+                         <string>CH2</string>
+                        </property>
+                       </item>
+                       <item>
+                        <property name="text">
+                         <string>CH3</string>
+                        </property>
+                       </item>
+                       <item>
+                        <property name="text">
+                         <string>CH4</string>
+                        </property>
+                       </item>
+                      </widget>
+                     </item>
+                     <item row="2" column="1">
+                      <widget class="QDoubleSpinBox" name="CB_Trigger_LV">
+                       <property name="minimum">
+                        <double>-99.000000000000000</double>
+                       </property>
+                       <property name="singleStep">
+                        <double>0.100000000000000</double>
+                       </property>
+                       <property name="value">
+                        <double>1.000000000000000</double>
                        </property>
                       </widget>
                      </item>
                      <item row="1" column="1">
-                      <widget class="QComboBox" name="comboBox_5"/>
-                     </item>
-                     <item row="0" column="1">
-                      <widget class="QComboBox" name="comboBox_6"/>
+                      <widget class="QComboBox" name="CB_Trigger_SL">
+                       <item>
+                        <property name="text">
+                         <string>RISE</string>
+                        </property>
+                       </item>
+                       <item>
+                        <property name="text">
+                         <string>FALL</string>
+                        </property>
+                       </item>
+                      </widget>
                      </item>
                      <item row="2" column="0">
                       <widget class="QLabel" name="label_12">
@@ -467,8 +587,26 @@
                        </property>
                       </widget>
                      </item>
-                     <item row="2" column="1">
-                      <widget class="QDoubleSpinBox" name="doubleSpinBox"/>
+                     <item row="3" column="0">
+                      <widget class="QLabel" name="label_15">
+                       <property name="text">
+                        <string>Mode : </string>
+                       </property>
+                      </widget>
+                     </item>
+                     <item row="3" column="1">
+                      <widget class="QComboBox" name="CB_Trigger_MODE">
+                       <item>
+                        <property name="text">
+                         <string>Normal</string>
+                        </property>
+                       </item>
+                       <item>
+                        <property name="text">
+                         <string>Auto</string>
+                        </property>
+                       </item>
+                      </widget>
                      </item>
                     </layout>
                    </item>
@@ -485,25 +623,292 @@
                   <layout class="QVBoxLayout" name="verticalLayout_10">
                    <item>
                     <widget class="QLabel" name="label_14">
+                     <property name="maximumSize">
+                      <size>
+                       <width>16777215</width>
+                       <height>50</height>
+                      </size>
+                     </property>
+                     <property name="font">
+                      <font>
+                       <weight>75</weight>
+                       <italic>true</italic>
+                       <bold>true</bold>
+                       <underline>true</underline>
+                      </font>
+                     </property>
                      <property name="text">
                       <string>CLK : </string>
                      </property>
+                     <property name="alignment">
+                      <set>Qt::AlignCenter</set>
+                     </property>
                     </widget>
+                   </item>
+                   <item>
+                    <layout class="QGridLayout" name="gridLayout_5">
+                     <item row="0" column="0">
+                      <widget class="QLabel" name="label_16">
+                       <property name="text">
+                        <string>Scale : </string>
+                       </property>
+                      </widget>
+                     </item>
+                     <item row="1" column="0">
+                      <widget class="QLabel" name="label_17">
+                       <property name="text">
+                        <string>Offset : </string>
+                       </property>
+                      </widget>
+                     </item>
+                     <item row="0" column="1">
+                      <widget class="QDoubleSpinBox" name="SB_CLK_Scale"/>
+                     </item>
+                     <item row="1" column="1">
+                      <widget class="QDoubleSpinBox" name="SB_CLK_Offset"/>
+                     </item>
+                     <item row="2" column="0">
+                      <widget class="QLabel" name="label_21">
+                       <property name="text">
+                        <string>Position : </string>
+                       </property>
+                      </widget>
+                     </item>
+                     <item row="2" column="1">
+                      <widget class="QDoubleSpinBox" name="SB_CLK_Position"/>
+                     </item>
+                    </layout>
                    </item>
                   </layout>
                  </item>
                  <item>
-                  <spacer name="horizontalSpacer">
+                  <widget class="Line" name="line_2">
                    <property name="orientation">
-                    <enum>Qt::Horizontal</enum>
+                    <enum>Qt::Vertical</enum>
                    </property>
-                   <property name="sizeHint" stdset="0">
-                    <size>
-                     <width>40</width>
-                     <height>20</height>
-                    </size>
+                  </widget>
+                 </item>
+                 <item>
+                  <layout class="QVBoxLayout" name="verticalLayout_8">
+                   <item>
+                    <widget class="QLabel" name="label_18">
+                     <property name="maximumSize">
+                      <size>
+                       <width>16777215</width>
+                       <height>50</height>
+                      </size>
+                     </property>
+                     <property name="font">
+                      <font>
+                       <weight>75</weight>
+                       <italic>true</italic>
+                       <bold>true</bold>
+                       <underline>true</underline>
+                      </font>
+                     </property>
+                     <property name="text">
+                      <string>DATA : </string>
+                     </property>
+                     <property name="alignment">
+                      <set>Qt::AlignCenter</set>
+                     </property>
+                    </widget>
+                   </item>
+                   <item>
+                    <layout class="QGridLayout" name="gridLayout_4">
+                     <item row="1" column="0">
+                      <widget class="QLabel" name="label_20">
+                       <property name="text">
+                        <string>Offset : </string>
+                       </property>
+                      </widget>
+                     </item>
+                     <item row="0" column="1">
+                      <widget class="QDoubleSpinBox" name="SB_DATA_Scale"/>
+                     </item>
+                     <item row="0" column="0">
+                      <widget class="QLabel" name="label_19">
+                       <property name="text">
+                        <string>Scale : </string>
+                       </property>
+                      </widget>
+                     </item>
+                     <item row="1" column="1">
+                      <widget class="QDoubleSpinBox" name="SB_DATA_Offset"/>
+                     </item>
+                     <item row="2" column="0">
+                      <widget class="QLabel" name="label_22">
+                       <property name="text">
+                        <string>Position : </string>
+                       </property>
+                      </widget>
+                     </item>
+                     <item row="2" column="1">
+                      <widget class="QDoubleSpinBox" name="SB_DATA_Position"/>
+                     </item>
+                    </layout>
+                   </item>
+                  </layout>
+                 </item>
+                 <item>
+                  <widget class="Line" name="line_6">
+                   <property name="orientation">
+                    <enum>Qt::Vertical</enum>
                    </property>
-                  </spacer>
+                  </widget>
+                 </item>
+                 <item>
+                  <layout class="QVBoxLayout" name="verticalLayout_5">
+                   <item>
+                    <widget class="QLabel" name="label_23">
+                     <property name="maximumSize">
+                      <size>
+                       <width>16777215</width>
+                       <height>50</height>
+                      </size>
+                     </property>
+                     <property name="font">
+                      <font>
+                       <weight>75</weight>
+                       <italic>true</italic>
+                       <bold>true</bold>
+                       <underline>true</underline>
+                      </font>
+                     </property>
+                     <property name="text">
+                      <string>Function</string>
+                     </property>
+                     <property name="alignment">
+                      <set>Qt::AlignCenter</set>
+                     </property>
+                    </widget>
+                   </item>
+                   <item>
+                    <widget class="QComboBox" name="CB_style">
+                     <item>
+                      <property name="text">
+                       <string>dark_amber.xml</string>
+                      </property>
+                     </item>
+                     <item>
+                      <property name="text">
+                       <string>default</string>
+                      </property>
+                     </item>
+                     <item>
+                      <property name="text">
+                       <string>dark_blue.xml</string>
+                      </property>
+                     </item>
+                     <item>
+                      <property name="text">
+                       <string>dark_cyan.xml</string>
+                      </property>
+                     </item>
+                     <item>
+                      <property name="text">
+                       <string>dark_lightgreen.xml</string>
+                      </property>
+                     </item>
+                     <item>
+                      <property name="text">
+                       <string>dark_pink.xml</string>
+                      </property>
+                     </item>
+                     <item>
+                      <property name="text">
+                       <string>dark_purple.xml</string>
+                      </property>
+                     </item>
+                     <item>
+                      <property name="text">
+                       <string>dark_red.xml</string>
+                      </property>
+                     </item>
+                     <item>
+                      <property name="text">
+                       <string>dark_teal.xml</string>
+                      </property>
+                     </item>
+                     <item>
+                      <property name="text">
+                       <string>dark_yellow.xml</string>
+                      </property>
+                     </item>
+                     <item>
+                      <property name="text">
+                       <string>light_amber.xml</string>
+                      </property>
+                     </item>
+                     <item>
+                      <property name="text">
+                       <string>light_blue.xml</string>
+                      </property>
+                     </item>
+                     <item>
+                      <property name="text">
+                       <string>light_cyan.xml</string>
+                      </property>
+                     </item>
+                     <item>
+                      <property name="text">
+                       <string>light_cyan_500.xml</string>
+                      </property>
+                     </item>
+                     <item>
+                      <property name="text">
+                       <string>light_lightgreen.xml</string>
+                      </property>
+                     </item>
+                     <item>
+                      <property name="text">
+                       <string>light_pink.xml</string>
+                      </property>
+                     </item>
+                     <item>
+                      <property name="text">
+                       <string>light_purple.xml</string>
+                      </property>
+                     </item>
+                     <item>
+                      <property name="text">
+                       <string>light_red.xml</string>
+                      </property>
+                     </item>
+                     <item>
+                      <property name="text">
+                       <string>light_teal.xml</string>
+                      </property>
+                     </item>
+                     <item>
+                      <property name="text">
+                       <string>light_yellow.xml</string>
+                      </property>
+                     </item>
+                    </widget>
+                   </item>
+                   <item>
+                    <widget class="QPushButton" name="PB_test">
+                     <property name="text">
+                      <string>test_1</string>
+                     </property>
+                    </widget>
+                   </item>
+                   <item>
+                    <widget class="QPushButton" name="PB_test2">
+                     <property name="text">
+                      <string>test_2</string>
+                     </property>
+                    </widget>
+                   </item>
+                   <item>
+                    <widget class="QPushButton" name="PB_test3">
+                     <property name="text">
+                      <string>PushButton</string>
+                     </property>
+                    </widget>
+                   </item>
+                  </layout>
                  </item>
                 </layout>
                </item>
@@ -529,8 +934,38 @@
      <height>24</height>
     </rect>
    </property>
+   <widget class="QMenu" name="menuFile">
+    <property name="title">
+     <string>File</string>
+    </property>
+   </widget>
+   <widget class="QMenu" name="menuSave">
+    <property name="title">
+     <string>Save</string>
+    </property>
+   </widget>
+   <widget class="QMenu" name="menuFunction">
+    <property name="title">
+     <string>Function</string>
+    </property>
+   </widget>
+   <widget class="QMenu" name="menuSetting">
+    <property name="title">
+     <string>Setting</string>
+    </property>
+    <addaction name="actionStyle"/>
+   </widget>
+   <addaction name="menuFile"/>
+   <addaction name="menuSave"/>
+   <addaction name="menuFunction"/>
+   <addaction name="menuSetting"/>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
+  <action name="actionStyle">
+   <property name="text">
+    <string>Style</string>
+   </property>
+  </action>
  </widget>
  <customwidgets>
   <customwidget>
