@@ -6,9 +6,12 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1200</width>
+    <width>1198</width>
     <height>700</height>
    </rect>
+  </property>
+  <property name="contextMenuPolicy">
+   <enum>Qt::NoContextMenu</enum>
   </property>
   <property name="windowTitle">
    <string>MainWindow</string>
@@ -105,7 +108,7 @@
               </size>
              </property>
              <property name="currentIndex">
-              <number>2</number>
+              <number>1</number>
              </property>
              <widget class="QWidget" name="TW_TestPlan">
               <attribute name="title">
@@ -807,7 +810,7 @@
                         <double>0.100000000000000</double>
                        </property>
                        <property name="value">
-                        <double>1.000000000000000</double>
+                        <double>0.000000000000000</double>
                        </property>
                       </widget>
                      </item>
@@ -827,7 +830,7 @@
                         <double>0.100000000000000</double>
                        </property>
                        <property name="value">
-                        <double>1.000000000000000</double>
+                        <double>0.000000000000000</double>
                        </property>
                       </widget>
                      </item>
@@ -905,7 +908,7 @@
                         <double>0.100000000000000</double>
                        </property>
                        <property name="value">
-                        <double>-1.000000000000000</double>
+                        <double>0.000000000000000</double>
                        </property>
                       </widget>
                      </item>
@@ -949,7 +952,7 @@
                         <double>0.100000000000000</double>
                        </property>
                        <property name="value">
-                        <double>1.000000000000000</double>
+                        <double>0.000000000000000</double>
                        </property>
                       </widget>
                      </item>
@@ -1308,7 +1311,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>1200</width>
+     <width>1198</width>
      <height>24</height>
     </rect>
    </property>

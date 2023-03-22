@@ -21,6 +21,9 @@ class mainProgram(QtWidgets.QMainWindow, Ui_MainWindow):
         self.change_UI_styl()
         self.Get_UI_value()
 
+        # Set main window name 
+        self.setWindowTitle("I2C Auto Testting Tool V3.0.0")
+
         # Push button
         self.PB_test.clicked.connect(self.plot_data)
         self.PB_test2.clicked.connect(self.Get_UI_value)
@@ -110,13 +113,13 @@ class mainProgram(QtWidgets.QMainWindow, Ui_MainWindow):
             self.PB_CLK.setValue(msg[1])
             if msg[1] == 100:
                 self.PB_CLK.hide()
-            elif msg[1] == 1:
+            elif msg[1] >= 1:
                 self.PB_CLK.show()
         else:
             self.PB_DATA.setValue(msg[1])
             if msg[1] == 100:
                 self.PB_DATA.hide()
-            elif msg[1] == 1:
+            elif msg[1] >= 1:
                 self.PB_DATA.show()
             
     def Done_trigger(self):

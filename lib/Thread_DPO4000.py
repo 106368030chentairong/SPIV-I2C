@@ -8,6 +8,8 @@ import numpy as np
 
 import matplotlib.pyplot as plt
 
+from lib.analytics_core import *
+
 class Runthread(QtCore.QThread):
     _raw_data = pyqtSignal(list)
     _done_trigger = pyqtSignal()
@@ -21,6 +23,22 @@ class Runthread(QtCore.QThread):
 
     def run(self):
         self.default_control_setup()
+        model = signal_process()
+        delay_time, POSITION1, POSITION2 = model.Load_data("1")
+        print(delay_time, POSITION1, POSITION2)
+        
+        self.set_channel(self.UI_Value["Signal"]["CLK"]["Channel"],
+                         self.UI_Value["Signal"]["CLK"]["Scale"],
+                         self.UI_Value["Signal"]["CLK"]["Offset"],
+                         self.UI_Value["Signal"]["CLK"]["Position"],
+                         self.UI_Value["Signal"]["CLK"]["Bandwidth"])
+        self.set_channel(self.UI_Value["Signal"]["DATA"]["Channel"],
+                         self.UI_Value["Signal"]["DATA"]["Scale"],
+                         self.UI_Value["Signal"]["DATA"]["Offset"],
+                         self.UI_Value["Signal"]["DATA"]["Position"],
+                         self.UI_Value["Signal"]["DATA"]["Bandwidth"])
+        
+        self.Cursors_control(delay_time, POSITION1, POSITION2, 0.54, 1.26 )
         self._done_trigger.emit()
         
     def default_control_setup(self):
@@ -29,23 +47,24 @@ class Runthread(QtCore.QThread):
                    self.UI_Value["Display"]["Wave"],
                    self.UI_Value["Display"]["GRA"])
         self.set_channel(self.UI_Value["Signal"]["CLK"]["Channel"],
-                        self.UI_Value["Signal"]["CLK"]["Scale"],
-                        self.UI_Value["Signal"]["CLK"]["Offset"],
-                        self.UI_Value["Signal"]["CLK"]["Position"],
-                        self.UI_Value["Signal"]["CLK"]["Bandwidth"],)
+                         1,
+                         0,
+                         0,
+                         self.UI_Value["Signal"]["CLK"]["Bandwidth"])
         self.set_channel(self.UI_Value["Signal"]["DATA"]["Channel"],
-                        self.UI_Value["Signal"]["DATA"]["Scale"],
-                        self.UI_Value["Signal"]["DATA"]["Offset"],
-                        self.UI_Value["Signal"]["DATA"]["Position"],
-                        self.UI_Value["Signal"]["DATA"]["Bandwidth"],)
+                         1,
+                         0,
+                         0,
+                         self.UI_Value["Signal"]["DATA"]["Bandwidth"])
+
         self.set_trigger(self.UI_Value["Trigger"]["Source"],
-                        self.UI_Value["Trigger"]["Level"],
-                        self.UI_Value["Trigger"]["Slop"])
+                         self.UI_Value["Trigger"]["Level"],
+                         self.UI_Value["Trigger"]["Slop"])
         self.set_time_scale(self.UI_Value["Horizontal"]["Time Scale"],
                             self.UI_Value["Horizontal"]["Time Scale Unit"])
         self.single_data()
-        self.get_rawdata(self.UI_Value["Signal"]["CLK"]["Channel"])
-        self.get_rawdata(self.UI_Value["Signal"]["DATA"]["Channel"])
+        Volts , Time = self.get_rawdata(self.UI_Value["Signal"]["CLK"]["Channel"])
+        Volts , Time = self.get_rawdata(self.UI_Value["Signal"]["DATA"]["Channel"])
 
     def setup(self,RECOrdlength, SAMPLERate, Display_wav, Display_gra):
         self.scope = DPO4000()
@@ -127,23 +146,23 @@ class Runthread(QtCore.QThread):
         }
 
     def get_rawdata(self, ch_num):
-        self._ProgressBar.emit([ch_num,1])
+        self._ProgressBar.emit([ch_num,10])
 
         self.scope = DPO4000()
         self.scope.connected(self.visa_add)
-        self._ProgressBar.emit([ch_num,5])
+        self._ProgressBar.emit([ch_num,20])
 
         # curve configuration
         self.scope.do_command('data:source %s' %(ch_num))
         self.scope.do_command('data:encdg SRIBINARY') # signed integer
         self.scope.do_command('wfmoutpre:BYT_Nr 1') # 1 byte per sample
-        self._ProgressBar.emit([ch_num,10])
+        self._ProgressBar.emit([ch_num,30])
         
         self.scope.do_command('data:start 1')
         acq_record = int(self.scope.do_query('horizontal:recordlength?'))
         self.scope.do_command('data:stop {}'.format(acq_record))
         
-        self._ProgressBar.emit([ch_num,20])
+        self._ProgressBar.emit([ch_num,40])
 
         #bin_wave = self.scope.get_raw_bin()
         raw_wave = self.scope.get_raw()
@@ -151,6 +170,7 @@ class Runthread(QtCore.QThread):
 
         # Get scale and offset factors
         wp = self._waveform_params()
+        print(wp)
 
         print(raw_wave[0:20])
         print(raw_wave[1])
@@ -159,9 +179,15 @@ class Runthread(QtCore.QThread):
         header      = raw_wave[:headerlen]
         ADC_rawdata = raw_wave[headerlen:-1]
         ADC_rawdata = np.array(unpack('%sB' % len(ADC_rawdata),ADC_rawdata))
+        self._ProgressBar.emit([ch_num,60])
 
         Volts = list((ADC_rawdata - wp["yof"]) * wp["ymu"]  + wp["yze"])
-        Time  = np.arange(0, wp['xin'] * len(Volts), wp['xin'])
+        #Time  = np.arange(0, wp['xin'] * len(Volts), wp['xin'])
+        record = len(Volts)
+        total_time = wp['xin'] * record
+        tstop = wp['xze'] + total_time
+        Time = np.linspace(wp['xze'], tstop, num=record, endpoint=False)
+        self._ProgressBar.emit([ch_num,70])
 
         self._ProgressBar.emit([ch_num,80])
         self._raw_data.emit([ch_num,Volts ])
@@ -172,3 +198,19 @@ class Runthread(QtCore.QThread):
         np.save('./tmp/%s_time'%(ch_num),Time)
         np.save('./tmp/%s_wave'%(ch_num),Volts )
         return Volts , Time
+
+    def Cursors_control(self, Delay_Time, VBArs_pos_1, VBArs_pos_2, HBARS_pos_1, HBARS_pos_2):
+        
+        self.scope = DPO4000()
+        self.scope.connected(self.visa_add)
+
+        self.scope.do_command('HORizontal:DELay:TIME %s' %(Delay_Time))
+
+        self.scope.do_command('CURSor:FUNCtion SCREEN')
+        #self.scope.write('HORIZONTAL:SCALE '+str(0.1/self.frequency))
+        self.scope.do_command('CURSor:VBArs:POSITION1 %s' %(VBArs_pos_1))
+        self.scope.do_command('CURSor:VBArs:POSITION2 %s' %(VBArs_pos_2))
+        self.scope.do_command('CURSOR:HBARS:POSITION1 %s' %(HBARS_pos_1))
+        self.scope.do_command('CURSOR:HBARS:POSITION2 %s' %(HBARS_pos_2))
+
+        self.scope.close()

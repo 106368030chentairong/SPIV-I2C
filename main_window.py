@@ -14,7 +14,8 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
         MainWindow.setObjectName("MainWindow")
-        MainWindow.resize(1200, 700)
+        MainWindow.resize(1198, 700)
+        MainWindow.setContextMenuPolicy(QtCore.Qt.NoContextMenu)
         self.centralwidget = QtWidgets.QWidget(MainWindow)
         self.centralwidget.setObjectName("centralwidget")
         self.gridLayout_10 = QtWidgets.QGridLayout(self.centralwidget)
@@ -344,7 +345,7 @@ class Ui_MainWindow(object):
         self.SB_CLK_Offset = QtWidgets.QDoubleSpinBox(self.TW_Setup)
         self.SB_CLK_Offset.setMinimum(-99.0)
         self.SB_CLK_Offset.setSingleStep(0.1)
-        self.SB_CLK_Offset.setProperty("value", 1.0)
+        self.SB_CLK_Offset.setProperty("value", 0.0)
         self.SB_CLK_Offset.setObjectName("SB_CLK_Offset")
         self.gridLayout_5.addWidget(self.SB_CLK_Offset, 1, 1, 1, 1)
         self.label_21 = QtWidgets.QLabel(self.TW_Setup)
@@ -353,7 +354,7 @@ class Ui_MainWindow(object):
         self.SB_CLK_Position = QtWidgets.QDoubleSpinBox(self.TW_Setup)
         self.SB_CLK_Position.setMinimum(-99.0)
         self.SB_CLK_Position.setSingleStep(0.1)
-        self.SB_CLK_Position.setProperty("value", 1.0)
+        self.SB_CLK_Position.setProperty("value", 0.0)
         self.SB_CLK_Position.setObjectName("SB_CLK_Position")
         self.gridLayout_5.addWidget(self.SB_CLK_Position, 2, 1, 1, 1)
         self.label_24 = QtWidgets.QLabel(self.TW_Setup)
@@ -390,7 +391,7 @@ class Ui_MainWindow(object):
         self.SB_DATA_Position = QtWidgets.QDoubleSpinBox(self.TW_Setup)
         self.SB_DATA_Position.setMinimum(-99.0)
         self.SB_DATA_Position.setSingleStep(0.1)
-        self.SB_DATA_Position.setProperty("value", -1.0)
+        self.SB_DATA_Position.setProperty("value", 0.0)
         self.SB_DATA_Position.setObjectName("SB_DATA_Position")
         self.gridLayout_4.addWidget(self.SB_DATA_Position, 2, 1, 1, 1)
         self.label_22 = QtWidgets.QLabel(self.TW_Setup)
@@ -410,7 +411,7 @@ class Ui_MainWindow(object):
         self.SB_DATA_Offset = QtWidgets.QDoubleSpinBox(self.TW_Setup)
         self.SB_DATA_Offset.setMinimum(-99.0)
         self.SB_DATA_Offset.setSingleStep(0.1)
-        self.SB_DATA_Offset.setProperty("value", 1.0)
+        self.SB_DATA_Offset.setProperty("value", 0.0)
         self.SB_DATA_Offset.setObjectName("SB_DATA_Offset")
         self.gridLayout_4.addWidget(self.SB_DATA_Offset, 1, 1, 1, 1)
         self.label_25 = QtWidgets.QLabel(self.TW_Setup)
@@ -553,7 +554,7 @@ class Ui_MainWindow(object):
         self.gridLayout_10.addLayout(self.gridLayout_11, 0, 0, 1, 1)
         MainWindow.setCentralWidget(self.centralwidget)
         self.menubar = QtWidgets.QMenuBar(MainWindow)
-        self.menubar.setGeometry(QtCore.QRect(0, 0, 1200, 24))
+        self.menubar.setGeometry(QtCore.QRect(0, 0, 1198, 24))
         self.menubar.setObjectName("menubar")
         self.menuFile = QtWidgets.QMenu(self.menubar)
         self.menuFile.setObjectName("menuFile")
@@ -576,7 +577,7 @@ class Ui_MainWindow(object):
         self.menubar.addAction(self.menuSetting.menuAction())
 
         self.retranslateUi(MainWindow)
-        self.TW_Function.setCurrentIndex(2)
+        self.TW_Function.setCurrentIndex(1)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
 
     def retranslateUi(self, MainWindow):
