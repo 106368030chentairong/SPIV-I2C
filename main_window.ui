@@ -353,7 +353,7 @@
                           <double>0.100000000000000</double>
                          </property>
                          <property name="value">
-                          <double>20.000000000000000</double>
+                          <double>1.000000000000000</double>
                          </property>
                         </widget>
                        </item>
@@ -484,11 +484,6 @@
                       <widget class="QComboBox" name="CB_SR">
                        <item>
                         <property name="text">
-                         <string>1E+6</string>
-                        </property>
-                       </item>
-                       <item>
-                        <property name="text">
                          <string>1000</string>
                         </property>
                        </item>
@@ -500,6 +495,11 @@
                        <item>
                         <property name="text">
                          <string>100E+3</string>
+                        </property>
+                       </item>
+                       <item>
+                        <property name="text">
+                         <string>1E+6</string>
                         </property>
                        </item>
                        <item>
@@ -777,31 +777,28 @@
                    </item>
                    <item>
                     <layout class="QGridLayout" name="gridLayout_5">
-                     <item row="0" column="0">
+                     <item row="1" column="0">
                       <widget class="QLabel" name="label_16">
                        <property name="text">
                         <string>Scale : </string>
                        </property>
                       </widget>
                      </item>
-                     <item row="1" column="0">
+                     <item row="3" column="0">
+                      <widget class="QLabel" name="label_21">
+                       <property name="text">
+                        <string>Position : </string>
+                       </property>
+                      </widget>
+                     </item>
+                     <item row="2" column="0">
                       <widget class="QLabel" name="label_17">
                        <property name="text">
                         <string>Offset : </string>
                        </property>
                       </widget>
                      </item>
-                     <item row="0" column="1">
-                      <widget class="QDoubleSpinBox" name="SB_CLK_Scale">
-                       <property name="singleStep">
-                        <double>0.100000000000000</double>
-                       </property>
-                       <property name="value">
-                        <double>1.000000000000000</double>
-                       </property>
-                      </widget>
-                     </item>
-                     <item row="1" column="1">
+                     <item row="2" column="1">
                       <widget class="QDoubleSpinBox" name="SB_CLK_Offset">
                        <property name="minimum">
                         <double>-99.000000000000000</double>
@@ -814,14 +811,17 @@
                        </property>
                       </widget>
                      </item>
-                     <item row="2" column="0">
-                      <widget class="QLabel" name="label_21">
-                       <property name="text">
-                        <string>Position : </string>
+                     <item row="1" column="1">
+                      <widget class="QDoubleSpinBox" name="SB_CLK_Scale">
+                       <property name="singleStep">
+                        <double>0.100000000000000</double>
+                       </property>
+                       <property name="value">
+                        <double>1.000000000000000</double>
                        </property>
                       </widget>
                      </item>
-                     <item row="2" column="1">
+                     <item row="3" column="1">
                       <widget class="QDoubleSpinBox" name="SB_CLK_Position">
                        <property name="minimum">
                         <double>-99.000000000000000</double>
@@ -830,18 +830,18 @@
                         <double>0.100000000000000</double>
                        </property>
                        <property name="value">
-                        <double>0.000000000000000</double>
+                        <double>1.000000000000000</double>
                        </property>
                       </widget>
                      </item>
-                     <item row="3" column="0">
+                     <item row="4" column="0">
                       <widget class="QLabel" name="label_24">
                        <property name="text">
                         <string>Bandwidth : </string>
                        </property>
                       </widget>
                      </item>
-                     <item row="3" column="1">
+                     <item row="4" column="1">
                       <widget class="QComboBox" name="CB_CLK_BW">
                        <item>
                         <property name="text">
@@ -858,6 +858,23 @@
                          <string>20E+6</string>
                         </property>
                        </item>
+                      </widget>
+                     </item>
+                     <item row="0" column="1">
+                      <widget class="QCheckBox" name="ChkB_CLK_SW">
+                       <property name="text">
+                        <string/>
+                       </property>
+                       <property name="checked">
+                        <bool>true</bool>
+                       </property>
+                      </widget>
+                     </item>
+                     <item row="0" column="0">
+                      <widget class="QLabel" name="label_29">
+                       <property name="text">
+                        <string>Enabled : </string>
+                       </property>
                       </widget>
                      </item>
                     </layout>
@@ -899,51 +916,14 @@
                    </item>
                    <item>
                     <layout class="QGridLayout" name="gridLayout_4">
-                     <item row="2" column="1">
-                      <widget class="QDoubleSpinBox" name="SB_DATA_Position">
-                       <property name="minimum">
-                        <double>-99.000000000000000</double>
-                       </property>
-                       <property name="singleStep">
-                        <double>0.100000000000000</double>
-                       </property>
-                       <property name="value">
-                        <double>0.000000000000000</double>
-                       </property>
-                      </widget>
-                     </item>
-                     <item row="2" column="0">
-                      <widget class="QLabel" name="label_22">
-                       <property name="text">
-                        <string>Position : </string>
-                       </property>
-                      </widget>
-                     </item>
                      <item row="1" column="0">
-                      <widget class="QLabel" name="label_20">
-                       <property name="text">
-                        <string>Offset : </string>
-                       </property>
-                      </widget>
-                     </item>
-                     <item row="0" column="1">
-                      <widget class="QDoubleSpinBox" name="SB_DATA_Scale">
-                       <property name="singleStep">
-                        <double>0.100000000000000</double>
-                       </property>
-                       <property name="value">
-                        <double>1.000000000000000</double>
-                       </property>
-                      </widget>
-                     </item>
-                     <item row="0" column="0">
                       <widget class="QLabel" name="label_19">
                        <property name="text">
                         <string>Scale : </string>
                        </property>
                       </widget>
                      </item>
-                     <item row="1" column="1">
+                     <item row="2" column="1">
                       <widget class="QDoubleSpinBox" name="SB_DATA_Offset">
                        <property name="minimum">
                         <double>-99.000000000000000</double>
@@ -956,14 +936,24 @@
                        </property>
                       </widget>
                      </item>
-                     <item row="3" column="0">
+                     <item row="4" column="0">
                       <widget class="QLabel" name="label_25">
                        <property name="text">
                         <string>Bandwidth : </string>
                        </property>
                       </widget>
                      </item>
-                     <item row="3" column="1">
+                     <item row="1" column="1">
+                      <widget class="QDoubleSpinBox" name="SB_DATA_Scale">
+                       <property name="singleStep">
+                        <double>0.100000000000000</double>
+                       </property>
+                       <property name="value">
+                        <double>1.000000000000000</double>
+                       </property>
+                      </widget>
+                     </item>
+                     <item row="4" column="1">
                       <widget class="QComboBox" name="CB_DATA_BW">
                        <item>
                         <property name="text">
@@ -980,6 +970,53 @@
                          <string>20E+6</string>
                         </property>
                        </item>
+                      </widget>
+                     </item>
+                     <item row="3" column="0">
+                      <widget class="QLabel" name="label_22">
+                       <property name="text">
+                        <string>Position : </string>
+                       </property>
+                      </widget>
+                     </item>
+                     <item row="2" column="0">
+                      <widget class="QLabel" name="label_20">
+                       <property name="text">
+                        <string>Offset : </string>
+                       </property>
+                      </widget>
+                     </item>
+                     <item row="3" column="1">
+                      <widget class="QDoubleSpinBox" name="SB_DATA_Position">
+                       <property name="minimum">
+                        <double>-99.000000000000000</double>
+                       </property>
+                       <property name="singleStep">
+                        <double>0.100000000000000</double>
+                       </property>
+                       <property name="value">
+                        <double>-2.000000000000000</double>
+                       </property>
+                      </widget>
+                     </item>
+                     <item row="0" column="0">
+                      <widget class="QLabel" name="label_30">
+                       <property name="text">
+                        <string>Enabled :</string>
+                       </property>
+                      </widget>
+                     </item>
+                     <item row="0" column="1">
+                      <widget class="QCheckBox" name="ChkB_DATA_SW">
+                       <property name="text">
+                        <string/>
+                       </property>
+                       <property name="checked">
+                        <bool>true</bool>
+                       </property>
+                       <property name="tristate">
+                        <bool>false</bool>
+                       </property>
                       </widget>
                      </item>
                     </layout>
@@ -1117,23 +1154,23 @@
                     </widget>
                    </item>
                    <item>
-                    <widget class="QPushButton" name="PB_test">
+                    <widget class="QPushButton" name="PB_SETUP">
                      <property name="text">
-                      <string>test_1</string>
+                      <string>SETUP</string>
                      </property>
                     </widget>
                    </item>
                    <item>
-                    <widget class="QPushButton" name="PB_test2">
+                    <widget class="QPushButton" name="PB_SINGLE">
                      <property name="text">
-                      <string>test_2</string>
+                      <string>SINGLE</string>
                      </property>
                     </widget>
                    </item>
                    <item>
-                    <widget class="QPushButton" name="PB_test3">
+                    <widget class="QPushButton" name="PB_GETDATA">
                      <property name="text">
-                      <string>PushButton</string>
+                      <string>GETDATA</string>
                      </property>
                     </widget>
                    </item>

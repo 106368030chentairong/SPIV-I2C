@@ -1,4 +1,5 @@
 import os
+import time
 import numpy as np
 
 VIH = 1.8*0.7
@@ -16,9 +17,14 @@ class signal_process():
 
         channel_time = ch3_time
 
+        start_time = time.time()
         CLK_rows    = [(idx, item) for idx,item in enumerate(CLK_data, start=1)]
         DATA_rows   = [(idx, item) for idx,item in enumerate(DATA_data, start=1)]
+        end_time = time.time()
+        print("Process Time: %s" %(end_time-start_time))
 
+
+        start_time = time.time()
         DATA_Tf_pt = self.get_pt(DATA_rows)
         CLK_Tf_pt = self.get_pt(CLK_rows)
         DATA_PT_TMP, CLK_PT_TMP = self.plot_pt(DATA_rows, CLK_rows, DATA_Tf_pt, CLK_Tf_pt)
@@ -28,11 +34,13 @@ class signal_process():
             pt_tmp = tr_tmp
         if sw_function == "2":
             pt_tmp = tf_tmp
-
+        end_time = time.time()
+        print("Process Time: %s" %(end_time-start_time))
+        
         delay_time = str( channel_time[pt_tmp[0][0]])
         POSITION1  = str( channel_time[pt_tmp[0][0]])
         POSITION2  = str( channel_time[pt_tmp[0][1]])
-        return delay_time, POSITION1, POSITION2
+        return delay_time, pt_tmp[0], POSITION1, POSITION2
        
     def get_pt(self, rows):
         tmp = []

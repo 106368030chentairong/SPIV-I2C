@@ -24,15 +24,21 @@ class mainProgram(QtWidgets.QMainWindow, Ui_MainWindow):
         # Set main window name 
         self.setWindowTitle("I2C Auto Testting Tool V3.0.0")
 
-        # Push button
-        self.PB_test.clicked.connect(self.plot_data)
-        self.PB_test2.clicked.connect(self.Get_UI_value)
+        # Push Button
+        self.PB_SETUP.clicked.connect(lambda:self.function_test("Setup"))
+        self.PB_GETDATA.clicked.connect(lambda:self.function_test("Getdata"))
+        self.PB_SINGLE.clicked.connect(lambda:self.function_test("Single"))
+        
         self.CB_style.currentTextChanged.connect(self.change_UI_styl)
+
+        # Funtion Button
+        self.PB_Function_1.clicked.connect(lambda:self.function_test("fSCL"))
 
     def Get_UI_value(self):
         json_data = {
             "Signal" : {
                 "CLK"   : {
+                    "Enabled"   : self.ChkB_CLK_SW.isChecked(),
                     "Channel"   : self.CB_CLK_CH.currentText(),
                     "Scale"     : self.SB_CLK_Scale.value(),
                     "Offset"    : self.SB_CLK_Offset.value(),
@@ -40,6 +46,7 @@ class mainProgram(QtWidgets.QMainWindow, Ui_MainWindow):
                     "Bandwidth" : self.CB_CLK_BW.currentText(),
                 },
                 "DATA"  : {
+                    "Enabled"   : self.ChkB_DATA_SW.isChecked(),
                     "Channel"   : self.CB_DATA_CH.currentText(),
                     "Scale"     : self.SB_DATA_Scale.value(),
                     "Offset"    : self.SB_DATA_Offset.value(),
@@ -66,7 +73,7 @@ class mainProgram(QtWidgets.QMainWindow, Ui_MainWindow):
                 "Time Scale Unit" : self.CB_Time_Unit.currentText()
             }
         }
-        #print(json_data)
+        print(json_data)
         return json_data
     
     def change_UI_styl(self):
@@ -77,36 +84,38 @@ class mainProgram(QtWidgets.QMainWindow, Ui_MainWindow):
     def Diabled_Widget(self, switch):
         self.graphWidget.setEnabled(switch)
         self.graphWidget2.setEnabled(switch)
-        self.PB_test.setEnabled(switch)
-        self.PB_test2.setEnabled(switch)
-        self.PB_test3.setEnabled(switch)
+        self.PB_SETUP.setEnabled(switch)
+        self.PB_SINGLE.setEnabled(switch)
+        self.PB_SETUP.setEnabled(switch)
 
-    def plot_data(self):
+    def function_test(self, function_name):
         self.Diabled_Widget(False)
         self.thread = Runthread()
+        self.thread.function_name = function_name
         self.thread.UI_Value = self.Get_UI_value()
-        self.thread._raw_data.connect(self.Update_data)
+        self.thread._Draw_raw_data.connect(self.Draw_raw_data)
+        self.thread._Draw_point_data.connect(self.Draw_point_data)
         self.thread._done_trigger.connect(self.Done_trigger)
         self.thread._ProgressBar.connect(self.Update_ProgressBar)
         self.thread.start()
 
-        """
-        self.data1 = np.random.normal(size=300)
-        self.curve1 = self.graphWidget.plot(self.data1, name="mode1")
-
-        self.timer = pq.QtCore.QTimer()
-        self.timer.timeout.connect(self.update_data)
-        self.timer.start(50) 
-        """
-
-    def Update_data(self, msg):
+    def Draw_raw_data(self, msg):
         color_pen = {"CH1":(255,255,0), "CH2":(0,255,255), "CH3":(255,0,255), "CH4":(0,255,0)}
         if msg[0] == "CH1":
             self.graphWidget.clear()
             self.graphWidget.plot(msg[1], name="mode1", pen=color_pen[msg[0]])
+            
         else:
             self.graphWidget2.clear()
             self.graphWidget2.plot(msg[1], name="mode2", pen=color_pen[msg[0]])
+    
+    def Draw_point_data(self,msg):
+        if msg[0] == "CH1":
+            self.graphWidget.plot(msg[1][0], pen=(0,0,200), symbolBrush=(0,0,200), symbolPen='w', symbol='o', symbolSize=14, name="symbol='o'")
+            self.graphWidget.plot(msg[1][1], pen=(0,0,200), symbolBrush=(0,0,200), symbolPen='w', symbol='o', symbolSize=14, name="symbol='o'")
+        else:
+            self.graphWidget2.plot([msg[1][0][0]], pen=(0,0,200), symbolBrush=(0,0,200), symbolPen='w', symbol='o', symbolSize=14, name="symbol='o'")
+            self.graphWidget2.plot([msg[1][0][1]], pen=(0,0,200), symbolBrush=(0,0,200), symbolPen='w', symbol='o', symbolSize=14, name="symbol='o'")
 
     def Update_ProgressBar(self, msg):
         if msg[0] == "CH1":

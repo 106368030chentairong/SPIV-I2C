@@ -160,7 +160,5 @@ cython_debug/
 #.idea/
 
 *.npy
-tmp/CH1_time.npy
-tmp/CH1_wave.npy
-tmp/CH3_time.npy
-tmp/CH3_wave.npy
+tmp/*.npy
+
