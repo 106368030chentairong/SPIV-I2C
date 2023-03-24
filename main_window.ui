@@ -108,7 +108,7 @@
               </size>
              </property>
              <property name="currentIndex">
-              <number>1</number>
+              <number>2</number>
              </property>
              <widget class="QWidget" name="TW_TestPlan">
               <attribute name="title">
@@ -184,11 +184,67 @@
                  <item>
                   <layout class="QVBoxLayout" name="verticalLayout_11">
                    <item>
+                    <layout class="QVBoxLayout" name="verticalLayout_14">
+                     <item>
+                      <widget class="QLabel" name="label_42">
+                       <property name="maximumSize">
+                        <size>
+                         <width>16777215</width>
+                         <height>20</height>
+                        </size>
+                       </property>
+                       <property name="font">
+                        <font>
+                         <weight>75</weight>
+                         <italic>true</italic>
+                         <bold>true</bold>
+                         <underline>true</underline>
+                        </font>
+                       </property>
+                       <property name="text">
+                        <string>Frequency</string>
+                       </property>
+                       <property name="alignment">
+                        <set>Qt::AlignCenter</set>
+                       </property>
+                      </widget>
+                     </item>
+                     <item>
+                      <layout class="QGridLayout" name="gridLayout_18">
+                       <item row="0" column="0">
+                        <widget class="QComboBox" name="CB_Freq">
+                         <item>
+                          <property name="text">
+                           <string>400K</string>
+                          </property>
+                         </item>
+                         <item>
+                          <property name="text">
+                           <string>100K</string>
+                          </property>
+                         </item>
+                         <item>
+                          <property name="text">
+                           <string>1M</string>
+                          </property>
+                         </item>
+                         <item>
+                          <property name="text">
+                           <string>3.4M</string>
+                          </property>
+                         </item>
+                        </widget>
+                       </item>
+                      </layout>
+                     </item>
+                    </layout>
+                   </item>
+                   <item>
                     <widget class="QLabel" name="label_3">
                      <property name="maximumSize">
                       <size>
                        <width>16777215</width>
-                       <height>50</height>
+                       <height>20</height>
                       </size>
                      </property>
                      <property name="font">
@@ -305,7 +361,7 @@
                      <property name="maximumSize">
                       <size>
                        <width>16777215</width>
-                       <height>50</height>
+                       <height>20</height>
                       </size>
                      </property>
                      <property name="font">
@@ -353,7 +409,7 @@
                           <double>0.100000000000000</double>
                          </property>
                          <property name="value">
-                          <double>1.000000000000000</double>
+                          <double>0.200000000000000</double>
                          </property>
                         </widget>
                        </item>
@@ -1030,7 +1086,7 @@
                      <property name="maximumSize">
                       <size>
                        <width>16777215</width>
-                       <height>50</height>
+                       <height>20</height>
                       </size>
                      </property>
                      <property name="font">
@@ -1174,6 +1230,13 @@
                      </property>
                     </widget>
                    </item>
+                   <item>
+                    <widget class="QPushButton" name="PB_Save_Conf">
+                     <property name="text">
+                      <string>Save Value to Config</string>
+                     </property>
+                    </widget>
+                   </item>
                   </layout>
                  </item>
                  <item>
@@ -1189,141 +1252,469 @@
              </widget>
              <widget class="QWidget" name="tab">
               <attribute name="title">
-               <string>Page</string>
+               <string>Function</string>
               </attribute>
               <layout class="QGridLayout" name="gridLayout_13">
                <item row="0" column="0">
-                <layout class="QVBoxLayout" name="verticalLayout" stretch="1,9">
+                <layout class="QVBoxLayout" name="verticalLayout" stretch="0">
                  <item>
-                  <widget class="QLabel" name="label_28">
-                   <property name="maximumSize">
-                    <size>
-                     <width>16777215</width>
-                     <height>50</height>
-                    </size>
+                  <layout class="QHBoxLayout" name="horizontalLayout_6" stretch="0,2">
+                   <property name="spacing">
+                    <number>6</number>
                    </property>
-                   <property name="font">
-                    <font>
-                     <pointsize>9</pointsize>
-                     <weight>75</weight>
-                     <italic>true</italic>
-                     <bold>true</bold>
-                     <underline>true</underline>
-                    </font>
+                   <property name="sizeConstraint">
+                    <enum>QLayout::SetMinimumSize</enum>
                    </property>
-                   <property name="text">
-                    <string>Function</string>
-                   </property>
-                   <property name="alignment">
-                    <set>Qt::AlignCenter</set>
-                   </property>
-                  </widget>
-                 </item>
-                 <item>
-                  <layout class="QGridLayout" name="gridLayout_14">
-                   <item row="0" column="2">
-                    <widget class="QPushButton" name="PB_Function_3">
-                     <property name="text">
-                      <string>tLOW</string>
-                     </property>
-                    </widget>
+                   <item>
+                    <layout class="QGridLayout" name="gridLayout_15">
+                     <item row="0" column="0">
+                      <widget class="QPushButton" name="PB_Function_1">
+                       <property name="text">
+                        <string>fSCL</string>
+                       </property>
+                      </widget>
+                     </item>
+                     <item row="1" column="0">
+                      <widget class="QPushButton" name="PB_Function_2">
+                       <property name="text">
+                        <string>tHD;STA</string>
+                       </property>
+                      </widget>
+                     </item>
+                     <item row="5" column="0">
+                      <widget class="QPushButton" name="PB_Function_6">
+                       <property name="text">
+                        <string>PushButton</string>
+                       </property>
+                      </widget>
+                     </item>
+                     <item row="2" column="0">
+                      <widget class="QPushButton" name="PB_Function_3">
+                       <property name="text">
+                        <string>tLOW</string>
+                       </property>
+                      </widget>
+                     </item>
+                     <item row="6" column="0">
+                      <widget class="QPushButton" name="PB_Function_7">
+                       <property name="text">
+                        <string>PushButton</string>
+                       </property>
+                      </widget>
+                     </item>
+                     <item row="4" column="0">
+                      <widget class="QPushButton" name="PB_Function_5">
+                       <property name="text">
+                        <string>tHD;DAT</string>
+                       </property>
+                      </widget>
+                     </item>
+                     <item row="3" column="0">
+                      <widget class="QPushButton" name="PB_Function_4">
+                       <property name="text">
+                        <string>tHIGH</string>
+                       </property>
+                      </widget>
+                     </item>
+                     <item row="0" column="1">
+                      <widget class="QPushButton" name="PB_Function_8">
+                       <property name="text">
+                        <string>PushButton</string>
+                       </property>
+                      </widget>
+                     </item>
+                     <item row="1" column="1">
+                      <widget class="QPushButton" name="PB_Function_9">
+                       <property name="text">
+                        <string>PushButton</string>
+                       </property>
+                      </widget>
+                     </item>
+                     <item row="2" column="1">
+                      <widget class="QPushButton" name="PB_Function_10">
+                       <property name="text">
+                        <string>PushButton</string>
+                       </property>
+                      </widget>
+                     </item>
+                     <item row="3" column="1">
+                      <widget class="QPushButton" name="PB_Function_11">
+                       <property name="text">
+                        <string>PushButton</string>
+                       </property>
+                      </widget>
+                     </item>
+                     <item row="4" column="1">
+                      <widget class="QPushButton" name="PB_Function_12">
+                       <property name="text">
+                        <string>PushButton</string>
+                       </property>
+                      </widget>
+                     </item>
+                     <item row="5" column="1">
+                      <widget class="QPushButton" name="PB_Function_13">
+                       <property name="text">
+                        <string>PushButton</string>
+                       </property>
+                      </widget>
+                     </item>
+                     <item row="6" column="1">
+                      <widget class="QPushButton" name="pushButton_14">
+                       <property name="text">
+                        <string>PushButton</string>
+                       </property>
+                      </widget>
+                     </item>
+                    </layout>
                    </item>
-                   <item row="1" column="2">
-                    <widget class="QPushButton" name="PB_Function_8">
-                     <property name="text">
-                      <string>PushButton</string>
+                   <item>
+                    <widget class="QFrame" name="frame_2">
+                     <property name="frameShape">
+                      <enum>QFrame::Box</enum>
                      </property>
-                    </widget>
-                   </item>
-                   <item row="0" column="4">
-                    <widget class="QPushButton" name="PB_Function_5">
-                     <property name="text">
-                      <string>tHD;DAT</string>
+                     <property name="frameShadow">
+                      <enum>QFrame::Sunken</enum>
                      </property>
-                    </widget>
-                   </item>
-                   <item row="0" column="0">
-                    <widget class="QPushButton" name="PB_Function_1">
-                     <property name="text">
-                      <string>fSCL</string>
+                     <property name="lineWidth">
+                      <number>3</number>
                      </property>
-                    </widget>
-                   </item>
-                   <item row="3" column="3">
-                    <widget class="QPushButton" name="pushButton_14">
-                     <property name="text">
-                      <string>PushButton</string>
+                     <property name="midLineWidth">
+                      <number>1</number>
                      </property>
-                    </widget>
-                   </item>
-                   <item row="1" column="4">
-                    <widget class="QPushButton" name="PB_Function_10">
-                     <property name="text">
-                      <string>PushButton</string>
-                     </property>
-                    </widget>
-                   </item>
-                   <item row="3" column="2">
-                    <widget class="QPushButton" name="PB_Function_13">
-                     <property name="text">
-                      <string>PushButton</string>
-                     </property>
-                    </widget>
-                   </item>
-                   <item row="1" column="0">
-                    <widget class="QPushButton" name="PB_Function_6">
-                     <property name="text">
-                      <string>PushButton</string>
-                     </property>
-                    </widget>
-                   </item>
-                   <item row="1" column="3">
-                    <widget class="QPushButton" name="PB_Function_9">
-                     <property name="text">
-                      <string>PushButton</string>
-                     </property>
-                    </widget>
-                   </item>
-                   <item row="3" column="0">
-                    <widget class="QPushButton" name="PB_Function_11">
-                     <property name="text">
-                      <string>PushButton</string>
-                     </property>
-                    </widget>
-                   </item>
-                   <item row="3" column="4">
-                    <widget class="QPushButton" name="pushButton_15">
-                     <property name="text">
-                      <string>PushButton</string>
-                     </property>
-                    </widget>
-                   </item>
-                   <item row="1" column="1">
-                    <widget class="QPushButton" name="PB_Function_7">
-                     <property name="text">
-                      <string>PushButton</string>
-                     </property>
-                    </widget>
-                   </item>
-                   <item row="0" column="1">
-                    <widget class="QPushButton" name="PB_Function_2">
-                     <property name="text">
-                      <string>tHD;STA</string>
-                     </property>
-                    </widget>
-                   </item>
-                   <item row="3" column="1">
-                    <widget class="QPushButton" name="PB_Function_12">
-                     <property name="text">
-                      <string>PushButton</string>
-                     </property>
-                    </widget>
-                   </item>
-                   <item row="0" column="3">
-                    <widget class="QPushButton" name="PB_Function_4">
-                     <property name="text">
-                      <string>tHIGH</string>
-                     </property>
+                     <layout class="QVBoxLayout" name="verticalLayout_12">
+                      <item>
+                       <widget class="QLabel" name="LB_Func_Name">
+                        <property name="maximumSize">
+                         <size>
+                          <width>16777215</width>
+                          <height>20</height>
+                         </size>
+                        </property>
+                        <property name="font">
+                         <font>
+                          <weight>75</weight>
+                          <italic>false</italic>
+                          <bold>true</bold>
+                          <underline>true</underline>
+                         </font>
+                        </property>
+                        <property name="text">
+                         <string>Function Name</string>
+                        </property>
+                        <property name="alignment">
+                         <set>Qt::AlignCenter</set>
+                        </property>
+                       </widget>
+                      </item>
+                      <item>
+                       <widget class="Line" name="line_7">
+                        <property name="orientation">
+                         <enum>Qt::Horizontal</enum>
+                        </property>
+                       </widget>
+                      </item>
+                      <item>
+                       <layout class="QHBoxLayout" name="horizontalLayout_8">
+                        <item>
+                         <layout class="QVBoxLayout" name="verticalLayout_3">
+                          <item>
+                           <widget class="QLabel" name="label_28">
+                            <property name="maximumSize">
+                             <size>
+                              <width>16777215</width>
+                              <height>50</height>
+                             </size>
+                            </property>
+                            <property name="font">
+                             <font>
+                              <weight>75</weight>
+                              <italic>true</italic>
+                              <bold>true</bold>
+                              <underline>true</underline>
+                             </font>
+                            </property>
+                            <property name="text">
+                             <string>CLK</string>
+                            </property>
+                            <property name="alignment">
+                             <set>Qt::AlignCenter</set>
+                            </property>
+                           </widget>
+                          </item>
+                          <item>
+                           <layout class="QGridLayout" name="gridLayout_14">
+                            <item row="3" column="0">
+                             <widget class="QLabel" name="label_38">
+                              <property name="text">
+                               <string>Position : </string>
+                              </property>
+                             </widget>
+                            </item>
+                            <item row="0" column="0">
+                             <widget class="QLabel" name="label_32">
+                              <property name="text">
+                               <string>Enabled : </string>
+                              </property>
+                             </widget>
+                            </item>
+                            <item row="1" column="0">
+                             <widget class="QLabel" name="label_33">
+                              <property name="text">
+                               <string>Scale : </string>
+                              </property>
+                             </widget>
+                            </item>
+                            <item row="1" column="1">
+                             <widget class="QDoubleSpinBox" name="SB_CLK_Scale_Fc"/>
+                            </item>
+                            <item row="2" column="1">
+                             <widget class="QDoubleSpinBox" name="SB_CLK_Offset_Fc"/>
+                            </item>
+                            <item row="2" column="0">
+                             <widget class="QLabel" name="label_34">
+                              <property name="text">
+                               <string>Offset : </string>
+                              </property>
+                             </widget>
+                            </item>
+                            <item row="0" column="1">
+                             <widget class="QCheckBox" name="ChkB_CLK_SW_Fc">
+                              <property name="text">
+                               <string/>
+                              </property>
+                              <property name="checked">
+                               <bool>true</bool>
+                              </property>
+                             </widget>
+                            </item>
+                            <item row="3" column="1">
+                             <widget class="QDoubleSpinBox" name="SB_CLK_Position_Fc"/>
+                            </item>
+                           </layout>
+                          </item>
+                         </layout>
+                        </item>
+                        <item>
+                         <widget class="Line" name="line_8">
+                          <property name="orientation">
+                           <enum>Qt::Vertical</enum>
+                          </property>
+                         </widget>
+                        </item>
+                        <item>
+                         <layout class="QVBoxLayout" name="verticalLayout_2">
+                          <item>
+                           <widget class="QLabel" name="label_31">
+                            <property name="maximumSize">
+                             <size>
+                              <width>16777215</width>
+                              <height>50</height>
+                             </size>
+                            </property>
+                            <property name="font">
+                             <font>
+                              <weight>75</weight>
+                              <italic>true</italic>
+                              <bold>true</bold>
+                              <underline>true</underline>
+                             </font>
+                            </property>
+                            <property name="text">
+                             <string>DATA</string>
+                            </property>
+                            <property name="alignment">
+                             <set>Qt::AlignCenter</set>
+                            </property>
+                           </widget>
+                          </item>
+                          <item>
+                           <layout class="QGridLayout" name="gridLayout_16">
+                            <item row="0" column="0">
+                             <widget class="QLabel" name="label_35">
+                              <property name="text">
+                               <string>Enabled : </string>
+                              </property>
+                             </widget>
+                            </item>
+                            <item row="1" column="0">
+                             <widget class="QLabel" name="label_36">
+                              <property name="text">
+                               <string>Scale : </string>
+                              </property>
+                             </widget>
+                            </item>
+                            <item row="1" column="1">
+                             <widget class="QDoubleSpinBox" name="SB_DATA_Scale_Fc"/>
+                            </item>
+                            <item row="3" column="0">
+                             <widget class="QLabel" name="label_41">
+                              <property name="text">
+                               <string>Position : </string>
+                              </property>
+                             </widget>
+                            </item>
+                            <item row="2" column="1">
+                             <widget class="QDoubleSpinBox" name="SB_DATA_Offset_Fc"/>
+                            </item>
+                            <item row="3" column="1">
+                             <widget class="QDoubleSpinBox" name="SB_DATA_Position_Fc"/>
+                            </item>
+                            <item row="2" column="0">
+                             <widget class="QLabel" name="label_37">
+                              <property name="text">
+                               <string>Offset : </string>
+                              </property>
+                             </widget>
+                            </item>
+                            <item row="0" column="1">
+                             <widget class="QCheckBox" name="ChkB_DATA_SW_Fc">
+                              <property name="text">
+                               <string/>
+                              </property>
+                              <property name="checked">
+                               <bool>true</bool>
+                              </property>
+                             </widget>
+                            </item>
+                           </layout>
+                          </item>
+                         </layout>
+                        </item>
+                        <item>
+                         <widget class="Line" name="line">
+                          <property name="orientation">
+                           <enum>Qt::Vertical</enum>
+                          </property>
+                         </widget>
+                        </item>
+                        <item>
+                         <layout class="QVBoxLayout" name="verticalLayout_13">
+                          <item>
+                           <widget class="QLabel" name="label_39">
+                            <property name="maximumSize">
+                             <size>
+                              <width>16777215</width>
+                              <height>50</height>
+                             </size>
+                            </property>
+                            <property name="font">
+                             <font>
+                              <weight>75</weight>
+                              <italic>true</italic>
+                              <bold>true</bold>
+                              <underline>true</underline>
+                             </font>
+                            </property>
+                            <property name="text">
+                             <string>Horizontal</string>
+                            </property>
+                            <property name="alignment">
+                             <set>Qt::AlignCenter</set>
+                            </property>
+                           </widget>
+                          </item>
+                          <item>
+                           <layout class="QGridLayout" name="gridLayout_17">
+                            <item row="0" column="0">
+                             <widget class="QDoubleSpinBox" name="SB_Time_Value_Fc">
+                              <property name="minimum">
+                               <double>-100.000000000000000</double>
+                              </property>
+                              <property name="maximum">
+                               <double>100.000000000000000</double>
+                              </property>
+                              <property name="singleStep">
+                               <double>0.100000000000000</double>
+                              </property>
+                              <property name="value">
+                               <double>100.000000000000000</double>
+                              </property>
+                             </widget>
+                            </item>
+                            <item row="0" column="1">
+                             <widget class="QComboBox" name="CB_Time_Unit_Fc">
+                              <item>
+                               <property name="text">
+                                <string>E-9</string>
+                               </property>
+                              </item>
+                              <item>
+                               <property name="text">
+                                <string>E-3</string>
+                               </property>
+                              </item>
+                              <item>
+                               <property name="text">
+                                <string>E-6</string>
+                               </property>
+                              </item>
+                              <item>
+                               <property name="text">
+                                <string>E-12</string>
+                               </property>
+                              </item>
+                             </widget>
+                            </item>
+                           </layout>
+                          </item>
+                         </layout>
+                        </item>
+                        <item>
+                         <widget class="Line" name="line_9">
+                          <property name="orientation">
+                           <enum>Qt::Vertical</enum>
+                          </property>
+                         </widget>
+                        </item>
+                        <item>
+                         <layout class="QVBoxLayout" name="verticalLayout_16">
+                          <item>
+                           <widget class="QLabel" name="label_40">
+                            <property name="maximumSize">
+                             <size>
+                              <width>16777215</width>
+                              <height>50</height>
+                             </size>
+                            </property>
+                            <property name="font">
+                             <font>
+                              <weight>75</weight>
+                              <italic>true</italic>
+                              <bold>true</bold>
+                              <underline>true</underline>
+                             </font>
+                            </property>
+                            <property name="text">
+                             <string>RUN &amp; SAVE</string>
+                            </property>
+                            <property name="alignment">
+                             <set>Qt::AlignCenter</set>
+                            </property>
+                           </widget>
+                          </item>
+                          <item>
+                           <layout class="QGridLayout" name="gridLayout_19">
+                            <item row="0" column="0">
+                             <widget class="QPushButton" name="PB_RUN_Fc">
+                              <property name="text">
+                               <string>RUN</string>
+                              </property>
+                             </widget>
+                            </item>
+                            <item row="1" column="0">
+                             <widget class="QPushButton" name="PB_SAVE_Fc">
+                              <property name="text">
+                               <string>Save Value to Config</string>
+                              </property>
+                             </widget>
+                            </item>
+                           </layout>
+                          </item>
+                         </layout>
+                        </item>
+                       </layout>
+                      </item>
+                     </layout>
                     </widget>
                    </item>
                   </layout>

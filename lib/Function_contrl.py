@@ -59,10 +59,8 @@ class Controller(object):
         self.scope.do_command('HORizontal:RECOrdlength %s'      %(RECOrdlength))
         self.scope.do_command('HORizontal:SAMPLERate %s'        %(SAMPLERate))
         self.scope.do_command('FPAnel:PRESS MENUOff')
-        self.scope.do_command('SELECT:CH1 OFF')
-        self.scope.do_command('SELECT:CH2 OFF')
-        self.scope.do_command('SELECT:CH3 OFF')
-        self.scope.do_command('SELECT:CH4 OFF')
+        for idx in range(1,5):
+            self.scope.do_command('SELECT:CH%s OFF' %(idx))
         self.scope.do_command('DISplay:PERSistence OFF')
         self.scope.do_command('ACQuire:MODe SAMple') # {SAMple|PEAKdetect|HIRes|AVErage|ENVelope}
         self.scope.close()
@@ -186,5 +184,35 @@ class Controller(object):
         self.scope.do_command('CURSor:VBArs:POSITION2 %s' %(VBArs_pos_2))
         self.scope.do_command('CURSOR:HBARS:POSITION1 %s' %(HBARS_pos_1))
         self.scope.do_command('CURSOR:HBARS:POSITION2 %s' %(HBARS_pos_2))
+
+        self.scope.close()
+    
+    def Measure_setup(self, ch_num):
+        self.scope = DPO4000()
+        self.scope.connected(self.visa_add)
+
+        for idx in range(1,9):
+            self.scope.do_command('MEASUrement:MEAS%s:STATE OFF'    %(idx))
+        self.scope.do_command('MEASUrement:MEAS%s:SOURCE1 %s'       %(1, ch_num))
+        self.scope.do_command('MEASUrement:MEAS%s:TYPe %s'          %(1, "Rise"))
+        self.scope.do_command('MEASUrement:REFLEVEL:PERCENT:HIGH 70')
+        self.scope.do_command('MEASUrement:REFLEVEL:PERCENT:MID 1 50')
+        self.scope.do_command('MEASUrement:REFLEVEL:PERCENT:MID 2 50')
+        self.scope.do_command('MEASUrement:REFLEVEL:PERCENT:LOW 30')
+        self.scope.do_command('MEASUrement:MEAS%s:STATE ON'         %(1))
+
+        self.scope.close()
+    
+    def Dispaly_single(self, ch_num, POSition, V_scale):
+        self.scope = DPO4000()
+        self.scope.connected(self.visa_add)
+
+        for idx in range(1,5):
+            self.scope.do_command('SELECT:CH%s OFF' %(idx))
+        
+        self.scope.do_command('SELECT:%s ON' %(ch_num))
+
+        self.scope.do_command('%s:POSition %s'    %(ch_num, POSition))
+        self.scope.do_command('%s:SCAle %s'       %(ch_num, V_scale))
 
         self.scope.close()

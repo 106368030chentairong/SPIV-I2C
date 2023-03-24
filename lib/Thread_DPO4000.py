@@ -105,11 +105,15 @@ class Runthread(QtCore.QThread):
                             self.UI_Value["Signal"]["DATA"]["Offset"],
                             self.UI_Value["Signal"]["DATA"]["Position"],
                             self.UI_Value["Signal"]["DATA"]["Bandwidth"])
+            Control_model.Measure_setup(self.UI_Value["Signal"]["DATA"]["Channel"])
+            Control_model.Dispaly_single(self.UI_Value["Signal"]["DATA"]["Channel"],
+                                        -2,
+                                        0.5)
 
         try:
             Signal_model = signal_process()
             delay_time, pt_tmp, POSITION1, POSITION2 = Signal_model.Load_data("1")
-            self._Draw_point_data.emit(["CH3",pt_tmp])
+            #self._Draw_point_data.emit(["CH3",pt_tmp])
             Control_model.Cursors_control(delay_time, POSITION1, POSITION2, 0.54, 1.26 )
         except Exception as e:
             pass

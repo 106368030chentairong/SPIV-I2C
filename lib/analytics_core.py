@@ -36,10 +36,11 @@ class signal_process():
             pt_tmp = tf_tmp
         end_time = time.time()
         print("Process Time: %s" %(end_time-start_time))
+
         
-        delay_time = str( channel_time[pt_tmp[0][0]])
-        POSITION1  = str( channel_time[pt_tmp[0][0]])
-        POSITION2  = str( channel_time[pt_tmp[0][1]])
+        POSITION1  = channel_time[pt_tmp[0][0]]
+        POSITION2  = channel_time[pt_tmp[0][1]]
+        delay_time = POSITION1 + abs((POSITION2 - POSITION1)/2)
         return delay_time, pt_tmp[0], POSITION1, POSITION2
        
     def get_pt(self, rows):

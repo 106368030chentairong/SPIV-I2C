@@ -1,4 +1,5 @@
 import sys, os
+import json
 
 from PyQt5 import QtCore, QtWidgets
 from PyQt5.QtWidgets import *
@@ -14,15 +15,21 @@ from qt_material import apply_stylesheet
 # import from lib 
 from lib.Thread_DPO4000 import *
 
+
+
 class mainProgram(QtWidgets.QMainWindow, Ui_MainWindow):
     def __init__(self, parent=None):
         super(mainProgram, self).__init__(parent)
         self.setupUi(self)
         self.change_UI_styl()
-        self.Get_UI_value()
+        #self.Get_Default_UI_value()
 
         # Set main window name 
         self.setWindowTitle("I2C Auto Testting Tool V3.0.0")
+
+        self.file_name = './config/DPO4000_setup.json'
+
+        self.Set_Fnuction_UI_value(self.CB_Freq.currentText(), "fSCL")
 
         # Push Button
         self.PB_SETUP.clicked.connect(lambda:self.function_test("Setup"))
@@ -32,10 +39,16 @@ class mainProgram(QtWidgets.QMainWindow, Ui_MainWindow):
         self.CB_style.currentTextChanged.connect(self.change_UI_styl)
 
         # Funtion Button
-        self.PB_Function_1.clicked.connect(lambda:self.function_test("fSCL"))
+        self.PB_Save_Conf.clicked.connect(lambda:self.Get_Default_UI_value(self.CB_Freq.currentText()))
+        self.PB_SAVE_Fc.clicked.connect(lambda:self.Get_Fnuction_UI_value(self.CB_Freq.currentText(),
+                                                                          self.LB_Func_Name.text(),))
+        
+        self.PB_Function_1.clicked.connect(lambda:self.Set_Fnuction_UI_value(self.CB_Freq.currentText(),"fSCL"))
+        self.PB_Function_2.clicked.connect(lambda:self.Set_Fnuction_UI_value(self.CB_Freq.currentText(),"tHD_STA"))
 
-    def Get_UI_value(self):
-        json_data = {
+
+    def Get_Default_UI_value(self, Freq):
+        Value_data = {
             "Signal" : {
                 "CLK"   : {
                     "Enabled"   : self.ChkB_CLK_SW.isChecked(),
@@ -73,9 +86,86 @@ class mainProgram(QtWidgets.QMainWindow, Ui_MainWindow):
                 "Time Scale Unit" : self.CB_Time_Unit.currentText()
             }
         }
-        print(json_data)
+        
+        with open(self.file_name, "r", encoding='UTF-8') as config_file:
+            json_data = json.load(config_file)
+
+        json_data[Freq]["Default_Setup"] = Value_data
+
+        with open(self.file_name, 'w') as f:
+            json.dump(json_data, f)
+        
         return json_data
-    
+
+    def Get_Fnuction_UI_value(self, Freq, Fun_name):
+        Value_data = {
+            "Signal" : {
+                "CLK"   : {
+                    "Enabled"   : self.ChkB_CLK_SW_Fc.isChecked(),
+                    "Scale"     : self.SB_CLK_Scale_Fc.value(),
+                    "Offset"    : self.SB_CLK_Offset_Fc.value(),
+                    "Position"  : self.SB_CLK_Position_Fc.value(),
+                },
+                "DATA"  : {
+                    "Enabled"   : self.ChkB_DATA_SW_Fc.isChecked(),
+                    "Scale"     : self.SB_DATA_Scale_Fc.value(),
+                    "Offset"    : self.SB_DATA_Offset_Fc.value(),
+                    "Position"  : self.SB_DATA_Position_Fc.value(),
+                }
+            },
+            "Horizontal" : {
+                "Time Scale" : self.SB_Time_Value_Fc.value(),
+                "Time Scale Unit" : self.CB_Time_Unit_Fc.currentText()
+            }
+        }
+
+        with open(self.file_name, "r", encoding='UTF-8') as config_file:
+            json_data = json.load(config_file)
+
+        json_data[Freq]["Function_Setup"][Fun_name] = Value_data
+
+        with open(self.file_name, 'w') as f:
+            json.dump(json_data, f)
+
+        return json_data
+
+    def Set_Fnuction_UI_value(self, Freq, Fun_name):
+        self.LB_Func_Name.setText(Fun_name)
+
+        with open(self.file_name, "r", encoding='UTF-8') as config_file:
+            json_data = json.load(config_file)
+
+        try:
+            print("Debug 1")
+            self.ChkB_CLK_SW_Fc.setChecked(json_data[Freq]["Function_Setup"][Fun_name]["Signal"]["CLK"]["Enabled"])
+            self.SB_CLK_Scale_Fc.setValue(json_data[Freq]["Function_Setup"][Fun_name]["Signal"]["CLK"]["Scale"])
+            self.SB_CLK_Offset_Fc.setValue(json_data[Freq]["Function_Setup"][Fun_name]["Signal"]["CLK"]["Offset"])
+            self.SB_CLK_Position_Fc.setValue(json_data[Freq]["Function_Setup"][Fun_name]["Signal"]["CLK"]["Position"])
+
+            self.ChkB_DATA_SW_Fc.setChecked(json_data[Freq]["Function_Setup"][Fun_name]["Signal"]["DATA"]["Enabled"])
+            self.SB_DATA_Scale_Fc.setValue(json_data[Freq]["Function_Setup"][Fun_name]["Signal"]["DATA"]["Scale"])
+            self.SB_DATA_Offset_Fc.setValue(json_data[Freq]["Function_Setup"][Fun_name]["Signal"]["DATA"]["Offset"])
+            self.SB_DATA_Position_Fc.setValue(json_data[Freq]["Function_Setup"][Fun_name]["Signal"]["DATA"]["Position"])
+
+            self.SB_Time_Value_Fc.setValue(json_data[Freq]["Function_Setup"][Fun_name]["Horizontal"]["Time Scale"])
+            self.CB_Time_Unit_Fc.setCurrentText(json_data[Freq]["Function_Setup"][Fun_name]["Horizontal"]["Time Scale Unit"])
+            print("Debug 2")
+        except Exception as e:
+            print(e)
+            self.ChkB_CLK_SW_Fc.setChecked(True)
+            self.SB_CLK_Scale_Fc.setValue(0)
+            self.SB_CLK_Offset_Fc.setValue(0)
+            self.SB_CLK_Position_Fc.setValue(0)
+
+            self.ChkB_DATA_SW_Fc.setChecked(True)
+            self.SB_DATA_Scale_Fc.setValue(0)
+            self.SB_DATA_Offset_Fc.setValue(0)
+            self.SB_DATA_Position_Fc.setValue(0)
+
+            self.SB_Time_Value_Fc.setValue(100)
+            self.CB_Time_Unit_Fc.setCurrentText("E+9")
+            self.Get_Fnuction_UI_value(Freq,Fun_name)
+
     def change_UI_styl(self):
         self.PB_CLK.hide()
         self.PB_DATA.hide()
@@ -92,7 +182,7 @@ class mainProgram(QtWidgets.QMainWindow, Ui_MainWindow):
         self.Diabled_Widget(False)
         self.thread = Runthread()
         self.thread.function_name = function_name
-        self.thread.UI_Value = self.Get_UI_value()
+        self.thread.UI_Value = self.Get_Default_UI_value()
         self.thread._Draw_raw_data.connect(self.Draw_raw_data)
         self.thread._Draw_point_data.connect(self.Draw_point_data)
         self.thread._done_trigger.connect(self.Done_trigger)
