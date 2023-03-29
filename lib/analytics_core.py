@@ -7,42 +7,97 @@ VIL = 1.8*0.3
 
 class signal_process():
     def __init__(self) -> None:
-        pass
+        self.CLK_Volts  = None
+        self.CLK_Time   = None
+        self.DATA_Volts = None
+        self.DATA_Time  = None
+
+        self.DATA_PT_TMP = None
+        self.CLK_PT_TMP  = None
     
-    def Load_data(self, sw_function):
-        CLK_data    = np.load('./tmp/CH1_wave.npy')
-        DATA_data   = np.load('./tmp/CH3_wave.npy')
-        ch1_time    = np.load('./tmp/CH1_time.npy')
-        ch3_time   = np.load('./tmp/CH3_time.npy')
-
-        channel_time = ch3_time
-
+    def Load_data(self):
         start_time = time.time()
-        CLK_rows    = [(idx, item) for idx,item in enumerate(CLK_data, start=1)]
-        DATA_rows   = [(idx, item) for idx,item in enumerate(DATA_data, start=1)]
+        CLK_rows    = [(idx, item) for idx,item in enumerate(self.CLK_Volts, start=1)]
+        DATA_rows   = [(idx, item) for idx,item in enumerate(self.DATA_Volts, start=1)]
         end_time = time.time()
         print("Process Time: %s" %(end_time-start_time))
 
-
         start_time = time.time()
-        DATA_Tf_pt = self.get_pt(DATA_rows)
         CLK_Tf_pt = self.get_pt(CLK_rows)
-        DATA_PT_TMP, CLK_PT_TMP = self.plot_pt(DATA_rows, CLK_rows, DATA_Tf_pt, CLK_Tf_pt)
-        
-        _, tf_tmp, tr_tmp = self.get_tr_tf(DATA_PT_TMP)
-        if sw_function == "1":
-            pt_tmp = tr_tmp
-        if sw_function == "2":
-            pt_tmp = tf_tmp
+        DATA_Tf_pt = self.get_pt(DATA_rows)
+        self.DATA_PT_TMP, self.CLK_PT_TMP = self.plot_pt(DATA_rows, CLK_rows, DATA_Tf_pt, CLK_Tf_pt)
         end_time = time.time()
         print("Process Time: %s" %(end_time-start_time))
 
-        
-        POSITION1  = channel_time[pt_tmp[0][0]]
-        POSITION2  = channel_time[pt_tmp[0][1]]
-        delay_time = POSITION1 + abs((POSITION2 - POSITION1)/2)
-        return delay_time, pt_tmp[0], POSITION1, POSITION2
-       
+    def function_process(self, ch_name = None, function_name = None):
+        if function_name != None:
+            if function_name == "tRISE" or function_name == "tFALL":
+                if ch_name != None:
+                    if function_name == "tRISE":
+                        if ch_name == "CLK":
+                            _, tf_tmp, tr_tmp = self.get_tr_tf(self.CLK_PT_TMP)
+                            POSITION1  = self.CLK_Time[tr_tmp[0][0]]
+                            POSITION2  = self.CLK_Time[tr_tmp[0][1]]
+                        if ch_name == "DATA":
+                            _, tf_tmp, tr_tmp = self.get_tr_tf(self.DATA_PT_TMP)
+                            POSITION1  = self.DATA_Time[tr_tmp[0][0]]
+                            POSITION2  = self.DATA_Time[tr_tmp[0][1]]
+                        delay_time = POSITION1 + abs((POSITION2 - POSITION1)/2)
+                    elif function_name == "tFALL":
+                        if ch_name == "CLK":
+                            _, tf_tmp, tr_tmp = self.get_tr_tf(self.CLK_PT_TMP)
+                            POSITION1  = self.CLK_Time[tf_tmp[0][1]]
+                            POSITION2  = self.CLK_Time[tf_tmp[0][0]]
+                        if ch_name == "DATA":
+                            _, tf_tmp, tr_tmp = self.get_tr_tf(self.DATA_PT_TMP)
+                            POSITION1  = self.DATA_Time[tf_tmp[0][1]]
+                            POSITION2  = self.DATA_Time[tf_tmp[0][0]]
+                        delay_time = POSITION1 + abs((POSITION2 - POSITION1)/2)
+
+
+                    return delay_time,{"Post1_ch"   : ch_name,
+                                       "Post1_time" : POSITION1,
+                                       "Post1_volts": 0.54,
+                                       "Post2_ch"   : ch_name,
+                                       "Post2_time" : POSITION2,
+                                       "Post2_volts": 1.26,}
+                
+            if function_name == "tLOW":
+                if ch_name != None:
+                    if ch_name == "CLK":
+                        _, L_time = self.get_HL_Time(self.CLK_PT_TMP)
+                        POSITION1  = self.CLK_Time[L_time[0][0]]
+                        POSITION2  = self.CLK_Time[L_time[0][1]]
+                    if ch_name == "DATA":
+                        _, L_time  = self.get_HL_Time(self.DATA_PT_TMP)
+                        POSITION1  = self.DATA_Time[L_time[0][1]]
+                        POSITION2  = self.DATA_Time[L_time[0][0]]
+                    delay_time = POSITION1 + abs((POSITION2 - POSITION1)/2)
+                    return delay_time,{"Post1_ch"   : ch_name,
+                                        "Post1_time" : POSITION1,
+                                        "Post1_volts": 0.54,
+                                        "Post2_ch"   : ch_name,
+                                        "Post2_time" : POSITION2,
+                                        "Post2_volts": 0.54,}
+
+            if function_name == "tHIGH":
+                if ch_name != None:
+                    if ch_name == "CLK":
+                        H_time, _ = self.get_HL_Time(self.CLK_PT_TMP)
+                        POSITION1  = self.CLK_Time[H_time[0][0]]
+                        POSITION2  = self.CLK_Time[H_time[0][1]]
+                    if ch_name == "DATA":
+                        H_time, _ = self.get_HL_Time(self.DATA_PT_TMP)
+                        POSITION1  = self.DATA_Time[H_time[0][1]]
+                        POSITION2  = self.DATA_Time[H_time[0][0]]
+                    delay_time = POSITION1 + abs((POSITION2 - POSITION1)/2)
+                    return delay_time,{"Post1_ch"   : ch_name,
+                                        "Post1_time" : POSITION1,
+                                        "Post1_volts": 1.26,
+                                        "Post2_ch"   : ch_name,
+                                        "Post2_time" : POSITION2,
+                                        "Post2_volts": 1.26,}
+
     def get_pt(self, rows):
         tmp = []
         VIH_list = [] 
@@ -163,3 +218,20 @@ class signal_process():
                 continue
 
         return all_pt, tf_tmp, tr_tmp
+
+    def get_HL_Time(self, CLK_Tf_pt):
+        H_time = []
+        L_time = []
+        for i in range(int(len(CLK_Tf_pt))):
+            try:
+                pt_s = int(CLK_Tf_pt[i][0])
+                pt_e = int(CLK_Tf_pt[i+1][0])
+                if abs(CLK_Tf_pt[i][1]-CLK_Tf_pt[i+1][1]) <= 0.5:
+                    if CLK_Tf_pt[i][1] <= 1 and CLK_Tf_pt[i+1][1] <= 1:
+                        L_time.append([pt_s,pt_e])
+                    if CLK_Tf_pt[i][1] >= 1 and CLK_Tf_pt[i+1][1] >= 1:
+                        H_time.append([pt_s,pt_e])
+            except Exception as e:
+                continue
+        print(L_time)
+        return H_time, L_time

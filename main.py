@@ -15,8 +15,6 @@ from qt_material import apply_stylesheet
 # import from lib 
 from lib.Thread_DPO4000 import *
 
-
-
 class mainProgram(QtWidgets.QMainWindow, Ui_MainWindow):
     def __init__(self, parent=None):
         super(mainProgram, self).__init__(parent)
@@ -41,11 +39,27 @@ class mainProgram(QtWidgets.QMainWindow, Ui_MainWindow):
         # Funtion Button
         self.PB_Save_Conf.clicked.connect(lambda:self.Get_Default_UI_value(self.CB_Freq.currentText()))
         self.PB_SAVE_Fc.clicked.connect(lambda:self.Get_Fnuction_UI_value(self.CB_Freq.currentText(),
-                                                                          self.LB_Func_Name.text(),))
+                                                                          self.LB_Func_Name.text()))
         
         self.PB_Function_1.clicked.connect(lambda:self.Set_Fnuction_UI_value(self.CB_Freq.currentText(),"fSCL"))
-        self.PB_Function_2.clicked.connect(lambda:self.Set_Fnuction_UI_value(self.CB_Freq.currentText(),"tHD_STA"))
+        self.PB_Function_2.clicked.connect(lambda:self.Set_Fnuction_UI_value(self.CB_Freq.currentText(),"VIH_CLK"))
+        self.PB_Function_3.clicked.connect(lambda:self.Set_Fnuction_UI_value(self.CB_Freq.currentText(),"VIL_CLK"))
+        self.PB_Function_4.clicked.connect(lambda:self.Set_Fnuction_UI_value(self.CB_Freq.currentText(),"VIH_DATA"))
+        self.PB_Function_5.clicked.connect(lambda:self.Set_Fnuction_UI_value(self.CB_Freq.currentText(),"VIL_DATA"))
+        self.PB_Function_6.clicked.connect(lambda:self.Set_Fnuction_UI_value(self.CB_Freq.currentText(),"tHIGH_CLK"))
+        self.PB_Function_7.clicked.connect(lambda:self.Set_Fnuction_UI_value(self.CB_Freq.currentText(),"tLOW_CLK"))
+        self.PB_Function_8.clicked.connect(lambda:self.Set_Fnuction_UI_value(self.CB_Freq.currentText(),"tRISE_CLK"))
+        self.PB_Function_9.clicked.connect(lambda:self.Set_Fnuction_UI_value(self.CB_Freq.currentText(),"tFALL_CLK"))
+        self.PB_Function_10.clicked.connect(lambda:self.Set_Fnuction_UI_value(self.CB_Freq.currentText(),"tRISE_DATA"))
+        self.PB_Function_11.clicked.connect(lambda:self.Set_Fnuction_UI_value(self.CB_Freq.currentText(),"tFALL_DATA"))
+        self.PB_Function_12.clicked.connect(lambda:self.Set_Fnuction_UI_value(self.CB_Freq.currentText(),""))
+        self.PB_Function_13.clicked.connect(lambda:self.Set_Fnuction_UI_value(self.CB_Freq.currentText(),""))
+        self.PB_Function_14.clicked.connect(lambda:self.Set_Fnuction_UI_value(self.CB_Freq.currentText(),""))
+        self.PB_Function_15.clicked.connect(lambda:self.Set_Fnuction_UI_value(self.CB_Freq.currentText(),""))
+        self.PB_Function_16.clicked.connect(lambda:self.Set_Fnuction_UI_value(self.CB_Freq.currentText(),""))
+        self.PB_Function_17.clicked.connect(lambda:self.Set_Fnuction_UI_value(self.CB_Freq.currentText(),""))
 
+        self.PB_RUN_Fc.clicked.connect(lambda:self.function_test(self.LB_Func_Name.text()))
 
     def Get_Default_UI_value(self, Freq):
         Value_data = {
@@ -101,13 +115,11 @@ class mainProgram(QtWidgets.QMainWindow, Ui_MainWindow):
         Value_data = {
             "Signal" : {
                 "CLK"   : {
-                    "Enabled"   : self.ChkB_CLK_SW_Fc.isChecked(),
                     "Scale"     : self.SB_CLK_Scale_Fc.value(),
                     "Offset"    : self.SB_CLK_Offset_Fc.value(),
                     "Position"  : self.SB_CLK_Position_Fc.value(),
                 },
                 "DATA"  : {
-                    "Enabled"   : self.ChkB_DATA_SW_Fc.isChecked(),
                     "Scale"     : self.SB_DATA_Scale_Fc.value(),
                     "Offset"    : self.SB_DATA_Offset_Fc.value(),
                     "Position"  : self.SB_DATA_Position_Fc.value(),
@@ -129,6 +141,39 @@ class mainProgram(QtWidgets.QMainWindow, Ui_MainWindow):
 
         return json_data
 
+    def set_Default_UI_value(self, Freq):
+                        
+        with open(self.file_name, "r", encoding='UTF-8') as config_file:
+            json_data = json.load(config_file)
+
+        self.ChkB_CLK_SW.isChecked()
+        self.CB_CLK_CH.currentText()
+        self.SB_CLK_Scale.value()
+        self.SB_CLK_Offset.value()
+        self.SB_CLK_Position.value()
+        self.CB_CLK_BW.currentText()
+
+        self.ChkB_DATA_SW.isChecked()
+        self.CB_DATA_CH.currentText()
+        self.SB_DATA_Scale.value()
+        self.SB_DATA_Offset.value()
+        self.SB_DATA_Position.value()
+        self.CB_DATA_BW.currentText()
+
+        self.CB_RR.currentText()
+        self.CB_SR.currentText()
+
+        self.SB_Display_WAVE.value()
+        self.SB_Display_GRA.value()
+            
+        self.CB_Trigger_CH.currentText()
+        self.CB_Trigger_SL.currentText()
+        self.CB_Trigger_LV.value()
+        self.CB_Trigger_MODE.currentText()
+
+        self.SB_Time_Value.value()
+        self.CB_Time_Unit.currentText()
+
     def Set_Fnuction_UI_value(self, Freq, Fun_name):
         self.LB_Func_Name.setText(Fun_name)
 
@@ -136,28 +181,22 @@ class mainProgram(QtWidgets.QMainWindow, Ui_MainWindow):
             json_data = json.load(config_file)
 
         try:
-            print("Debug 1")
-            self.ChkB_CLK_SW_Fc.setChecked(json_data[Freq]["Function_Setup"][Fun_name]["Signal"]["CLK"]["Enabled"])
             self.SB_CLK_Scale_Fc.setValue(json_data[Freq]["Function_Setup"][Fun_name]["Signal"]["CLK"]["Scale"])
             self.SB_CLK_Offset_Fc.setValue(json_data[Freq]["Function_Setup"][Fun_name]["Signal"]["CLK"]["Offset"])
             self.SB_CLK_Position_Fc.setValue(json_data[Freq]["Function_Setup"][Fun_name]["Signal"]["CLK"]["Position"])
 
-            self.ChkB_DATA_SW_Fc.setChecked(json_data[Freq]["Function_Setup"][Fun_name]["Signal"]["DATA"]["Enabled"])
             self.SB_DATA_Scale_Fc.setValue(json_data[Freq]["Function_Setup"][Fun_name]["Signal"]["DATA"]["Scale"])
             self.SB_DATA_Offset_Fc.setValue(json_data[Freq]["Function_Setup"][Fun_name]["Signal"]["DATA"]["Offset"])
             self.SB_DATA_Position_Fc.setValue(json_data[Freq]["Function_Setup"][Fun_name]["Signal"]["DATA"]["Position"])
 
             self.SB_Time_Value_Fc.setValue(json_data[Freq]["Function_Setup"][Fun_name]["Horizontal"]["Time Scale"])
             self.CB_Time_Unit_Fc.setCurrentText(json_data[Freq]["Function_Setup"][Fun_name]["Horizontal"]["Time Scale Unit"])
-            print("Debug 2")
         except Exception as e:
             print(e)
-            self.ChkB_CLK_SW_Fc.setChecked(True)
             self.SB_CLK_Scale_Fc.setValue(0)
             self.SB_CLK_Offset_Fc.setValue(0)
             self.SB_CLK_Position_Fc.setValue(0)
 
-            self.ChkB_DATA_SW_Fc.setChecked(True)
             self.SB_DATA_Scale_Fc.setValue(0)
             self.SB_DATA_Offset_Fc.setValue(0)
             self.SB_DATA_Position_Fc.setValue(0)
@@ -182,7 +221,8 @@ class mainProgram(QtWidgets.QMainWindow, Ui_MainWindow):
         self.Diabled_Widget(False)
         self.thread = Runthread()
         self.thread.function_name = function_name
-        self.thread.UI_Value = self.Get_Default_UI_value()
+        self.thread.Freq = self.CB_Freq.currentText()
+        self.thread.UI_Value = self.Get_Default_UI_value(self.CB_Freq.currentText())
         self.thread._Draw_raw_data.connect(self.Draw_raw_data)
         self.thread._Draw_point_data.connect(self.Draw_point_data)
         self.thread._done_trigger.connect(self.Done_trigger)
@@ -191,13 +231,13 @@ class mainProgram(QtWidgets.QMainWindow, Ui_MainWindow):
 
     def Draw_raw_data(self, msg):
         color_pen = {"CH1":(255,255,0), "CH2":(0,255,255), "CH3":(255,0,255), "CH4":(0,255,0)}
-        if msg[0] == "CH1":
+        if msg[0] == "CLK":
             self.graphWidget.clear()
-            self.graphWidget.plot(msg[1], name="mode1", pen=color_pen[msg[0]])
+            self.graphWidget.plot(msg[2], name="mode1", pen=color_pen[msg[1]])
             
-        else:
+        if msg[0] == "DATA":
             self.graphWidget2.clear()
-            self.graphWidget2.plot(msg[1], name="mode2", pen=color_pen[msg[0]])
+            self.graphWidget2.plot(msg[2], name="mode2", pen=color_pen[msg[1]])
     
     def Draw_point_data(self,msg):
         if msg[0] == "CH1":
@@ -208,13 +248,13 @@ class mainProgram(QtWidgets.QMainWindow, Ui_MainWindow):
             self.graphWidget2.plot([msg[1][0][1]], pen=(0,0,200), symbolBrush=(0,0,200), symbolPen='w', symbol='o', symbolSize=14, name="symbol='o'")
 
     def Update_ProgressBar(self, msg):
-        if msg[0] == "CH1":
+        if msg[0] == "CLK":
             self.PB_CLK.setValue(msg[1])
             if msg[1] == 100:
                 self.PB_CLK.hide()
             elif msg[1] >= 1:
                 self.PB_CLK.show()
-        else:
+        if msg[0] == "DATA":
             self.PB_DATA.setValue(msg[1])
             if msg[1] == 100:
                 self.PB_DATA.hide()
