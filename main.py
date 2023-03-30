@@ -1,4 +1,4 @@
-import sys, os
+import sys, os, io
 import json
 
 from PyQt5 import QtCore, QtWidgets
@@ -7,13 +7,14 @@ from PyQt5.QtGui import *
 
 # UI/UX 
 from main_window import *
-import qdarkstyle
-import pyqtgraph as pq
-from pyqtgraph import PlotWidget
+from pyqtgraph import PlotWidget, ImageView
 from qt_material import apply_stylesheet
 
 # import from lib 
 from lib.Thread_DPO4000 import *
+
+from PIL import Image, ImageQt
+import numpy as np
 
 class mainProgram(QtWidgets.QMainWindow, Ui_MainWindow):
     def __init__(self, parent=None):
@@ -22,7 +23,7 @@ class mainProgram(QtWidgets.QMainWindow, Ui_MainWindow):
         self.change_UI_styl()
         #self.Get_Default_UI_value()
 
-        # Set main window name 
+        # Set main window name
         self.setWindowTitle("I2C Auto Testting Tool V3.0.0")
 
         self.file_name = './config/DPO4000_setup.json'
@@ -60,6 +61,11 @@ class mainProgram(QtWidgets.QMainWindow, Ui_MainWindow):
         self.PB_Function_17.clicked.connect(lambda:self.Set_Fnuction_UI_value(self.CB_Freq.currentText(),""))
 
         self.PB_RUN_Fc.clicked.connect(lambda:self.function_test(self.LB_Func_Name.text()))
+
+        # measurement list widght
+        self.PB_list_add.clicked.connect(self.Measure_list_add)
+        self.PB_list_remove.clicked.connect(self.Measure_list_remove)
+        self.PB_list_clear.clicked.connect(self.Measure_list_clear)
 
     def Get_Default_UI_value(self, Freq):
         Value_data = {
@@ -115,11 +121,13 @@ class mainProgram(QtWidgets.QMainWindow, Ui_MainWindow):
         Value_data = {
             "Signal" : {
                 "CLK"   : {
+                    "Enabled"   : self.ChkB_CLK_SW_Fc.isChecked(),
                     "Scale"     : self.SB_CLK_Scale_Fc.value(),
                     "Offset"    : self.SB_CLK_Offset_Fc.value(),
                     "Position"  : self.SB_CLK_Position_Fc.value(),
                 },
                 "DATA"  : {
+                    "Enabled"   : self.ChkB_DATA_SW_Fc.isChecked(),
                     "Scale"     : self.SB_DATA_Scale_Fc.value(),
                     "Offset"    : self.SB_DATA_Offset_Fc.value(),
                     "Position"  : self.SB_DATA_Position_Fc.value(),
@@ -128,7 +136,8 @@ class mainProgram(QtWidgets.QMainWindow, Ui_MainWindow):
             "Horizontal" : {
                 "Time Scale" : self.SB_Time_Value_Fc.value(),
                 "Time Scale Unit" : self.CB_Time_Unit_Fc.currentText()
-            }
+            },
+            "Measure list" : self.get_Measure_list()
         }
 
         with open(self.file_name, "r", encoding='UTF-8') as config_file:
@@ -176,33 +185,41 @@ class mainProgram(QtWidgets.QMainWindow, Ui_MainWindow):
 
     def Set_Fnuction_UI_value(self, Freq, Fun_name):
         self.LB_Func_Name.setText(Fun_name)
+        self.Measure_list_clear()
 
         with open(self.file_name, "r", encoding='UTF-8') as config_file:
             json_data = json.load(config_file)
 
         try:
+            self.ChkB_CLK_SW_Fc.setChecked(json_data[Freq]["Function_Setup"][Fun_name]["Signal"]["CLK"]["Enabled"])
             self.SB_CLK_Scale_Fc.setValue(json_data[Freq]["Function_Setup"][Fun_name]["Signal"]["CLK"]["Scale"])
             self.SB_CLK_Offset_Fc.setValue(json_data[Freq]["Function_Setup"][Fun_name]["Signal"]["CLK"]["Offset"])
             self.SB_CLK_Position_Fc.setValue(json_data[Freq]["Function_Setup"][Fun_name]["Signal"]["CLK"]["Position"])
 
+            self.ChkB_DATA_SW_Fc.setChecked(json_data[Freq]["Function_Setup"][Fun_name]["Signal"]["DATA"]["Enabled"])
             self.SB_DATA_Scale_Fc.setValue(json_data[Freq]["Function_Setup"][Fun_name]["Signal"]["DATA"]["Scale"])
             self.SB_DATA_Offset_Fc.setValue(json_data[Freq]["Function_Setup"][Fun_name]["Signal"]["DATA"]["Offset"])
             self.SB_DATA_Position_Fc.setValue(json_data[Freq]["Function_Setup"][Fun_name]["Signal"]["DATA"]["Position"])
 
             self.SB_Time_Value_Fc.setValue(json_data[Freq]["Function_Setup"][Fun_name]["Horizontal"]["Time Scale"])
             self.CB_Time_Unit_Fc.setCurrentText(json_data[Freq]["Function_Setup"][Fun_name]["Horizontal"]["Time Scale Unit"])
+            self.Set_Measure_list(json_data[Freq]["Function_Setup"][Fun_name]["Measure list"])
+
         except Exception as e:
             print(e)
+            self.ChkB_CLK_SW_Fc.setChecked(True)
             self.SB_CLK_Scale_Fc.setValue(0)
             self.SB_CLK_Offset_Fc.setValue(0)
             self.SB_CLK_Position_Fc.setValue(0)
 
+            self.ChkB_CLK_SW_Fc.setChecked(True)
             self.SB_DATA_Scale_Fc.setValue(0)
             self.SB_DATA_Offset_Fc.setValue(0)
             self.SB_DATA_Position_Fc.setValue(0)
 
             self.SB_Time_Value_Fc.setValue(100)
             self.CB_Time_Unit_Fc.setCurrentText("E+9")
+
             self.Get_Fnuction_UI_value(Freq,Fun_name)
 
     def change_UI_styl(self):
@@ -225,6 +242,7 @@ class mainProgram(QtWidgets.QMainWindow, Ui_MainWindow):
         self.thread.UI_Value = self.Get_Default_UI_value(self.CB_Freq.currentText())
         self.thread._Draw_raw_data.connect(self.Draw_raw_data)
         self.thread._Draw_point_data.connect(self.Draw_point_data)
+        self.thread._Draw_Screenshot.connect(self.Draw_Screenshot)
         self.thread._done_trigger.connect(self.Done_trigger)
         self.thread._ProgressBar.connect(self.Update_ProgressBar)
         self.thread.start()
@@ -234,7 +252,7 @@ class mainProgram(QtWidgets.QMainWindow, Ui_MainWindow):
         if msg[0] == "CLK":
             self.graphWidget.clear()
             self.graphWidget.plot(msg[2], name="mode1", pen=color_pen[msg[1]])
-            
+
         if msg[0] == "DATA":
             self.graphWidget2.clear()
             self.graphWidget2.plot(msg[2], name="mode2", pen=color_pen[msg[1]])
@@ -246,6 +264,23 @@ class mainProgram(QtWidgets.QMainWindow, Ui_MainWindow):
         else:
             self.graphWidget2.plot([msg[1][0][0]], pen=(0,0,200), symbolBrush=(0,0,200), symbolPen='w', symbol='o', symbolSize=14, name="symbol='o'")
             self.graphWidget2.plot([msg[1][0][1]], pen=(0,0,200), symbolBrush=(0,0,200), symbolPen='w', symbol='o', symbolSize=14, name="symbol='o'")
+
+    def Draw_Screenshot(self, byte_array):
+        h = 1024
+        w = 768
+        ui_w = self.graphWidget_Screenshot.height()
+        s = ui_w/w
+        raw_data = Image.open(io.BytesIO(byte_array))
+        newsize = (int(h*s),int(ui_w))
+        raw_data = raw_data.resize(newsize)
+        raw_data.save("tmp.png")
+        
+        img = QtGui.QPixmap("tmp.png")
+        scene = QtWidgets.QGraphicsScene()     
+        #scene.setSceneRect(0, 0, 0, 0)          
+        scene.addPixmap(img)                    
+        self.graphWidget_Screenshot.setScene(scene)               
+
 
     def Update_ProgressBar(self, msg):
         if msg[0] == "CLK":
@@ -265,6 +300,48 @@ class mainProgram(QtWidgets.QMainWindow, Ui_MainWindow):
         self.Diabled_Widget(True)
         self.PB_DATA.hide()
         self.PB_CLK.hide()
+    
+    def Measure_list_add(self):
+        items = ["AMPlitude","AREa","BURst","CARea","CMEan","CRMs","DELay","FALL","FREQuency",
+                 "HIGH","HITS","LOW","MAXimum","MEAN","MEDian","MINImum","NDUty","NEDGECount",
+                 "NOVershoot","NPULSECount","NWIdth","PEAKHits","PEDGECount","PDUty","PERIod",
+                 "PHAse","PK2Pk","POVershoot","PPULSECount","PWIdth","RISe","RMS","SIGMA1",
+                 "SIGMA2","SIGMA3","STDdev","WAVEFORMS"]
+        selected_item = None
+        selected_source = None
+        if self.listWidget.count() >= 8:
+            message = QErrorMessage(self)
+            message.setWindowTitle("Warning")
+            message.showMessage("You can only add up to 8 items")
+            message.exec_()
+        else:
+            selected_item, ok_pressed = QInputDialog.getItem(self, "Select Item", "Choose an item:", items)
+            if ok_pressed :
+                selected_source, ok_pressed = QInputDialog.getItem(self, "Select Source", "Choose an source:", ["CLK","DATA"])
+                if ok_pressed :
+                    print("%s_%s" %(selected_item,selected_source))
+                    self.listWidget.addItem("%s_%s" %(selected_item,selected_source))
+
+    def Measure_list_remove(self):
+        current_row = self.listWidget.currentRow()
+        if current_row >= 0:
+            current_item = self.listWidget.takeItem(current_row)
+            del current_item
+
+    def Measure_list_clear(self):
+        self.listWidget.clear()
+    
+    def get_Measure_list(self):
+        items = []
+        for index in range(self.listWidget.count()):
+            items.append(self.listWidget.item(index))
+        items_list = [i.text() for i in items]
+        return items_list
+
+    def Set_Measure_list(self, Measure_list):
+        self.listWidget.clear()
+        for item in Measure_list:
+            self.listWidget.addItem(item)
 
 if __name__ == "__main__":
     os.environ["QT_AUTO_SCREEN_SCALE_FACTOR"] = "1"

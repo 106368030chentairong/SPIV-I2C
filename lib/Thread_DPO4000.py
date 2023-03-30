@@ -12,6 +12,7 @@ from lib.Function_contrl import *
 class Runthread(QtCore.QThread):
     _Draw_raw_data = pyqtSignal(list)
     _Draw_point_data = pyqtSignal(list)
+    _Draw_Screenshot = pyqtSignal(QByteArray)
     _done_trigger = pyqtSignal()
     _ProgressBar = pyqtSignal(list)
     
@@ -112,121 +113,64 @@ class Runthread(QtCore.QThread):
         Signal_model.DATA_Time  = DATA_Time
         Signal_model.Load_data()
 
-        if function_name == "fSCL":
-            Control_model.set_time_scale(signal_setting["Horizontal"]["Time Scale"],
-                                         signal_setting["Horizontal"]["Time Scale Unit"])
+        Control_model.set_time_scale(signal_setting["Horizontal"]["Time Scale"],
+                                     signal_setting["Horizontal"]["Time Scale Unit"])
+
+        if signal_setting["Signal"]["CLK"]["Enabled"] == True:
             Control_model.set_channel(Default_signal_setting["CLK"]["Channel"],
                                       signal_setting["Signal"]["CLK"]["Scale"],
                                       signal_setting["Signal"]["CLK"]["Offset"],
                                       signal_setting["Signal"]["CLK"]["Position"],
                                       Default_signal_setting["CLK"]["Bandwidth"])
-            function_list = [[Default_signal_setting["CLK"]["Channel"],
-                              "Frequency"],]
-            delay_time, pt_json = Signal_model.function_process("CLK", "tHIGH")
-            Control_model.Cursors_control(delay_time, pt_json)
-        
-        if function_name == "VIH_CLK" or function_name == "VIH_DATA":
-            ch_name = function_name.split("_")[-1]
-            Control_model.set_time_scale(signal_setting["Horizontal"]["Time Scale"],
-                                         signal_setting["Horizontal"]["Time Scale Unit"])
-            Control_model.set_channel(Default_signal_setting[ch_name]["Channel"],
-                                      signal_setting["Signal"][ch_name]["Scale"],
-                                      signal_setting["Signal"][ch_name]["Offset"],
-                                      signal_setting["Signal"][ch_name]["Position"],
-                                      Default_signal_setting[ch_name]["Bandwidth"])
-            function_list = [[Default_signal_setting[ch_name]["Channel"],
-                              "HIGH"],]
-            
-            delay_time, pt_json = Signal_model.function_process(ch_name, "tHIGH")
-            Control_model.Cursors_control(delay_time, pt_json)
-
-        if function_name == "VIL_CLK" or function_name == "VIL_DATA":
-            ch_name = function_name.split("_")[-1]
-            Control_model.set_time_scale(signal_setting["Horizontal"]["Time Scale"],
-                                         signal_setting["Horizontal"]["Time Scale Unit"])
-            Control_model.set_channel(Default_signal_setting[ch_name]["Channel"],
-                                      signal_setting["Signal"][ch_name]["Scale"],
-                                      signal_setting["Signal"][ch_name]["Offset"],
-                                      signal_setting["Signal"][ch_name]["Position"],
-                                      Default_signal_setting[ch_name]["Bandwidth"])
-            function_list = [[Default_signal_setting[ch_name]["Channel"],
-                              "LOW"],]
-            
-            delay_time, pt_json = Signal_model.function_process(ch_name, "tLOW")
-            Control_model.Cursors_control(delay_time, pt_json)
-        
-        if function_name == "tHIGH_CLK":
-            Control_model.set_time_scale(signal_setting["Horizontal"]["Time Scale"],
-                                         signal_setting["Horizontal"]["Time Scale Unit"])
-            Control_model.set_channel(Default_signal_setting["CLK"]["Channel"],
-                                      signal_setting["Signal"]["CLK"]["Scale"],
-                                      signal_setting["Signal"]["CLK"]["Offset"],
-                                      signal_setting["Signal"]["CLK"]["Position"],
-                                      Default_signal_setting["CLK"]["Bandwidth"])
-            function_list = [[Default_signal_setting["CLK"]["Channel"],
-                              "NWIdth"],]
-
-            delay_time, pt_json = Signal_model.function_process("CLK", "tHIGH")
-            Control_model.Cursors_control(delay_time, pt_json)
-
-        if function_name == "tLOW_CLK":
-            Control_model.set_time_scale(signal_setting["Horizontal"]["Time Scale"],
-                                         signal_setting["Horizontal"]["Time Scale Unit"])
-            Control_model.set_channel(Default_signal_setting["CLK"]["Channel"],
-                                      signal_setting["Signal"]["CLK"]["Scale"],
-                                      signal_setting["Signal"]["CLK"]["Offset"],
-                                      signal_setting["Signal"]["CLK"]["Position"],
-                                      Default_signal_setting["CLK"]["Bandwidth"])
-
-            function_list = [[Default_signal_setting["CLK"]["Channel"],
-                              "NWIdth"]]
-            delay_time, pt_json = Signal_model.function_process("CLK", "tLOW")
-            Control_model.Cursors_control(delay_time, pt_json)
-        
-        if function_name == "tLOW_DATA":
-            Control_model.set_time_scale(signal_setting["Horizontal"]["Time Scale"],
-                                         signal_setting["Horizontal"]["Time Scale Unit"])
+        if signal_setting["Signal"]["DATA"]["Enabled"] == True:
             Control_model.set_channel(Default_signal_setting["DATA"]["Channel"],
                                       signal_setting["Signal"]["DATA"]["Scale"],
                                       signal_setting["Signal"]["DATA"]["Offset"],
                                       signal_setting["Signal"]["DATA"]["Position"],
                                       Default_signal_setting["DATA"]["Bandwidth"])
 
-            function_list = [[Default_signal_setting["DATA"]["Channel"],
-                              "NWIdth"]]
+        if function_name == "fSCL":
+            delay_time, pt_json = Signal_model.function_process("CLK", "tHIGH")
+            Control_model.Cursors_control(delay_time, pt_json, False)
+        
+        if function_name == "VIH_CLK" or function_name == "VIH_DATA":
+            ch_name = function_name.split("_")[-1]
+            
+            delay_time, pt_json = Signal_model.function_process(ch_name, "tHIGH")
+            Control_model.Cursors_control(delay_time, pt_json, True)
+
+        if function_name == "VIL_CLK" or function_name == "VIL_DATA":
+            ch_name = function_name.split("_")[-1]
+            
+            delay_time, pt_json = Signal_model.function_process(ch_name, "tLOW")
+            Control_model.Cursors_control(delay_time, pt_json, True)
+        
+        if function_name == "tHIGH_CLK":
+            delay_time, pt_json = Signal_model.function_process("CLK", "tHIGH")
+            Control_model.Cursors_control(delay_time, pt_json, True)
+
+        if function_name == "tLOW_CLK":
+            delay_time, pt_json = Signal_model.function_process("CLK", "tLOW")
+            Control_model.Cursors_control(delay_time, pt_json, True)
+        
+        if function_name == "tLOW_DATA":
             delay_time, pt_json = Signal_model.function_process("DATA", "tLOW")
-            Control_model.Cursors_control(delay_time, pt_json)
+            Control_model.Cursors_control(delay_time, pt_json, True)
         
         if function_name == "tRISE_CLK" or function_name == "tRISE_DATA":
             ch_name = function_name.split("_")[-1]
-            Control_model.set_time_scale(signal_setting["Horizontal"]["Time Scale"],
-                                signal_setting["Horizontal"]["Time Scale Unit"])
-            Control_model.set_channel(Default_signal_setting[ch_name]["Channel"],
-                                      signal_setting["Signal"][ch_name]["Scale"],
-                                      signal_setting["Signal"][ch_name]["Offset"],
-                                      signal_setting["Signal"][ch_name]["Position"],
-                                      Default_signal_setting[ch_name]["Bandwidth"])
-            function_list = [[Default_signal_setting[ch_name]["Channel"],
-                             "RISE"]]
-
             delay_time, pt_json = Signal_model.function_process(ch_name, "tRISE")
-            Control_model.Cursors_control(delay_time, pt_json)
+            Control_model.Cursors_control(delay_time, pt_json, True)
         
         if function_name == "tFALL_CLK" or function_name == "tFALL_DATA":
             ch_name = function_name.split("_")[-1]
-            Control_model.set_time_scale(signal_setting["Horizontal"]["Time Scale"],
-                                signal_setting["Horizontal"]["Time Scale Unit"])
-            Control_model.set_channel(Default_signal_setting[ch_name]["Channel"],
-                                      signal_setting["Signal"][ch_name]["Scale"],
-                                      signal_setting["Signal"][ch_name]["Offset"],
-                                      signal_setting["Signal"][ch_name]["Position"],
-                                      Default_signal_setting[ch_name]["Bandwidth"])
-            function_list = [[Default_signal_setting[ch_name]["Channel"],
-                             "FALL"]]
 
             delay_time, pt_json = Signal_model.function_process(ch_name, "tFALL")
-            Control_model.Cursors_control(delay_time, pt_json)
+            Control_model.Cursors_control(delay_time, pt_json, True)
 
-        Control_model.Measure_setup(function_list)
+        Control_model.Measure_setup(signal_setting["Measure list"],
+                                    Default_signal_setting["CLK"]["Channel"],
+                                    Default_signal_setting["DATA"]["Channel"])
 
-        
+        image = Control_model.get_Screenshot()
+        self._Draw_Screenshot.emit(image)

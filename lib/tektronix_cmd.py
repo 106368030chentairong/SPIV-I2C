@@ -97,6 +97,18 @@ class DPO4000():
             print(e)
             print("(raw)        : Execute the Command Faill : %s" %("CURVE?"))
 
+    def get_HARDCopy(self):
+        try:
+            #time.sleep(0.1)
+            self.scope.write("SAVe:IMAGe:FILEF PNG")
+            self.scope.write("HARDCopy STARt")
+            imgData = self.scope.read_raw()
+            print("(img)        : Execute the Command Successfully : %s" %("HARDCOPY?"))
+            return imgData
+        except Exception as e: 
+            print(e)
+            print("(img)        : Execute the Command Faill : %s" %("HARDCOPY?"))
+
     def close(self):
         try:
             self.scope.close()

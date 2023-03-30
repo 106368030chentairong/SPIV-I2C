@@ -133,44 +133,44 @@ class Controller(object):
         self.scope.connected(self.visa_add)
 
         # curve configuration
+        self.scope.do_command('header 0')
+        self.scope.do_command('data:encdg SRIBINARY')
         self.scope.do_command('data:source %s' %(ch_num))
-        self.scope.do_command('data:encdg SRIBINARY') # signed integer
-        self.scope.do_command('wfmoutpre:BYT_Nr 1') # 1 byte per sample        
         self.scope.do_command('data:start 1')
-        acq_record = int(self.scope.do_query('horizontal:recordlength?'))
-        self.scope.do_command('data:stop {}'.format(acq_record))
+        record = int(self.scope.do_query('horizontal:recordlength?'))
+        self.scope.do_command('data:stop {}'.format(record)) 
+        self.scope.do_command('wfmoutpre:byt_n 1') 
 
         #bin_wave = self.scope.get_raw_bin()
-        raw_wave = self.scope.get_raw()
+        bin_wave = self.scope.get_raw_bin()
 
-        # Get scale and offset factors
-        wp = self._waveform_params()
-        print(wp)
+        # retrieve scaling factors
+        tscale = float(self.scope.do_query('wfmoutpre:xincr?'))
+        tstart = float(self.scope.do_query('wfmoutpre:xzero?'))
+        vscale = float(self.scope.do_query('wfmoutpre:ymult?')) # volts / level
+        voff = float(self.scope.do_query('wfmoutpre:yzero?')) # reference voltage
+        vpos = float(self.scope.do_query('wfmoutpre:yoff?')) # reference position (level)
 
-        print(raw_wave[0:20])
-        print(raw_wave[1])
-        headerlen   = 2+int(raw_wave[1])
-        print(headerlen)
-        header      = raw_wave[:headerlen]
-        ADC_rawdata = raw_wave[headerlen:-1]
-        ADC_rawdata = np.array(unpack('%sB' % len(ADC_rawdata),ADC_rawdata))
+        # error checking
+        r = int(self.scope.do_query('*esr?'))
+        print('event status register: 0b{:08b}'.format(r))
+        r = self.scope.do_query('allev?').strip()
+        print('all event messages: {}'.format(r))
 
-        Volts = list((ADC_rawdata - wp["yof"]) * wp["ymu"]  + wp["yze"])
-        #Time  = np.arange(0, wp['xin'] * len(Volts), wp['xin'])
-        record = len(raw_wave)
-        total_time = wp['xin'] * record
-        tstop = wp['xze'] + total_time
-        Time = np.linspace(wp['xze'], tstop, num=record, endpoint=False)
-
-        #self._raw_data.emit([ch_num,Volts ])
+        # create scaled vectors
+        # horizontal (time)
+        total_time = tscale * record
+        tstop = tstart + total_time
+        Time = np.linspace(tstart, tstop, num=record, endpoint=False)
+        # vertical (voltage)
+        unscaled_wave = np.array(bin_wave, dtype='double') # data type conversion
+        Volts = (unscaled_wave - vpos) * vscale + voff
 
         self.scope.close()
 
-        np.save('./tmp/%s_time'%(ch_num),Time)
-        np.save('./tmp/%s_wave'%(ch_num),Volts )
         return Volts , Time
 
-    def Cursors_control(self, Delay_Time, pt_json):
+    def Cursors_control(self, Delay_Time, pt_json, cursor_switch = True):
         VBArs_pos_1 = pt_json["Post1_time"]
         VBArs_pos_2 = pt_json["Post2_time"]
         HBARS_pos_1 = pt_json["Post1_volts"]
@@ -181,34 +181,44 @@ class Controller(object):
         
         #self.scope.do_command('HORIZONTAL:SCALE %s%s' %(1, "E-6"))
         self.scope.do_command('HORizontal:DELay:TIME %s' %(Delay_Time))
-        self.scope.do_command('CURSor:FUNCtion SCREEN')
+        if cursor_switch:
+            self.scope.do_command('CURSor:FUNCtion SCREEN')
 
-        self.scope.do_command('SELECT:%s 1' %(pt_json["Post1_ch"]))
-        self.scope.do_command('CURSor:VBArs:POSITION1 %s' %(VBArs_pos_1))
-        self.scope.do_command('CURSOR:HBARS:POSITION1 %s' %(HBARS_pos_1))
-        
-        self.scope.do_command('SELECT:%s 1' %(pt_json["Post2_ch"]))
-        self.scope.do_command('CURSor:VBArs:POSITION2 %s' %(VBArs_pos_2))
-        self.scope.do_command('CURSOR:HBARS:POSITION2 %s' %(HBARS_pos_2))
+            self.scope.do_command('SELECT:%s 1' %(pt_json["Post1_ch"]))
+            self.scope.do_command('CURSor:VBArs:POSITION1 %s' %(VBArs_pos_1))
+            self.scope.do_command('CURSOR:HBARS:POSITION1 %s' %(HBARS_pos_1))
+            
+            self.scope.do_command('SELECT:%s 1' %(pt_json["Post2_ch"]))
+            self.scope.do_command('CURSor:VBArs:POSITION2 %s' %(VBArs_pos_2))
+            self.scope.do_command('CURSOR:HBARS:POSITION2 %s' %(HBARS_pos_2))
         
         self.scope.close()
     
-    def Measure_setup(self, function_list):
+    def Measure_setup(self, function_list, clk_ch, data_ch):
+        sleep_num = 0
         self.scope = DPO4000()
         self.scope.connected(self.visa_add)
 
         for idx in range(1,9):
             self.scope.do_command('MEASUrement:MEAS%s:STATE OFF'    %(idx))
         for idx, function_value in enumerate(function_list):
-            self.scope.do_command('MEASUrement:MEAS%s:SOURCE1 %s'       %(idx+1, function_value[0]))
-            self.scope.do_command('MEASUrement:MEAS%s:TYPe %s'          %(idx+1, function_value[1]))
+            sleep_num += 0.5
+            TYPe = function_value.split("_")[0]
+            source = function_value.split("_")[-1]
+            if source == "CLK":
+                source = clk_ch
+            elif source == "DATA":
+                source = data_ch
+            self.scope.do_command('MEASUrement:MEAS%s:SOURCE1 %s'       %(idx+1, source))
+            self.scope.do_command('MEASUrement:MEAS%s:TYPe %s'          %(idx+1, TYPe))
+            self.scope.do_command('MEASUrement:MEAS%s:STATE ON'         %(idx+1))
             self.scope.do_command('MEASUrement:REFLEVEL:PERCENT:HIGH 70')
             self.scope.do_command('MEASUrement:REFLEVEL:PERCENT:MID 1 50')
             self.scope.do_command('MEASUrement:REFLEVEL:PERCENT:MID 2 50')
             self.scope.do_command('MEASUrement:REFLEVEL:PERCENT:LOW 30')
-            self.scope.do_command('MEASUrement:MEAS%s:STATE ON'         %(idx+1))
 
         self.scope.close()
+        time.sleep(sleep_num)
     
     def Dispaly_ch_off(self):
         self.scope = DPO4000()
@@ -218,3 +228,13 @@ class Controller(object):
             self.scope.do_command('SELECT:CH%s OFF' %(idx))
 
         self.scope.close()
+    
+    def get_Screenshot(self):
+        self.scope = DPO4000()
+        self.scope.connected(self.visa_add)
+
+        time.sleep(0.5)
+        
+        imgData = self.scope.get_HARDCopy()
+        self.scope.close()
+        return imgData
