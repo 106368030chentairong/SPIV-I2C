@@ -155,8 +155,9 @@ cython_debug/
 
 *.npy
 tmp/*.npy
-./compile/*
-./dist/*
+compile
+dist/*
+*.png
 
 # PyCharm
 #  JetBrains specific template is maintained in a separate JetBrains.gitignore that can
