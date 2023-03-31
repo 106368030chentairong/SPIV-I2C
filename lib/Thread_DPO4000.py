@@ -19,7 +19,7 @@ class Runthread(QtCore.QThread):
     def __init__(self):
         super(Runthread, self).__init__()
         self.scope      = None
-        self.visa_add   = "USB0::0x0699::0x0406::C040904::INSTR"
+        self.visa_add   = None
 
         self.UI_Value   = None
 
@@ -43,6 +43,7 @@ class Runthread(QtCore.QThread):
     def function_setup(self):
         Defult_setting = self.UI_Value[self.Freq]["Default_Setup"]
         Control_model = Controller()
+        Control_model.visa_add = self.visa_add
         Control_model.UI_Value = self.UI_Value
         Control_model.setup(Defult_setting["Rate"]["Record"],
                             Defult_setting["Rate"]["Sample"],
@@ -73,10 +74,12 @@ class Runthread(QtCore.QThread):
 
     def Single_data(self):    
         Control_model = Controller()
+        Control_model.visa_add = self.visa_add
         Control_model.single_data()
     
     def Get_data(self):
         Control_model = Controller()
+        Control_model.visa_add = self.visa_add
 
         Default_signal_setting = self.UI_Value[self.Freq]["Default_Setup"]["Signal"]
 
@@ -104,6 +107,7 @@ class Runthread(QtCore.QThread):
         Default_signal_setting = self.UI_Value[self.Freq]["Default_Setup"]["Signal"]
 
         Control_model = Controller()
+        Control_model.visa_add = self.visa_add
         Control_model.Dispaly_ch_off()
 
         Signal_model = signal_process()
@@ -131,42 +135,36 @@ class Runthread(QtCore.QThread):
 
         if function_name == "fSCL":
             delay_time, pt_json = Signal_model.function_process("CLK", "tHIGH")
-            Control_model.Cursors_control(delay_time, pt_json, False)
-        
+
         if function_name == "VIH_CLK" or function_name == "VIH_DATA":
-            ch_name = function_name.split("_")[-1]
-            
+            ch_name = function_name.split("_")[-1]        
             delay_time, pt_json = Signal_model.function_process(ch_name, "tHIGH")
-            Control_model.Cursors_control(delay_time, pt_json, True)
 
         if function_name == "VIL_CLK" or function_name == "VIL_DATA":
             ch_name = function_name.split("_")[-1]
             
             delay_time, pt_json = Signal_model.function_process(ch_name, "tLOW")
-            Control_model.Cursors_control(delay_time, pt_json, True)
         
         if function_name == "tHIGH_CLK":
             delay_time, pt_json = Signal_model.function_process("CLK", "tHIGH")
-            Control_model.Cursors_control(delay_time, pt_json, True)
 
         if function_name == "tLOW_CLK":
             delay_time, pt_json = Signal_model.function_process("CLK", "tLOW")
-            Control_model.Cursors_control(delay_time, pt_json, True)
         
         if function_name == "tLOW_DATA":
             delay_time, pt_json = Signal_model.function_process("DATA", "tLOW")
-            Control_model.Cursors_control(delay_time, pt_json, True)
         
         if function_name == "tRISE_CLK" or function_name == "tRISE_DATA":
             ch_name = function_name.split("_")[-1]
             delay_time, pt_json = Signal_model.function_process(ch_name, "tRISE")
-            Control_model.Cursors_control(delay_time, pt_json, True)
         
         if function_name == "tFALL_CLK" or function_name == "tFALL_DATA":
             ch_name = function_name.split("_")[-1]
-
             delay_time, pt_json = Signal_model.function_process(ch_name, "tFALL")
-            Control_model.Cursors_control(delay_time, pt_json, True)
+        
+
+        Control_model.Cursors_control(delay_time, pt_json,
+                                      signal_setting["Cursors"]["Enabled"])
 
         Control_model.Measure_setup(signal_setting["Measure list"],
                                     Default_signal_setting["CLK"]["Channel"],

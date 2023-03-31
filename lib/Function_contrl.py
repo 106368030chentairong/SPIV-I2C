@@ -8,7 +8,7 @@ from lib.analytics_core import *
 class Controller(object):
     def __init__(self):
         self.scope    = None
-        self.visa_add = "USB0::0x0699::0x0406::C040904::INSTR"
+        self.visa_add = None
         self.UI_Value = None
 
     def default_control_setup(self):
@@ -151,11 +151,11 @@ class Controller(object):
         voff = float(self.scope.do_query('wfmoutpre:yzero?')) # reference voltage
         vpos = float(self.scope.do_query('wfmoutpre:yoff?')) # reference position (level)
 
-        # error checking
+        """ # error checking
         r = int(self.scope.do_query('*esr?'))
         print('event status register: 0b{:08b}'.format(r))
         r = self.scope.do_query('allev?').strip()
-        print('all event messages: {}'.format(r))
+        print('all event messages: {}'.format(r)) """
 
         # create scaled vectors
         # horizontal (time)
@@ -238,3 +238,8 @@ class Controller(object):
         imgData = self.scope.get_HARDCopy()
         self.scope.close()
         return imgData
+
+    def get_usb_info(self):
+        self.scope = DPO4000()
+        usb_list = self.scope.list_devices()
+        return usb_list

@@ -46,12 +46,12 @@ class signal_process():
                     elif function_name == "tFALL":
                         if ch_name == "CLK":
                             _, tf_tmp, tr_tmp = self.get_tr_tf(self.CLK_PT_TMP)
-                            POSITION1  = self.CLK_Time[tf_tmp[0][1]]
-                            POSITION2  = self.CLK_Time[tf_tmp[0][0]]
+                            POSITION1  = self.CLK_Time[tf_tmp[0][0]]
+                            POSITION2  = self.CLK_Time[tf_tmp[0][1]]
                         if ch_name == "DATA":
                             _, tf_tmp, tr_tmp = self.get_tr_tf(self.DATA_PT_TMP)
-                            POSITION1  = self.DATA_Time[tf_tmp[0][1]]
-                            POSITION2  = self.DATA_Time[tf_tmp[0][0]]
+                            POSITION1  = self.DATA_Time[tf_tmp[0][0]]
+                            POSITION2  = self.DATA_Time[tf_tmp[0][1]]
                         delay_time = POSITION1 + abs((POSITION2 - POSITION1)/2)
 
 
@@ -70,8 +70,8 @@ class signal_process():
                         POSITION2  = self.CLK_Time[L_time[0][1]]
                     if ch_name == "DATA":
                         _, L_time  = self.get_HL_Time(self.DATA_PT_TMP)
-                        POSITION1  = self.DATA_Time[L_time[0][1]]
-                        POSITION2  = self.DATA_Time[L_time[0][0]]
+                        POSITION1  = self.DATA_Time[L_time[0][0]]
+                        POSITION2  = self.DATA_Time[L_time[0][1]]
                     delay_time = POSITION1 + abs((POSITION2 - POSITION1)/2)
                     return delay_time,{"Post1_ch"   : ch_name,
                                         "Post1_time" : POSITION1,
@@ -88,8 +88,8 @@ class signal_process():
                         POSITION2  = self.CLK_Time[H_time[0][1]]
                     if ch_name == "DATA":
                         H_time, _ = self.get_HL_Time(self.DATA_PT_TMP)
-                        POSITION1  = self.DATA_Time[H_time[0][1]]
-                        POSITION2  = self.DATA_Time[H_time[0][0]]
+                        POSITION1  = self.DATA_Time[H_time[0][0]]
+                        POSITION2  = self.DATA_Time[H_time[0][1]]
                     delay_time = POSITION1 + abs((POSITION2 - POSITION1)/2)
                     return delay_time,{"Post1_ch"   : ch_name,
                                         "Post1_time" : POSITION1,

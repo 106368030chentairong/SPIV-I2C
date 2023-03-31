@@ -27,10 +27,13 @@ class mainProgram(QtWidgets.QMainWindow, Ui_MainWindow):
         self.setWindowTitle("I2C Auto Testting Tool V3.0.0")
 
         self.file_name = './config/DPO4000_setup.json'
+        self.raw_data = None
 
+        self.getusblist()
         self.Set_Fnuction_UI_value(self.CB_Freq.currentText(), "fSCL")
 
         # Push Button
+        self.PB_Refresh.clicked.connect(self.getusblist)
         self.PB_SETUP.clicked.connect(lambda:self.function_test("Setup"))
         self.PB_GETDATA.clicked.connect(lambda:self.function_test("Getdata"))
         self.PB_SINGLE.clicked.connect(lambda:self.function_test("Single"))
@@ -66,6 +69,16 @@ class mainProgram(QtWidgets.QMainWindow, Ui_MainWindow):
         self.PB_list_add.clicked.connect(self.Measure_list_add)
         self.PB_list_remove.clicked.connect(self.Measure_list_remove)
         self.PB_list_clear.clicked.connect(self.Measure_list_clear)
+
+        # Screenshot save
+        self.PB_Screenshot_save.clicked.connect(self.save2jpg)
+        
+    def getusblist(self):
+        Control_model = Controller()
+        usb_list = Control_model.get_usb_info()
+        if usb_list != None:
+            self.CB_VIsa.clear()
+            self.CB_VIsa.addItems(usb_list)
 
     def Get_Default_UI_value(self, Freq):
         Value_data = {
@@ -137,6 +150,9 @@ class mainProgram(QtWidgets.QMainWindow, Ui_MainWindow):
                 "Time Scale" : self.SB_Time_Value_Fc.value(),
                 "Time Scale Unit" : self.CB_Time_Unit_Fc.currentText()
             },
+            "Cursors" : {
+                "Enabled" : self.ChkB_Cursors_SW.isChecked(),
+            },
             "Measure list" : self.get_Measure_list()
         }
 
@@ -203,22 +219,24 @@ class mainProgram(QtWidgets.QMainWindow, Ui_MainWindow):
 
             self.SB_Time_Value_Fc.setValue(json_data[Freq]["Function_Setup"][Fun_name]["Horizontal"]["Time Scale"])
             self.CB_Time_Unit_Fc.setCurrentText(json_data[Freq]["Function_Setup"][Fun_name]["Horizontal"]["Time Scale Unit"])
+            self.ChkB_Cursors_SW.setChecked(json_data[Freq]["Function_Setup"][Fun_name]["Cursors"]["Enabled"])
             self.Set_Measure_list(json_data[Freq]["Function_Setup"][Fun_name]["Measure list"])
 
         except Exception as e:
             print(e)
             self.ChkB_CLK_SW_Fc.setChecked(True)
-            self.SB_CLK_Scale_Fc.setValue(0)
+            self.SB_CLK_Scale_Fc.setValue(1)
             self.SB_CLK_Offset_Fc.setValue(0)
             self.SB_CLK_Position_Fc.setValue(0)
 
             self.ChkB_CLK_SW_Fc.setChecked(True)
-            self.SB_DATA_Scale_Fc.setValue(0)
+            self.SB_DATA_Scale_Fc.setValue(1)
             self.SB_DATA_Offset_Fc.setValue(0)
             self.SB_DATA_Position_Fc.setValue(0)
 
-            self.SB_Time_Value_Fc.setValue(100)
-            self.CB_Time_Unit_Fc.setCurrentText("E+9")
+            self.SB_Time_Value_Fc.setValue(1)
+            self.CB_Time_Unit_Fc.setCurrentText("E+3")
+            self.ChkB_Cursors_SW.setChecked(True)
 
             self.Get_Fnuction_UI_value(Freq,Fun_name)
 
@@ -235,17 +253,19 @@ class mainProgram(QtWidgets.QMainWindow, Ui_MainWindow):
         self.PB_SETUP.setEnabled(switch)
 
     def function_test(self, function_name):
-        self.Diabled_Widget(False)
-        self.thread = Runthread()
-        self.thread.function_name = function_name
-        self.thread.Freq = self.CB_Freq.currentText()
-        self.thread.UI_Value = self.Get_Default_UI_value(self.CB_Freq.currentText())
-        self.thread._Draw_raw_data.connect(self.Draw_raw_data)
-        self.thread._Draw_point_data.connect(self.Draw_point_data)
-        self.thread._Draw_Screenshot.connect(self.Draw_Screenshot)
-        self.thread._done_trigger.connect(self.Done_trigger)
-        self.thread._ProgressBar.connect(self.Update_ProgressBar)
-        self.thread.start()
+        if self.CB_VIsa.currentText() != None:
+            self.Diabled_Widget(False)
+            self.thread = Runthread()
+            self.thread.visa_add        = self.CB_VIsa.currentText()
+            self.thread.function_name   = function_name
+            self.thread.Freq            = self.CB_Freq.currentText()
+            self.thread.UI_Value        = self.Get_Default_UI_value(self.CB_Freq.currentText())
+            self.thread._Draw_raw_data.connect(self.Draw_raw_data)
+            self.thread._Draw_point_data.connect(self.Draw_point_data)
+            self.thread._Draw_Screenshot.connect(self.Draw_Screenshot)
+            self.thread._done_trigger.connect(self.Done_trigger)
+            self.thread._ProgressBar.connect(self.Update_ProgressBar)
+            self.thread.start()
 
     def Draw_raw_data(self, msg):
         color_pen = {"CH1":(255,255,0), "CH2":(0,255,255), "CH3":(255,0,255), "CH4":(0,255,0)}
@@ -270,10 +290,10 @@ class mainProgram(QtWidgets.QMainWindow, Ui_MainWindow):
         w = 768
         ui_w = self.graphWidget_Screenshot.height()
         s = ui_w/w
-        raw_data = Image.open(io.BytesIO(byte_array))
+        self.raw_data = Image.open(io.BytesIO(byte_array))
         newsize = (int(h*s),int(ui_w))
-        raw_data = raw_data.resize(newsize)
-        raw_data.save("tmp.png")
+        png_data = self.raw_data.resize(newsize)
+        png_data.save("tmp.png")
         
         img = QtGui.QPixmap("tmp.png")
         scene = QtWidgets.QGraphicsScene()     
@@ -342,6 +362,11 @@ class mainProgram(QtWidgets.QMainWindow, Ui_MainWindow):
         self.listWidget.clear()
         for item in Measure_list:
             self.listWidget.addItem(item)
+    
+    def save2jpg(self):
+        filename, _ = QFileDialog.getSaveFileName(self)
+        if self.raw_data is not None and filename:
+            self.raw_data.save(filename)
 
 if __name__ == "__main__":
     os.environ["QT_AUTO_SCREEN_SCALE_FACTOR"] = "1"

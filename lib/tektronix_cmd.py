@@ -49,7 +49,19 @@ class DPO4000():
             else:
                 print("(connection) : USB not connected ! (%s/3)" %(self.reconnected_num))
                 return False
-            
+    
+    def list_devices(self):
+        try:
+            self.rm = visa.ResourceManager()
+            devices = self.rm.list_resources()
+            print("(list_devices) : USB - %s - Devices Found : %s" %(self.visa_add, len(devices)))
+            self.rm.close()
+            return devices
+        except Exception as e:
+            print(e)
+            print("(list_devices) : USB - %s - Devices Not Found : %s" %(self.visa_add, len(devices)))
+            return None
+
     def do_command(self, command):
         try:
             self.scope.write("%s" % command)
@@ -90,7 +102,7 @@ class DPO4000():
     def get_raw_bin(self):
         try:
             #time.sleep(0.1)
-            bin_wave = self.scope.query_binary_values('curve?', datatype='b', container=np.array, chunk_size = 1024*50)
+            bin_wave = self.scope.query_binary_values('curve?', datatype='b', container=np.array, chunk_size = 1024*25)
             print("(raw)        : Execute the Command Successfully : %s" %("CURVE?"))
             return bin_wave
         except Exception as e: 
