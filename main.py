@@ -84,7 +84,7 @@ class mainProgram(QtWidgets.QMainWindow, Ui_MainWindow):
         Value_data = {
             "Signal" : {
                 "CLK"   : {
-                    "Enabled"   : self.ChkB_CLK_SW.isChecked(),
+                    #"Enabled"   : self.ChkB_CLK_SW.isChecked(),
                     "Channel"   : self.CB_CLK_CH.currentText(),
                     "Scale"     : self.SB_CLK_Scale.value(),
                     "Offset"    : self.SB_CLK_Offset.value(),
@@ -92,7 +92,7 @@ class mainProgram(QtWidgets.QMainWindow, Ui_MainWindow):
                     "Bandwidth" : self.CB_CLK_BW.currentText(),
                 },
                 "DATA"  : {
-                    "Enabled"   : self.ChkB_DATA_SW.isChecked(),
+                    #"Enabled"   : self.ChkB_DATA_SW.isChecked(),
                     "Channel"   : self.CB_DATA_CH.currentText(),
                     "Scale"     : self.SB_DATA_Scale.value(),
                     "Offset"    : self.SB_DATA_Offset.value(),
@@ -278,7 +278,7 @@ class mainProgram(QtWidgets.QMainWindow, Ui_MainWindow):
             self.graphWidget2.plot(msg[2], name="mode2", pen=color_pen[msg[1]])
     
     def Draw_point_data(self,msg):
-        if msg[0] == "CH1":
+        if msg[0] == "CLK":
             self.graphWidget.plot(msg[1][0], pen=(0,0,200), symbolBrush=(0,0,200), symbolPen='w', symbol='o', symbolSize=14, name="symbol='o'")
             self.graphWidget.plot(msg[1][1], pen=(0,0,200), symbolBrush=(0,0,200), symbolPen='w', symbol='o', symbolSize=14, name="symbol='o'")
         else:

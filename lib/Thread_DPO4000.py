@@ -83,17 +83,17 @@ class Runthread(QtCore.QThread):
 
         Default_signal_setting = self.UI_Value[self.Freq]["Default_Setup"]["Signal"]
 
-        if Default_signal_setting["CLK"]["Enabled"] == True:
-            self._ProgressBar.emit(['CLK', 10])
-            CLK_Volts , CLK_Time = Control_model.get_rawdata(Default_signal_setting["CLK"]["Channel"])
-            self._Draw_raw_data.emit(["CLK",Default_signal_setting["CLK"]["Channel"],CLK_Volts ])
-            self._ProgressBar.emit(['CLK', 100])
+        #if Default_signal_setting["CLK"]["Enabled"] == True:
+        self._ProgressBar.emit(['CLK', 10])
+        CLK_Volts , CLK_Time = Control_model.get_rawdata(Default_signal_setting["CLK"]["Channel"])
+        self._Draw_raw_data.emit(["CLK",Default_signal_setting["CLK"]["Channel"],CLK_Volts ])
+        self._ProgressBar.emit(['CLK', 100])
 
-        if Default_signal_setting["DATA"]["Enabled"] == True:
-            self._ProgressBar.emit(['DATA', 10])
-            DATA_Volts , DATA_Time = Control_model.get_rawdata(Default_signal_setting["DATA"]["Channel"])
-            self._Draw_raw_data.emit(["DATA",Default_signal_setting["DATA"]["Channel"],DATA_Volts ])
-            self._ProgressBar.emit(['DATA', 100])
+        #if Default_signal_setting["DATA"]["Enabled"] == True:
+        self._ProgressBar.emit(['DATA', 10])
+        DATA_Volts , DATA_Time = Control_model.get_rawdata(Default_signal_setting["DATA"]["Channel"])
+        self._Draw_raw_data.emit(["DATA",Default_signal_setting["DATA"]["Channel"],DATA_Volts ])
+        self._ProgressBar.emit(['DATA', 100])
         
         return CLK_Volts, CLK_Time, DATA_Volts, DATA_Time
 
