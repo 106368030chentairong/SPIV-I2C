@@ -59,7 +59,7 @@ class DPO4000():
             return devices
         except Exception as e:
             print(e)
-            print("(list_devices) : USB - %s - Devices Not Found : %s" %(self.visa_add, len(devices)))
+            print("(list_devices) : USB - %s - Devices Not Found " %(self.visa_add))
             return None
 
     def do_command(self, command):

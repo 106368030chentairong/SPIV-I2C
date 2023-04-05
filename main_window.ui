@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1198</width>
+    <width>1373</width>
     <height>700</height>
    </rect>
   </property>
@@ -2038,23 +2038,19 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>1198</width>
-     <height>24</height>
+     <width>1373</width>
+     <height>22</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile">
     <property name="title">
      <string>File</string>
     </property>
+    <addaction name="actionOpen_Test_Plan"/>
    </widget>
    <widget class="QMenu" name="menuSave">
     <property name="title">
      <string>Save</string>
-    </property>
-   </widget>
-   <widget class="QMenu" name="menuFunction">
-    <property name="title">
-     <string>Function</string>
     </property>
    </widget>
    <widget class="QMenu" name="menuSetting">
@@ -2065,13 +2061,17 @@
    </widget>
    <addaction name="menuFile"/>
    <addaction name="menuSave"/>
-   <addaction name="menuFunction"/>
    <addaction name="menuSetting"/>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
   <action name="actionStyle">
    <property name="text">
     <string>Style</string>
+   </property>
+  </action>
+  <action name="actionOpen_Test_Plan">
+   <property name="text">
+    <string>Open Test Plan</string>
    </property>
   </action>
  </widget>

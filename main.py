@@ -12,6 +12,7 @@ from qt_material import apply_stylesheet
 
 # import from lib 
 from lib.Thread_DPO4000 import *
+from lib.analytics_excel import *
 
 from PIL import Image, ImageQt
 import numpy as np
@@ -29,6 +30,7 @@ class mainProgram(QtWidgets.QMainWindow, Ui_MainWindow):
         self.file_name = './config/DPO4000_setup.json'
         self.raw_data = None
 
+        self._connectActions()
         self.getusblist()
         self.Set_Fnuction_UI_value(self.CB_Freq.currentText(), "fSCL")
 
@@ -72,6 +74,19 @@ class mainProgram(QtWidgets.QMainWindow, Ui_MainWindow):
 
         # Screenshot save
         self.PB_Screenshot_save.clicked.connect(self.save2jpg)
+    
+    def _connectActions(self):
+        self.actionOpen_Test_Plan.triggered.connect(self.menu_open_excel)
+
+    def menu_open_excel(self):
+        filename, filetype = QFileDialog.getOpenFileName(self,
+                                                        "Open file",
+                                                        "./")
+        print(filename)
+        excel_model = open_excel()
+        excel_model.excel_path = filename
+        excel_model.read_sheet()
+        excel_model.read_excel()
         
     def getusblist(self):
         Control_model = Controller()
@@ -301,7 +316,6 @@ class mainProgram(QtWidgets.QMainWindow, Ui_MainWindow):
         scene.addPixmap(img)                    
         self.graphWidget_Screenshot.setScene(scene)               
 
-
     def Update_ProgressBar(self, msg):
         if msg[0] == "CLK":
             self.PB_CLK.setValue(msg[1])
@@ -320,7 +334,7 @@ class mainProgram(QtWidgets.QMainWindow, Ui_MainWindow):
         self.Diabled_Widget(True)
         self.PB_DATA.hide()
         self.PB_CLK.hide()
-    
+
     def Measure_list_add(self):
         items = ["AMPlitude","AREa","BURst","CARea","CMEan","CRMs","DELay","FALL","FREQuency",
                  "HIGH","HITS","LOW","MAXimum","MEAN","MEDian","MINImum","NDUty","NEDGECount",
