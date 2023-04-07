@@ -178,17 +178,19 @@ class Controller(object):
         
         self.scope = DPO4000()
         self.scope.connected(self.visa_add)
-        
-        #self.scope.do_command('HORIZONTAL:SCALE %s%s' %(1, "E-6"))
-        self.scope.do_command('HORizontal:DELay:TIME %s' %(Delay_Time))
-        if cursor_switch:
-            self.scope.do_command('CURSor:FUNCtion SCREEN')
 
-            self.scope.do_command('SELECT:%s 1' %(pt_json["Post1_ch"]))
+        # calculate point1 and point2 time scale
+        self.scope.do_command('HORizontal:DELay:TIME %s' %(Delay_Time))
+        
+        if cursor_switch:
+            # Enable cursor on the screen
+            self.scope.do_command('CURSor:FUNCtion SCREEN')
+            # Maker pointer 1 xy and select the cursor
+            self.scope.do_command('SELECT:%s 1' %(self.UI_Value["Signal"][pt_json["Post1_ch"]]["Channel"]))
             self.scope.do_command('CURSor:VBArs:POSITION1 %s' %(VBArs_pos_1))
             self.scope.do_command('CURSOR:HBARS:POSITION1 %s' %(HBARS_pos_1))
-            
-            self.scope.do_command('SELECT:%s 1' %(pt_json["Post2_ch"]))
+            # Maker pointer 2 xy and select the cursor
+            self.scope.do_command('SELECT:%s 1' %(self.UI_Value["Signal"][pt_json["Post2_ch"]]["Channel"]))
             self.scope.do_command('CURSor:VBArs:POSITION2 %s' %(VBArs_pos_2))
             self.scope.do_command('CURSOR:HBARS:POSITION2 %s' %(HBARS_pos_2))
         

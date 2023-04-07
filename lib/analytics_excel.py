@@ -17,4 +17,4 @@ class open_excel():
             print(e)
             return None
     
-    def get_rowname(self,)
+    #def get_rowname(self,)

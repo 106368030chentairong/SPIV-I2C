@@ -14,6 +14,7 @@ class Runthread(QtCore.QThread):
     _Draw_point_data = pyqtSignal(list)
     _Draw_Screenshot = pyqtSignal(QByteArray)
     _done_trigger = pyqtSignal()
+    _error_message = pyqtSignal(str)
     _ProgressBar = pyqtSignal(list)
     
     def __init__(self):
@@ -28,17 +29,20 @@ class Runthread(QtCore.QThread):
 
     def run(self):
         print(self.function_name)
-        
-        if self.function_name == "Setup":
-            self.function_setup()
-        elif self.function_name == "Getdata":
-            self.Get_data()
-        elif self.function_name == "Single":
-            self.Single_data()
-        else:
-            self.function_switch(self.function_name)
-
-        self._done_trigger.emit()
+        try:
+            if self.function_name == "Setup":
+                self.function_setup()
+            elif self.function_name == "Getdata":
+                self.Get_data()
+            elif self.function_name == "Single":
+                self.Single_data()
+            else:
+                self.function_switch(self.function_name)
+        except Exception as e:
+            print(e)
+            self._error_message.emit("Not found %s point data" %(self.function_name))
+        finally:
+            self._done_trigger.emit()
     
     def function_setup(self):
         Defult_setting = self.UI_Value[self.Freq]["Default_Setup"]
@@ -108,6 +112,7 @@ class Runthread(QtCore.QThread):
 
         Control_model = Controller()
         Control_model.visa_add = self.visa_add
+        Control_model.UI_Value = self.UI_Value[self.Freq]["Default_Setup"]
         Control_model.Dispaly_ch_off()
 
         Signal_model = signal_process()
@@ -161,7 +166,30 @@ class Runthread(QtCore.QThread):
         if function_name == "tFALL_CLK" or function_name == "tFALL_DATA":
             ch_name = function_name.split("_")[-1]
             delay_time, pt_json = Signal_model.function_process(ch_name, "tFALL")
-        
+
+        if function_name == "tHOLD_DAT":
+            #ch_name = function_name.split("_")[-1]
+            delay_time, pt_json = Signal_model.function_process(function_name = "tHOLD_DAT")
+
+        if function_name == "tHOLD_STA":
+            #ch_name = function_name.split("_")[-1]
+            delay_time, pt_json = Signal_model.function_process(function_name = "tHOLD_STA")
+
+        if function_name == "tSETUP_DAT":
+            #ch_name = function_name.split("_")[-1]
+            delay_time, pt_json = Signal_model.function_process(function_name = "tSETUP_DAT")
+
+        if function_name == "tSETUP_STA":
+            #ch_name = function_name.split("_")[-1]
+            delay_time, pt_json = Signal_model.function_process(function_name = "tSETUP_STA")
+
+        if function_name == "tSETUP_STO":
+            #ch_name = function_name.split("_")[-1]
+            delay_time, pt_json = Signal_model.function_process(function_name = "tSETUP_STO")
+
+        if function_name == "tBUF":
+            #ch_name = function_name.split("_")[-1]
+            delay_time, pt_json = Signal_model.function_process(function_name = "tBUF")
 
         Control_model.Cursors_control(delay_time, pt_json,
                                       signal_setting["Cursors"]["Enabled"])

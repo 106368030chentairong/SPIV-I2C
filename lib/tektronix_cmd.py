@@ -64,6 +64,7 @@ class DPO4000():
 
     def do_command(self, command):
         try:
+            time.sleep(0.02)
             self.scope.write("%s" % command)
             print("(write)      : Execute the Command Successfully : %s " %(command))
         except Exception as e: 
@@ -72,6 +73,7 @@ class DPO4000():
 
     def do_query(self, command):
         try:
+            time.sleep(0.02)
             msg = self.scope.query("%s" % command).strip()
             print("(query)      : Execute the Command Successfully : %s - %s" %(command, msg))
             return msg
@@ -81,6 +83,7 @@ class DPO4000():
 
     def do_read(self, command):
         try:
+            time.sleep(0.02)
             msg = self.scope.read("%s" % command).strip()
             print("(read)       : Execute the Command Successfully : %s - %s" %(command, msg))
             return msg
@@ -90,7 +93,7 @@ class DPO4000():
 
     def get_raw(self):
         try:
-            #time.sleep(0.1)
+            time.sleep(0.02)
             self.do_command('CURVE?')
             raw_data = self.scope.read_raw()
             print("(raw)        : Execute the Command Successfully : %s" %("CURVE?"))
@@ -101,8 +104,8 @@ class DPO4000():
     
     def get_raw_bin(self):
         try:
-            #time.sleep(0.1)
-            bin_wave = self.scope.query_binary_values('curve?', datatype='b', container=np.array, chunk_size = 1024*25)
+            time.sleep(0.5)
+            bin_wave = self.scope.query_binary_values('curve?', datatype='b', container=np.array)
             print("(raw)        : Execute the Command Successfully : %s" %("CURVE?"))
             return bin_wave
         except Exception as e: 
@@ -111,7 +114,7 @@ class DPO4000():
 
     def get_HARDCopy(self):
         try:
-            #time.sleep(0.1)
+            time.sleep(0.02)
             self.scope.write("SAVe:IMAGe:FILEF PNG")
             self.scope.write("HARDCopy STARt")
             imgData = self.scope.read_raw()

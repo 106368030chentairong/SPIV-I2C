@@ -58,12 +58,12 @@ class mainProgram(QtWidgets.QMainWindow, Ui_MainWindow):
         self.PB_Function_9.clicked.connect(lambda:self.Set_Fnuction_UI_value(self.CB_Freq.currentText(),"tFALL_CLK"))
         self.PB_Function_10.clicked.connect(lambda:self.Set_Fnuction_UI_value(self.CB_Freq.currentText(),"tRISE_DATA"))
         self.PB_Function_11.clicked.connect(lambda:self.Set_Fnuction_UI_value(self.CB_Freq.currentText(),"tFALL_DATA"))
-        self.PB_Function_12.clicked.connect(lambda:self.Set_Fnuction_UI_value(self.CB_Freq.currentText(),""))
-        self.PB_Function_13.clicked.connect(lambda:self.Set_Fnuction_UI_value(self.CB_Freq.currentText(),""))
-        self.PB_Function_14.clicked.connect(lambda:self.Set_Fnuction_UI_value(self.CB_Freq.currentText(),""))
-        self.PB_Function_15.clicked.connect(lambda:self.Set_Fnuction_UI_value(self.CB_Freq.currentText(),""))
-        self.PB_Function_16.clicked.connect(lambda:self.Set_Fnuction_UI_value(self.CB_Freq.currentText(),""))
-        self.PB_Function_17.clicked.connect(lambda:self.Set_Fnuction_UI_value(self.CB_Freq.currentText(),""))
+        self.PB_Function_12.clicked.connect(lambda:self.Set_Fnuction_UI_value(self.CB_Freq.currentText(),"tHOLD_DAT"))
+        self.PB_Function_13.clicked.connect(lambda:self.Set_Fnuction_UI_value(self.CB_Freq.currentText(),"tHOLD_STA"))
+        self.PB_Function_14.clicked.connect(lambda:self.Set_Fnuction_UI_value(self.CB_Freq.currentText(),"tSETUP_DAT"))
+        self.PB_Function_15.clicked.connect(lambda:self.Set_Fnuction_UI_value(self.CB_Freq.currentText(),"tSETUP_STA"))
+        self.PB_Function_16.clicked.connect(lambda:self.Set_Fnuction_UI_value(self.CB_Freq.currentText(),"tSETUP_STO"))
+        self.PB_Function_17.clicked.connect(lambda:self.Set_Fnuction_UI_value(self.CB_Freq.currentText(),"tBUF"))
 
         self.PB_RUN_Fc.clicked.connect(lambda:self.function_test(self.LB_Func_Name.text()))
 
@@ -265,10 +265,15 @@ class mainProgram(QtWidgets.QMainWindow, Ui_MainWindow):
         self.graphWidget2.setEnabled(switch)
         self.PB_SETUP.setEnabled(switch)
         self.PB_SINGLE.setEnabled(switch)
-        self.PB_SETUP.setEnabled(switch)
+        self.PB_RUN_Fc.setEnabled(switch)
+        self.PB_SAVE_Fc.setEnabled(switch)
+        self.PB_GETDATA.setEnabled(switch)
+        self.PB_Save_Conf.setEnabled(switch)
 
     def function_test(self, function_name):
         if self.CB_VIsa.currentText() != None:
+            self.Get_Default_UI_value(self.CB_Freq.currentText())
+            self.Get_Fnuction_UI_value(self.CB_Freq.currentText(),self.LB_Func_Name.text())
             self.Diabled_Widget(False)
             self.thread = Runthread()
             self.thread.visa_add        = self.CB_VIsa.currentText()
@@ -280,6 +285,7 @@ class mainProgram(QtWidgets.QMainWindow, Ui_MainWindow):
             self.thread._Draw_Screenshot.connect(self.Draw_Screenshot)
             self.thread._done_trigger.connect(self.Done_trigger)
             self.thread._ProgressBar.connect(self.Update_ProgressBar)
+            self.thread._error_message.connect(self.error_message)
             self.thread.start()
 
     def Draw_raw_data(self, msg):
@@ -303,7 +309,7 @@ class mainProgram(QtWidgets.QMainWindow, Ui_MainWindow):
     def Draw_Screenshot(self, byte_array):
         h = 1024
         w = 768
-        ui_w = self.graphWidget_Screenshot.height()
+        ui_w = 580
         s = ui_w/w
         self.raw_data = Image.open(io.BytesIO(byte_array))
         newsize = (int(h*s),int(ui_w))
@@ -381,6 +387,15 @@ class mainProgram(QtWidgets.QMainWindow, Ui_MainWindow):
         filename, _ = QFileDialog.getSaveFileName(self)
         if self.raw_data is not None and filename:
             self.raw_data.save(filename)
+    
+    def error_message(self, msg):
+        message = QMessageBox(self)
+        message.setWindowTitle("info")
+        message.setIcon(QMessageBox.Information)
+        message.setText('Not found')
+        message.setInformativeText(msg)
+        message.show()
+        message.exec_()
 
 if __name__ == "__main__":
     os.environ["QT_AUTO_SCREEN_SCALE_FACTOR"] = "1"
