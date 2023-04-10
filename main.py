@@ -85,8 +85,11 @@ class mainProgram(QtWidgets.QMainWindow, Ui_MainWindow):
         print(filename)
         excel_model = open_excel()
         excel_model.excel_path = filename
-        excel_model.read_sheet()
-        excel_model.read_excel()
+        
+        selected_item, ok_pressed = QInputDialog.getItem(self, "Select Sheet Name", "Choose Sheet Name:", excel_model.read_sheet())
+        print(selected_item)
+        if ok_pressed:
+            excel_model.read_excel(selected_item)
         
     def getusblist(self):
         Control_model = Controller()

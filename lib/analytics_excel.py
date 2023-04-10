@@ -3,15 +3,15 @@ import openpyxl
 class open_excel():
     def __init__(self):
         self.excel_path = None
-        pass
+        #self.sheet_name = None
 
-    def read_sheet(self): 
+    def read_sheet(self):
         return openpyxl.load_workbook(self.excel_path, read_only=False).sheetnames
 
-    def read_excel(self,filename, sheetname):
+    def read_excel(self, sheet_name):
         try:
-            wb = openpyxl.load_workbook(filename, read_only=False)
-            ws = wb.worksheets[sheetname]
+            wb = openpyxl.load_workbook(self.excel_path, read_only=False)
+            ws = wb.worksheets[sheet_name]
             return ws
         except Exception as e:
             print(e)

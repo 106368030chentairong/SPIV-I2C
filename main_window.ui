@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>1373</width>
-    <height>700</height>
+    <height>697</height>
    </rect>
   </property>
   <property name="contextMenuPolicy">
@@ -126,7 +126,7 @@
                 </size>
                </property>
                <property name="currentIndex">
-                <number>1</number>
+                <number>0</number>
                </property>
                <widget class="QWidget" name="TW_TestPlan">
                 <attribute name="title">
@@ -1316,7 +1316,7 @@
                       <enum>QLayout::SetMinimumSize</enum>
                      </property>
                      <item>
-                      <layout class="QGridLayout" name="gridLayout_15">
+                      <layout class="QGridLayout" name="gridLayout_15" columnstretch="1,1,1" columnminimumwidth="1,1,1">
                        <item row="6" column="0">
                         <widget class="QPushButton" name="PB_Function_7">
                          <property name="text">
@@ -1438,6 +1438,9 @@
                        </item>
                        <item row="3" column="2">
                         <widget class="QPushButton" name="PB_Function_18">
+                         <property name="enabled">
+                          <bool>false</bool>
+                         </property>
                          <property name="text">
                           <string/>
                          </property>
@@ -1445,6 +1448,9 @@
                        </item>
                        <item row="4" column="2">
                         <widget class="QPushButton" name="PB_Function_19">
+                         <property name="enabled">
+                          <bool>false</bool>
+                         </property>
                          <property name="text">
                           <string/>
                          </property>
@@ -1452,6 +1458,9 @@
                        </item>
                        <item row="5" column="2">
                         <widget class="QPushButton" name="PB_Function_20">
+                         <property name="enabled">
+                          <bool>false</bool>
+                         </property>
                          <property name="text">
                           <string/>
                          </property>
@@ -1459,6 +1468,9 @@
                        </item>
                        <item row="6" column="2">
                         <widget class="QPushButton" name="PB_Function_21">
+                         <property name="enabled">
+                          <bool>false</bool>
+                         </property>
                          <property name="text">
                           <string/>
                          </property>
