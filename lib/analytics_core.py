@@ -234,6 +234,12 @@ class signal_process():
                                     "Post2_ch"   : "DATA",
                                     "Post2_time" : self.DATA_VIH,
                                     "Post2_volts": 1.26,}
+                                    
+            if function_name == "Test":
+                H_time, _ = self.get_bit(self.CLK_PT_TMP)
+                POSITION1  = H_time[0][0]
+                POSITION2  = H_time[0][1]
+                Htime = abs(POSITION1-POSITION2)
 
     def get_pt(self, rows, VIH, VIL):
         tmp = []
@@ -482,6 +488,37 @@ class signal_process():
     def get_tBUF(self, data_all_pt, clk_all_pt, DATA_rows, CLK_rows, Htime):
         print(Htime)
 
+        tBUF = []
+        pt_0 = None
+        pt_1 = None
+        for pt in data_all_pt:
+            sum_ = 0
+            num = 0
+            
+            for data in CLK_rows[pt[0]:pt[1]]:
+                sum_ += data[1]
+                num += 1   
+            if sum_ / num > 0.8:
+                if pt_0 is None:
+                    pt_0 = pt[1]
+                    pt_1 = None
+                else:
+                    pt_1 = pt[0]
+                    sum_ = 0
+                    num = 0
+                    for data in CLK_rows[pt_0:pt_1]:
+                        sum_ += data[1]
+                        num += 1
+                    if sum_/num > 0.8 and abs(pt_0-pt_1) > Htime*10:
+                        print(pt_0-pt_1)
+                        tBUF.append([pt_0,pt_1])
+                        break
+                    pt_0 = None
+                    pt_1 = None
+
+        return tBUF
+
+    def get_bit(self, data_all_pt, clk_all_pt, DATA_rows, CLK_rows, Htime):
         tBUF = []
         pt_0 = None
         pt_1 = None

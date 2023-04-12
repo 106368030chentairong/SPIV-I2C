@@ -64,6 +64,10 @@ class mainProgram(QtWidgets.QMainWindow, Ui_MainWindow):
         self.PB_Function_15.clicked.connect(lambda:self.Set_Fnuction_UI_value(self.CB_Freq.currentText(),"tSETUP_STA"))
         self.PB_Function_16.clicked.connect(lambda:self.Set_Fnuction_UI_value(self.CB_Freq.currentText(),"tSETUP_STO"))
         self.PB_Function_17.clicked.connect(lambda:self.Set_Fnuction_UI_value(self.CB_Freq.currentText(),"tBUF"))
+        #self.PB_Function_18.clicked.connect(lambda:self.Set_Fnuction_UI_value(self.CB_Freq.currentText(),""))
+        #self.PB_Function_19.clicked.connect(lambda:self.Set_Fnuction_UI_value(self.CB_Freq.currentText(),""))
+        #self.PB_Function_20.clicked.connect(lambda:self.Set_Fnuction_UI_value(self.CB_Freq.currentText(),""))
+        self.PB_Function_21.clicked.connect(lambda:self.Set_Fnuction_UI_value(self.CB_Freq.currentText(),"Test"))
 
         self.PB_RUN_Fc.clicked.connect(lambda:self.function_test(self.LB_Func_Name.text()))
 
