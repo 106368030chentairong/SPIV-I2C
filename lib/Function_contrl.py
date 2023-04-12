@@ -78,9 +78,7 @@ class Controller(object):
     def set_channel_label(self, ch_num, label_name):
         self.scope = DPO4000()
         self.scope.connected(self.visa_add)
-
         self.scope.do_command('%s:LABel "%s"' %(ch_num, label_name))
-
         self.scope.close()
     
     def set_trigger(self, ch_num, LEVel, SLOpe):
@@ -173,7 +171,6 @@ class Controller(object):
         # vertical (voltage)
         unscaled_wave = np.array(bin_wave, dtype='double') # data type conversion
         Volts = (unscaled_wave - vpos) * vscale + voff
-
         self.scope.close()
 
         return Volts , Time
@@ -212,7 +209,7 @@ class Controller(object):
         for idx in range(1,9):
             self.scope.do_command('MEASUrement:MEAS%s:STATE OFF'    %(idx))
         for idx, function_value in enumerate(function_list):
-            sleep_num += 0.5
+            sleep_num += 0.25
             TYPe = function_value.split("_")[0]
             source = function_value.split("_")[-1]
             if source == "CLK":
@@ -253,3 +250,22 @@ class Controller(object):
         self.scope = DPO4000()
         usb_list = self.scope.list_devices()
         return usb_list
+    
+    def get_MeasureValue(self, idx):
+        time.sleep(0.5)
+        self.scope = DPO4000()
+        self.scope.connected(self.visa_add)
+        VALue = self.scope.do_query('MEASUrement:MEAS%s:VALue?' %(idx+1))
+        self.scope.close()
+        if float(VALue) >= 9.9E+36:
+            return self.get_MeasureValue(idx)
+        else:
+            return float(VALue)
+
+    def get_Measurement(self):
+        Measure_list = []
+
+        for idx in range(4):
+            Measure_list.append(self.get_MeasureValue(idx))
+
+        return Measure_list

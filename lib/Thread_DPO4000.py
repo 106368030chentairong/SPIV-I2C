@@ -81,11 +81,20 @@ class Runthread(QtCore.QThread):
         Control_model.set_trigger(Defult_setting["Trigger"]["Source"],
                                   Defult_setting["Trigger"]["Level"],
                                   Defult_setting["Trigger"]["Slop"])
-
-    def Single_data(self):    
+        
+    
+    def Single_data(self):
+        Defult_setting = self.UI_Value[self.Freq]["Default_Setup"]
         Control_model = Controller()
         Control_model.visa_add = self.visa_add
         Control_model.single_data()
+
+        # Setup VIH VIL
+        Control_model.Measure_setup(["HIGH_CLK", "LOW_CLK", "HIGH_DATA", "LOW_DATA"],
+                                    Defult_setting["Signal"]["CLK"]["Channel"],
+                                    Defult_setting["Signal"]["DATA"]["Channel"])
+
+        return Control_model.get_Measurement()
     
     def Get_data(self):
         Control_model = Controller()
@@ -116,7 +125,10 @@ class Runthread(QtCore.QThread):
     def function_switch(self, function_name):
 
         self.function_setup()
-        self.Single_data()
+        
+        Measure_list = self.Single_data()
+        print("Measure_list %s" %(Measure_list))
+
         CLK_Volts, CLK_Time, DATA_Volts, DATA_Time = self.Get_data()
 
         signal_setting = self.UI_Value[self.Freq]["Function_Setup"][function_name]
@@ -127,7 +139,13 @@ class Runthread(QtCore.QThread):
         Control_model.UI_Value = self.UI_Value[self.Freq]["Default_Setup"]
         Control_model.Dispaly_ch_off()
 
+        print(Measure_list)
+
         Signal_model = signal_process()
+        Signal_model.CLK_VIH    = Measure_list[0]*0.7
+        Signal_model.CLK_VIL    = Measure_list[0]*0.3
+        Signal_model.DATA_VIH   = Measure_list[2]*0.7
+        Signal_model.DATA_VIL   = Measure_list[2]*0.3
         Signal_model.CLK_Volts  = CLK_Volts
         Signal_model.CLK_Time   = CLK_Time
         Signal_model.DATA_Volts = DATA_Volts
