@@ -67,6 +67,12 @@ class Runthread(QtCore.QThread):
                                   Defult_setting["Signal"]["DATA"]["Position"],
                                   Defult_setting["Signal"]["DATA"]["Bandwidth"])
         
+        # Setup channel names 
+        Control_model.set_channel_label(Defult_setting["Signal"]["CLK"]["Channel"],
+                                        Defult_setting["Signal"]["CLK"]["Label"])
+        Control_model.set_channel_label(Defult_setting["Signal"]["DATA"]["Channel"],
+                                        Defult_setting["Signal"]["DATA"]["Label"])
+        
         # Setup Time Scale Signal
         Control_model.set_time_scale(Defult_setting["Horizontal"]["Time Scale"],
                                      Defult_setting["Horizontal"]["Time Scale Unit"])
@@ -100,6 +106,12 @@ class Runthread(QtCore.QThread):
         self._ProgressBar.emit(['DATA', 100])
         
         return CLK_Volts, CLK_Time, DATA_Volts, DATA_Time
+
+    def get_Screenshot(self):
+        Control_model = Controller()
+        Control_model.visa_add = self.visa_add
+        image = Control_model.get_Screenshot()
+        self._Draw_Screenshot.emit(image)
 
     def function_switch(self, function_name):
 

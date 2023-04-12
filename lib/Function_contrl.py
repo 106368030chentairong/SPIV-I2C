@@ -75,6 +75,14 @@ class Controller(object):
         self.scope.do_command('%s:BANdwidth %s'   %(ch_num, BANdwidth))
         self.scope.close()
     
+    def set_channel_label(self, ch_num, label_name):
+        self.scope = DPO4000()
+        self.scope.connected(self.visa_add)
+
+        self.scope.do_command('%s:LABel "%s"' %(ch_num, label_name))
+
+        self.scope.close()
+    
     def set_trigger(self, ch_num, LEVel, SLOpe):
         self.scope = DPO4000()
         self.scope.connected(self.visa_add)
@@ -88,8 +96,8 @@ class Controller(object):
     def set_time_scale(self, T_scale, T_Unit):
         self.scope = DPO4000()
         self.scope.connected(self.visa_add)
-        self.scope.do_command('HORizontal:DELay:TIME %s%s' %(int(T_scale)*10, T_Unit))
-        self.scope.do_command('HORIZONTAL:SCALE %s%s' %(T_scale, T_Unit))
+        self.scope.do_command('HORizontal:DELay:TIME %s%s'  %(int(T_scale)*10, T_Unit))
+        self.scope.do_command('HORIZONTAL:SCALE %s%s'       %(T_scale, T_Unit))
         self.scope.close()
 
     def check_single_state(self):

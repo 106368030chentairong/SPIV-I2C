@@ -60,7 +60,6 @@ class signal_process():
                             POSITION2  = self.DATA_Time[tf_tmp[0][1]]
                         delay_time = POSITION1 + abs((POSITION2 - POSITION1)/2)
 
-
                     return delay_time,{"Post1_ch"   : ch_name,
                                        "Post1_time" : POSITION1,
                                        "Post1_volts": 0.54,
@@ -131,7 +130,7 @@ class signal_process():
                 delay_time = POSITION2 + abs((POSITION2 - POSITION1)/2)
                 return delay_time,{"Post1_ch"   : "DATA",
                                     "Post1_time" : POSITION1,
-                                    "Post1_volts": 0.54,
+                                    "Post1_volts": 1.26,
                                     "Post2_ch"   : "CLK",
                                     "Post2_time" : POSITION2,
                                     "Post2_volts": 0.54,}
@@ -384,7 +383,8 @@ class signal_process():
                     for clk_pt in clk_all_pt:
                         if clk_pt[0] <= pt[1] and clk_pt[1] <= pt[1]:
                             clk_tp_tmp = clk_pt[1]
-                    tHD_DAT.append([pt[1],clk_tp_tmp])
+                    print(pt)
+                    tHD_DAT.append([pt[0],clk_tp_tmp])
                     break
         return tHD_DAT
 

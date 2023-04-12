@@ -21,17 +21,17 @@ class mainProgram(QtWidgets.QMainWindow, Ui_MainWindow):
     def __init__(self, parent=None):
         super(mainProgram, self).__init__(parent)
         self.setupUi(self)
-        self.change_UI_styl()
-        #self.Get_Default_UI_value()
+        self.change_UI_styl("dark_purple.xml")
 
         # Set main window name
-        self.setWindowTitle("I2C Auto Testting Tool V3.0.0")
+        self.setWindowTitle("I2C_AutoTestingTool_V3.0.0 (Developer bate3)")
 
         self.file_name = './config/DPO4000_setup.json'
         self.raw_data = None
 
         self._connectActions()
         self.getusblist()
+        self.set_Default_UI_value(self.CB_Freq.currentText())
         self.Set_Fnuction_UI_value(self.CB_Freq.currentText(), "fSCL")
 
         # Push Button
@@ -40,7 +40,7 @@ class mainProgram(QtWidgets.QMainWindow, Ui_MainWindow):
         self.PB_GETDATA.clicked.connect(lambda:self.function_test("Getdata"))
         self.PB_SINGLE.clicked.connect(lambda:self.function_test("Single"))
         
-        self.CB_style.currentTextChanged.connect(self.change_UI_styl)
+        #self.CB_style.currentTextChanged.connect(self.change_UI_styl)
 
         # Funtion Button
         self.PB_Save_Conf.clicked.connect(lambda:self.Get_Default_UI_value(self.CB_Freq.currentText()))
@@ -73,23 +73,48 @@ class mainProgram(QtWidgets.QMainWindow, Ui_MainWindow):
         self.PB_list_clear.clicked.connect(self.Measure_list_clear)
 
         # Screenshot save
+        self.PB_Screenshot_get.clicked.connect(self.get_screenshot)
         self.PB_Screenshot_save.clicked.connect(self.save2jpg)
     
     def _connectActions(self):
         self.actionOpen_Test_Plan.triggered.connect(self.menu_open_excel)
+        self.actionStyle.triggered.connect(self.chooes_type)
+
+    def chooes_type(self):
+        themes = ['dark_amber.xml',
+            'dark_blue.xml',
+            'dark_cyan.xml',
+            'dark_lightgreen.xml',
+            'dark_pink.xml',
+            'dark_purple.xml',
+            'dark_red.xml',
+            'dark_teal.xml',
+            'dark_yellow.xml',
+            'light_amber.xml',
+            'light_blue.xml',
+            'light_cyan.xml',
+            'light_cyan_500.xml',
+            'light_lightgreen.xml',
+            'light_pink.xml',
+            'light_purple.xml',
+            'light_red.xml',
+            'light_teal.xml',
+            'light_yellow.xml']
+        selected_item, ok_pressed = QInputDialog.getItem(self, "Select UI type ", "Select UI type:", themes)
+        if ok_pressed:
+            self.change_UI_styl(selected_item)
 
     def menu_open_excel(self):
-        filename, filetype = QFileDialog.getOpenFileName(self,
-                                                        "Open file",
-                                                        "./")
-        print(filename)
-        excel_model = open_excel()
-        excel_model.excel_path = filename
-        
-        selected_item, ok_pressed = QInputDialog.getItem(self, "Select Sheet Name", "Choose Sheet Name:", excel_model.read_sheet())
-        print(selected_item)
-        if ok_pressed:
-            excel_model.read_excel(selected_item)
+        filename, filetype = QFileDialog.getOpenFileName(self, "Open file", "./")
+        if filename != "":
+            print(filename)
+            excel_model = open_excel()
+            excel_model.excel_path = filename
+            
+            selected_item, ok_pressed = QInputDialog.getItem(self, "Select Sheet Name", "Choose Sheet Name:", excel_model.read_sheet())
+            print(selected_item)
+            if ok_pressed:
+                excel_model.read_excel(selected_item)
         
     def getusblist(self):
         Control_model = Controller()
@@ -102,7 +127,7 @@ class mainProgram(QtWidgets.QMainWindow, Ui_MainWindow):
         Value_data = {
             "Signal" : {
                 "CLK"   : {
-                    #"Enabled"   : self.ChkB_CLK_SW.isChecked(),
+                    "Label"     : self.LE_CLK_CH.text(),
                     "Channel"   : self.CB_CLK_CH.currentText(),
                     "Scale"     : self.SB_CLK_Scale.value(),
                     "Offset"    : self.SB_CLK_Offset.value(),
@@ -110,7 +135,7 @@ class mainProgram(QtWidgets.QMainWindow, Ui_MainWindow):
                     "Bandwidth" : self.CB_CLK_BW.currentText(),
                 },
                 "DATA"  : {
-                    #"Enabled"   : self.ChkB_DATA_SW.isChecked(),
+                    "Label"     : self.LE_DATA_CH.text(),
                     "Channel"   : self.CB_DATA_CH.currentText(),
                     "Scale"     : self.SB_DATA_Scale.value(),
                     "Offset"    : self.SB_DATA_Offset.value(),
@@ -189,33 +214,35 @@ class mainProgram(QtWidgets.QMainWindow, Ui_MainWindow):
         with open(self.file_name, "r", encoding='UTF-8') as config_file:
             json_data = json.load(config_file)
 
-        self.ChkB_CLK_SW.isChecked()
-        self.CB_CLK_CH.currentText()
-        self.SB_CLK_Scale.value()
-        self.SB_CLK_Offset.value()
-        self.SB_CLK_Position.value()
-        self.CB_CLK_BW.currentText()
+        #self.ChkB_CLK_SW.setChecked(json_data[Freq]["Default_Setup"]["Signal"]["CLK"]["Enabled"])
+        self.LE_CLK_CH.setText(json_data[Freq]["Default_Setup"]["Signal"]["CLK"]["Label"])
+        self.CB_CLK_CH.setCurrentText(json_data[Freq]["Default_Setup"]["Signal"]["CLK"]["Channel"])
+        self.SB_CLK_Scale.setValue(json_data[Freq]["Default_Setup"]["Signal"]["CLK"]["Scale"])
+        self.SB_CLK_Offset.setValue(json_data[Freq]["Default_Setup"]["Signal"]["CLK"]["Offset"])
+        self.SB_CLK_Position.setValue(json_data[Freq]["Default_Setup"]["Signal"]["CLK"]["Position"])
+        self.CB_CLK_BW.setCurrentText(json_data[Freq]["Default_Setup"]["Signal"]["CLK"]["Bandwidth"])
 
-        self.ChkB_DATA_SW.isChecked()
-        self.CB_DATA_CH.currentText()
-        self.SB_DATA_Scale.value()
-        self.SB_DATA_Offset.value()
-        self.SB_DATA_Position.value()
-        self.CB_DATA_BW.currentText()
+        #self.ChkB_DATA_SW.isChecked()
+        self.LE_DATA_CH.setText(json_data[Freq]["Default_Setup"]["Signal"]["DATA"]["Label"])
+        self.CB_DATA_CH.setCurrentText(json_data[Freq]["Default_Setup"]["Signal"]["DATA"]["Channel"])
+        self.SB_DATA_Scale.setValue(json_data[Freq]["Default_Setup"]["Signal"]["DATA"]["Scale"])
+        self.SB_DATA_Offset.setValue(json_data[Freq]["Default_Setup"]["Signal"]["DATA"]["Offset"])
+        self.SB_DATA_Position.setValue(json_data[Freq]["Default_Setup"]["Signal"]["DATA"]["Position"])
+        self.CB_DATA_BW.setCurrentText(json_data[Freq]["Default_Setup"]["Signal"]["DATA"]["Bandwidth"])
 
-        self.CB_RR.currentText()
-        self.CB_SR.currentText()
+        self.CB_RR.setCurrentText(json_data[Freq]["Default_Setup"]["Rate"]["Record"])
+        self.CB_SR.setCurrentText(json_data[Freq]["Default_Setup"]["Rate"]["Sample"])
 
-        self.SB_Display_WAVE.value()
-        self.SB_Display_GRA.value()
+        self.SB_Display_WAVE.setValue(json_data[Freq]["Default_Setup"]["Display"]["Wave"])
+        self.SB_Display_GRA.setValue(json_data[Freq]["Default_Setup"]["Display"]["GRA"])
             
-        self.CB_Trigger_CH.currentText()
-        self.CB_Trigger_SL.currentText()
-        self.CB_Trigger_LV.value()
-        self.CB_Trigger_MODE.currentText()
+        self.CB_Trigger_CH.setCurrentText(json_data[Freq]["Default_Setup"]["Trigger"]["Source"])
+        self.CB_Trigger_SL.setCurrentText(json_data[Freq]["Default_Setup"]["Trigger"]["Slop"])
+        self.CB_Trigger_LV.setValue(json_data[Freq]["Default_Setup"]["Trigger"]["Level"])
+        self.CB_Trigger_MODE.setCurrentText(json_data[Freq]["Default_Setup"]["Trigger"]["Mode"])
 
-        self.SB_Time_Value.value()
-        self.CB_Time_Unit.currentText()
+        self.SB_Time_Value.setValue(json_data[Freq]["Default_Setup"]["Horizontal"]["Time Scale"])
+        self.CB_Time_Unit.setCurrentText(json_data[Freq]["Default_Setup"]["Horizontal"]["Time Scale Unit"])
 
     def Set_Fnuction_UI_value(self, Freq, Fun_name):
         self.LB_Func_Name.setText(Fun_name)
@@ -258,10 +285,10 @@ class mainProgram(QtWidgets.QMainWindow, Ui_MainWindow):
 
             self.Get_Fnuction_UI_value(Freq,Fun_name)
 
-    def change_UI_styl(self):
+    def change_UI_styl(self, themes_name):
         self.PB_CLK.hide()
         self.PB_DATA.hide()
-        apply_stylesheet(app, self.CB_style.currentText())
+        apply_stylesheet(app, themes_name)
     
     def Diabled_Widget(self, switch):
         self.graphWidget.setEnabled(switch)
@@ -391,6 +418,12 @@ class mainProgram(QtWidgets.QMainWindow, Ui_MainWindow):
         if self.raw_data is not None and filename:
             self.raw_data.save(filename)
     
+    def get_screenshot(self):
+        self.thread = Runthread()
+        self.thread.visa_add        = self.CB_VIsa.currentText()
+        self.thread._Draw_Screenshot.connect(self.Draw_Screenshot)
+        self.thread.get_Screenshot()
+
     def error_message(self, msg):
         message = QMessageBox(self)
         message.setWindowTitle("info")
