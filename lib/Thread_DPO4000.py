@@ -11,11 +11,12 @@ from lib.Function_contrl import *
 
 class Runthread(QtCore.QThread):
     _Draw_raw_data = pyqtSignal(list)
-    _Draw_point_data = pyqtSignal(list)
+    #_Draw_point_data = pyqtSignal(list)
     _Draw_Screenshot = pyqtSignal(QByteArray)
     _done_trigger = pyqtSignal()
     _error_message = pyqtSignal(str)
     _ProgressBar = pyqtSignal(list)
+    _Decoder = pyqtSignal(list)
     
     def __init__(self):
         super(Runthread, self).__init__()
@@ -220,6 +221,16 @@ class Runthread(QtCore.QThread):
         if function_name == "tBUF":
             #ch_name = function_name.split("_")[-1]
             delay_time, pt_json = Signal_model.function_process(function_name = "tBUF")
+
+        if function_name == "tVD-DAT":
+            delay_time, pt_json = Signal_model.function_process(function_name = "tVD_DAT")
+
+        if function_name == "tVD-ACK":
+            delay_time, pt_json = Signal_model.function_process(function_name = "tVD_ACK")
+
+        if function_name == "Test":
+            delay_time, pt_json, decoder = Signal_model.function_process(function_name = "Test")
+            self._Decoder.emit(decoder)
 
         Control_model.Cursors_control(delay_time, pt_json,
                                       signal_setting["Cursors"]["Enabled"])

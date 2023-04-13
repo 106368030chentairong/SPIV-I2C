@@ -17,8 +17,8 @@
    <string>MainWindow</string>
   </property>
   <widget class="QWidget" name="centralwidget">
-   <layout class="QHBoxLayout" name="horizontalLayout_9">
-    <item>
+   <layout class="QGridLayout" name="gridLayout_6">
+    <item row="0" column="0">
      <widget class="QTabWidget" name="tabWidget">
       <property name="layoutDirection">
        <enum>Qt::LeftToRight</enum>
@@ -54,7 +54,7 @@
           <property name="frameShadow">
            <enum>QFrame::Raised</enum>
           </property>
-          <layout class="QVBoxLayout" name="verticalLayout_26" stretch="1,2">
+          <layout class="QVBoxLayout" name="verticalLayout_26" stretch="1,3">
            <item>
             <layout class="QVBoxLayout" name="verticalLayout_27">
              <item>
@@ -65,11 +65,11 @@
                <property name="minimumSize">
                 <size>
                  <width>0</width>
-                 <height>100</height>
+                 <height>80</height>
                 </size>
                </property>
                <layout class="QGridLayout" name="gridLayout_8">
-                <item row="0" column="0">
+                <item row="1" column="0">
                  <widget class="QProgressBar" name="PB_CLK">
                   <property name="enabled">
                    <bool>true</bool>
@@ -96,11 +96,11 @@
                <property name="minimumSize">
                 <size>
                  <width>0</width>
-                 <height>100</height>
+                 <height>80</height>
                 </size>
                </property>
                <layout class="QGridLayout" name="gridLayout_9">
-                <item row="0" column="0">
+                <item row="1" column="0">
                  <widget class="QProgressBar" name="PB_DATA">
                   <property name="value">
                    <number>0</number>
@@ -112,6 +112,13 @@
                 </item>
                </layout>
               </widget>
+             </item>
+             <item>
+              <layout class="QVBoxLayout" name="verticalLayout_24">
+               <item>
+                <widget class="QLineEdit" name="LE_decoder"/>
+               </item>
+              </layout>
              </item>
             </layout>
            </item>
@@ -1369,20 +1376,20 @@
                        <item row="3" column="2">
                         <widget class="QPushButton" name="PB_Function_18">
                          <property name="enabled">
-                          <bool>false</bool>
+                          <bool>true</bool>
                          </property>
                          <property name="text">
-                          <string/>
+                          <string>tVD-DAT</string>
                          </property>
                         </widget>
                        </item>
                        <item row="4" column="2">
                         <widget class="QPushButton" name="PB_Function_19">
                          <property name="enabled">
-                          <bool>false</bool>
+                          <bool>true</bool>
                          </property>
                          <property name="text">
-                          <string/>
+                          <string>tVD-ACK</string>
                          </property>
                         </widget>
                        </item>

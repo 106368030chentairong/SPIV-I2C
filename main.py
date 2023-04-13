@@ -16,6 +16,7 @@ from lib.analytics_excel import *
 
 from PIL import Image, ImageQt
 import numpy as np
+import binascii
 
 class mainProgram(QtWidgets.QMainWindow, Ui_MainWindow):
     def __init__(self, parent=None):
@@ -24,7 +25,7 @@ class mainProgram(QtWidgets.QMainWindow, Ui_MainWindow):
         self.change_UI_styl("dark_purple.xml")
 
         # Set main window name
-        self.setWindowTitle("I2C_AutoTestingTool_V3.0.0 (Developer bate3)")
+        self.setWindowTitle("I2C_AutoTestingTool_V3.0.0 (Developer bate4)")
 
         self.file_name = './config/DPO4000_setup.json'
         self.raw_data = None
@@ -64,8 +65,8 @@ class mainProgram(QtWidgets.QMainWindow, Ui_MainWindow):
         self.PB_Function_15.clicked.connect(lambda:self.Set_Fnuction_UI_value(self.CB_Freq.currentText(),"tSETUP_STA"))
         self.PB_Function_16.clicked.connect(lambda:self.Set_Fnuction_UI_value(self.CB_Freq.currentText(),"tSETUP_STO"))
         self.PB_Function_17.clicked.connect(lambda:self.Set_Fnuction_UI_value(self.CB_Freq.currentText(),"tBUF"))
-        #self.PB_Function_18.clicked.connect(lambda:self.Set_Fnuction_UI_value(self.CB_Freq.currentText(),""))
-        #self.PB_Function_19.clicked.connect(lambda:self.Set_Fnuction_UI_value(self.CB_Freq.currentText(),""))
+        self.PB_Function_18.clicked.connect(lambda:self.Set_Fnuction_UI_value(self.CB_Freq.currentText(),"tVD-DAT"))
+        self.PB_Function_19.clicked.connect(lambda:self.Set_Fnuction_UI_value(self.CB_Freq.currentText(),"tVD-ACK"))
         #self.PB_Function_20.clicked.connect(lambda:self.Set_Fnuction_UI_value(self.CB_Freq.currentText(),""))
         self.PB_Function_21.clicked.connect(lambda:self.Set_Fnuction_UI_value(self.CB_Freq.currentText(),"Test"))
 
@@ -315,8 +316,9 @@ class mainProgram(QtWidgets.QMainWindow, Ui_MainWindow):
             self.thread.Freq            = self.CB_Freq.currentText()
             self.thread.UI_Value        = self.Get_Default_UI_value(self.CB_Freq.currentText())
             self.thread._Draw_raw_data.connect(self.Draw_raw_data)
-            self.thread._Draw_point_data.connect(self.Draw_point_data)
+            #self.thread._Draw_point_data.connect(self.Draw_point_data)
             self.thread._Draw_Screenshot.connect(self.Draw_Screenshot)
+            self.thread._Decoder.connect(self.Decoder)
             self.thread._done_trigger.connect(self.Done_trigger)
             self.thread._ProgressBar.connect(self.Update_ProgressBar)
             self.thread._error_message.connect(self.error_message)
@@ -354,8 +356,14 @@ class mainProgram(QtWidgets.QMainWindow, Ui_MainWindow):
         scene = QtWidgets.QGraphicsScene()     
         #scene.setSceneRect(0, 0, 0, 0)          
         scene.addPixmap(img)                    
-        self.graphWidget_Screenshot.setScene(scene)               
+        self.graphWidget_Screenshot.setScene(scene) 
 
+    def Decoder(self, msg):
+        tmp = ""
+        for i in msg:
+            tmp += str(i)
+        self.LE_decoder.setText("Address: %s , R/W: %s , ACK: %s" %(tmp[0:7], tmp[7], tmp[8]))
+        
     def Update_ProgressBar(self, msg):
         if msg[0] == "CLK":
             self.PB_CLK.setValue(msg[1])
@@ -418,7 +426,8 @@ class mainProgram(QtWidgets.QMainWindow, Ui_MainWindow):
             self.listWidget.addItem(item)
     
     def save2jpg(self):
-        filename, _ = QFileDialog.getSaveFileName(self)
+        filename, _ = QFileDialog.getSaveFileName(self, filter="png(*.png)")
+        print(filename)
         if self.raw_data is not None and filename:
             self.raw_data.save(filename)
     
