@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>1373</width>
-    <height>700</height>
+    <height>747</height>
    </rect>
   </property>
   <property name="contextMenuPolicy">
@@ -468,7 +468,7 @@
                         <widget class="QComboBox" name="CB_RR">
                          <item>
                           <property name="text">
-                           <string>1E+6</string>
+                           <string>1M</string>
                           </property>
                          </item>
                          <item>
@@ -478,22 +478,22 @@
                          </item>
                          <item>
                           <property name="text">
-                           <string>10E+3</string>
+                           <string>10K</string>
                           </property>
                          </item>
                          <item>
                           <property name="text">
-                           <string>100E+3</string>
+                           <string>100K</string>
                           </property>
                          </item>
                          <item>
                           <property name="text">
-                           <string>5E+6</string>
+                           <string>5M</string>
                           </property>
                          </item>
                          <item>
                           <property name="text">
-                           <string>10E+6</string>
+                           <string>10M</string>
                           </property>
                          </item>
                         </widget>
@@ -524,27 +524,27 @@
                          </item>
                          <item>
                           <property name="text">
-                           <string>10E+3</string>
+                           <string>10K</string>
                           </property>
                          </item>
                          <item>
                           <property name="text">
-                           <string>100E+3</string>
+                           <string>100K</string>
                           </property>
                          </item>
                          <item>
                           <property name="text">
-                           <string>1E+6</string>
+                           <string>1M</string>
                           </property>
                          </item>
                          <item>
                           <property name="text">
-                           <string>5E+6</string>
+                           <string>5M</string>
                           </property>
                          </item>
                          <item>
                           <property name="text">
-                           <string>10E+6</string>
+                           <string>10M</string>
                           </property>
                          </item>
                         </widget>
@@ -864,17 +864,17 @@
                             <widget class="QComboBox" name="CB_DATA_BW">
                              <item>
                               <property name="text">
-                               <string>250E+6</string>
+                               <string>250M</string>
                               </property>
                              </item>
                              <item>
                               <property name="text">
-                               <string>500E+6</string>
+                               <string>500M</string>
                               </property>
                              </item>
                              <item>
                               <property name="text">
-                               <string>20E+6</string>
+                               <string>20M</string>
                               </property>
                              </item>
                             </widget>
@@ -1013,17 +1013,17 @@
                             <widget class="QComboBox" name="CB_CLK_BW">
                              <item>
                               <property name="text">
-                               <string>250E+6</string>
+                               <string>250M</string>
                               </property>
                              </item>
                              <item>
                               <property name="text">
-                               <string>500E+6</string>
+                               <string>500M</string>
                               </property>
                              </item>
                              <item>
                               <property name="text">
-                               <string>20E+6</string>
+                               <string>20M</string>
                               </property>
                              </item>
                             </widget>
@@ -1089,22 +1089,22 @@
                           <widget class="QComboBox" name="CB_Time_Unit">
                            <item>
                             <property name="text">
-                             <string>E-6</string>
+                             <string>m</string>
                             </property>
                            </item>
                            <item>
                             <property name="text">
-                             <string>E-3</string>
+                             <string>u</string>
                             </property>
                            </item>
                            <item>
                             <property name="text">
-                             <string>E-9</string>
+                             <string>n</string>
                             </property>
                            </item>
                            <item>
                             <property name="text">
-                             <string>E-12</string>
+                             <string>p</string>
                             </property>
                            </item>
                           </widget>
@@ -1299,7 +1299,7 @@
                        <item row="4" column="0">
                         <widget class="QPushButton" name="PB_Function_5">
                          <property name="text">
-                          <string>VIH(DATA)</string>
+                          <string>VIL(DATA)</string>
                          </property>
                         </widget>
                        </item>
@@ -1463,7 +1463,7 @@
                          </widget>
                         </item>
                         <item>
-                         <layout class="QHBoxLayout" name="horizontalLayout_8" stretch="2,1,2,1,1">
+                         <layout class="QHBoxLayout" name="horizontalLayout_8" stretch="2,1,1,1,1">
                           <item>
                            <layout class="QVBoxLayout" name="verticalLayout_25" stretch="3,0,1">
                             <item>
@@ -1695,24 +1695,31 @@
                                  <widget class="QComboBox" name="CB_Time_Unit_Fc">
                                   <item>
                                    <property name="text">
-                                    <string>E-9</string>
+                                    <string>m</string>
                                    </property>
                                   </item>
                                   <item>
                                    <property name="text">
-                                    <string>E-3</string>
+                                    <string>u</string>
                                    </property>
                                   </item>
                                   <item>
                                    <property name="text">
-                                    <string>E-6</string>
+                                    <string>n</string>
                                    </property>
                                   </item>
                                   <item>
                                    <property name="text">
-                                    <string>E-12</string>
+                                    <string>p</string>
                                    </property>
                                   </item>
+                                 </widget>
+                                </item>
+                                <item row="0" column="2">
+                                 <widget class="QCheckBox" name="CB_AS">
+                                  <property name="text">
+                                   <string>Auto Scale</string>
+                                  </property>
                                  </widget>
                                 </item>
                                </layout>
@@ -1808,14 +1815,7 @@
                            </widget>
                           </item>
                           <item>
-                           <layout class="QVBoxLayout" name="verticalLayout_16">
-                            <item>
-                             <widget class="Line" name="line_11">
-                              <property name="orientation">
-                               <enum>Qt::Horizontal</enum>
-                              </property>
-                             </widget>
-                            </item>
+                           <layout class="QVBoxLayout" name="verticalLayout_16" stretch="1,1,1,1,1">
                             <item>
                              <layout class="QVBoxLayout" name="verticalLayout_19">
                               <item>
@@ -1864,6 +1864,88 @@
                             </item>
                             <item>
                              <widget class="Line" name="line_12">
+                              <property name="orientation">
+                               <enum>Qt::Horizontal</enum>
+                              </property>
+                             </widget>
+                            </item>
+                            <item>
+                             <layout class="QVBoxLayout" name="verticalLayout_28" stretch="1,2">
+                              <item>
+                               <widget class="QLabel" name="label_30">
+                                <property name="font">
+                                 <font>
+                                  <weight>75</weight>
+                                  <italic>true</italic>
+                                  <bold>true</bold>
+                                  <underline>true</underline>
+                                 </font>
+                                </property>
+                                <property name="text">
+                                 <string>Value</string>
+                                </property>
+                                <property name="alignment">
+                                 <set>Qt::AlignCenter</set>
+                                </property>
+                               </widget>
+                              </item>
+                              <item>
+                               <layout class="QGridLayout" name="gridLayout_21">
+                                <item row="0" column="0">
+                                 <widget class="QComboBox" name="CB_Value">
+                                  <item>
+                                   <property name="text">
+                                    <string>Cursors Delta</string>
+                                   </property>
+                                  </item>
+                                  <item>
+                                   <property name="text">
+                                    <string>Measurement 1</string>
+                                   </property>
+                                  </item>
+                                  <item>
+                                   <property name="text">
+                                    <string>Measurement 2</string>
+                                   </property>
+                                  </item>
+                                  <item>
+                                   <property name="text">
+                                    <string>Measurement 3</string>
+                                   </property>
+                                  </item>
+                                  <item>
+                                   <property name="text">
+                                    <string>Measurement 4</string>
+                                   </property>
+                                  </item>
+                                  <item>
+                                   <property name="text">
+                                    <string>Measurement 5</string>
+                                   </property>
+                                  </item>
+                                  <item>
+                                   <property name="text">
+                                    <string>Measurement 6</string>
+                                   </property>
+                                  </item>
+                                  <item>
+                                   <property name="text">
+                                    <string>Measurement 7</string>
+                                   </property>
+                                  </item>
+                                  <item>
+                                   <property name="text">
+                                    <string>Measurement 8</string>
+                                   </property>
+                                  </item>
+                                 </widget>
+                                </item>
+                               </layout>
+                              </item>
+                             </layout>
+                            </item>
+                            <item>
+                             <widget class="Line" name="line_11">
                               <property name="orientation">
                                <enum>Qt::Horizontal</enum>
                               </property>
@@ -2021,6 +2103,21 @@
    <addaction name="menuSetting"/>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
+  <widget class="QToolBar" name="toolBar">
+   <property name="windowTitle">
+    <string>toolBar</string>
+   </property>
+   <attribute name="toolBarArea">
+    <enum>TopToolBarArea</enum>
+   </attribute>
+   <attribute name="toolBarBreak">
+    <bool>false</bool>
+   </attribute>
+   <addaction name="actionToolBar_File"/>
+   <addaction name="actionToolBar_start"/>
+   <addaction name="actionToolBar_STOP"/>
+   <addaction name="actionToolBar_Clear"/>
+  </widget>
   <action name="actionStyle">
    <property name="text">
     <string>Style</string>
@@ -2029,6 +2126,29 @@
   <action name="actionOpen_Test_Plan">
    <property name="text">
     <string>Open Test Plan</string>
+   </property>
+  </action>
+  <action name="actionToolBar_start">
+   <property name="text">
+    <string>Start</string>
+   </property>
+   <property name="toolTip">
+    <string>start</string>
+   </property>
+  </action>
+  <action name="actionToolBar_File">
+   <property name="text">
+    <string>File</string>
+   </property>
+  </action>
+  <action name="actionToolBar_Clear">
+   <property name="text">
+    <string>Clear</string>
+   </property>
+  </action>
+  <action name="actionToolBar_STOP">
+   <property name="text">
+    <string>STOP</string>
    </property>
   </action>
  </widget>

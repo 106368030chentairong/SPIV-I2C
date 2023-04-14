@@ -1,5 +1,6 @@
 import sys, os, io
 import json
+import re
 
 from PyQt5 import QtCore, QtWidgets
 from PyQt5.QtWidgets import *
@@ -31,6 +32,7 @@ class mainProgram(QtWidgets.QMainWindow, Ui_MainWindow):
         self.raw_data = None
 
         self._connectActions()
+
         self.getusblist()
         self.set_Default_UI_value(self.CB_Freq.currentText())
         self.Set_Fnuction_UI_value(self.CB_Freq.currentText(), "fSCL")
@@ -80,10 +82,20 @@ class mainProgram(QtWidgets.QMainWindow, Ui_MainWindow):
         # Screenshot save
         self.PB_Screenshot_get.clicked.connect(self.get_screenshot)
         self.PB_Screenshot_save.clicked.connect(self.save2jpg)
-    
+
+        # Tool Bar Button
+        self.actionToolBar_File.triggered.connect(self.menu_open_excel)
+        self.actionToolBar_start.triggered.connect(self.Run_testplan)
+        self.actionToolBar_Clear.triggered.connect(self.Clear_value)
+
     def _connectActions(self):
         self.actionOpen_Test_Plan.triggered.connect(self.menu_open_excel)
         self.actionStyle.triggered.connect(self.chooes_type)
+
+        self.actionToolBar_File.setIcon(self.style().standardIcon(getattr(QStyle, "SP_DirOpenIcon")))
+        self.actionToolBar_Clear.setIcon(self.style().standardIcon(getattr(QStyle, "SP_DialogResetButton")))
+        self.actionToolBar_start.setIcon(self.style().standardIcon(getattr(QStyle, "SP_MediaPlay")))
+        self.actionToolBar_STOP.setIcon(self.style().standardIcon(getattr(QStyle, "SP_MediaStop")))
 
     def chooes_type(self):
         themes = ['dark_amber.xml',
@@ -119,7 +131,46 @@ class mainProgram(QtWidgets.QMainWindow, Ui_MainWindow):
             selected_item, ok_pressed = QInputDialog.getItem(self, "Select Sheet Name", "Choose Sheet Name:", excel_model.read_sheet())
             print(selected_item)
             if ok_pressed:
-                excel_model.read_excel(selected_item)
+                sheet = excel_model.read_excel(selected_item)
+                self.excel2table(sheet)
+    
+    def excel2table(self, sheet):
+        try:
+            with open(self.file_name, "r", encoding='UTF-8') as config_file:
+                json_data = json.load(config_file)
+
+            test_function = ["fSCL","VIH_CLK","VIL_CLK","VIH_DATA","VIL_DATA","tHIGH_CLK","tLOW_CLK",
+                             "tRISE_CLK","tFALL_CLK","tRISE_DATA","tFALL_DATA","tHOLD_DAT","tHOLD_STA",
+                             "tSETUP_DAT", "tSETUP_STA","tSETUP_STO","tBUF","tVD-DAT","tVD-ACK"]
+            
+            self.TW_Testplan.clearContents()
+            self.TW_Testplan.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
+            self.TW_Testplan.setRowCount(sheet.max_row-1)
+            self.TW_Testplan.setColumnCount(sheet.max_column+3)
+
+            for r_index, row in enumerate(sheet.values):
+                
+                if r_index > 0:
+                    Test_item_name = ("%s|%s" %(row[0],row[1])).strip()
+                    print(Test_item_name)
+                    comboBox = QtWidgets.QComboBox()
+                    comboBox.addItems(test_function)
+                    try:
+                        if Test_item_name in json_data["Test item dic"]:
+                            comboBox.setCurrentText(json_data["Test item dic"][Test_item_name])
+
+                        self.TW_Testplan.setCellWidget(r_index-1, sheet.max_column, comboBox)
+                    except Exception as e:
+                        print(e)
+
+                    for c_index, col in enumerate(row):
+                        item = QTableWidgetItem(str(col))
+                        self.TW_Testplan.setItem(r_index-1, c_index, item)
+                else:
+                    self.TW_Testplan.setHorizontalHeaderLabels(row)
+        except Exception as e:
+            print(e)
+            pass
         
     def getusblist(self):
         Control_model = Controller()
@@ -195,12 +246,14 @@ class mainProgram(QtWidgets.QMainWindow, Ui_MainWindow):
                 }
             },
             "Horizontal" : {
+                "Auto Scale" : self.CB_AS.isChecked(),
                 "Time Scale" : self.SB_Time_Value_Fc.value(),
                 "Time Scale Unit" : self.CB_Time_Unit_Fc.currentText()
             },
             "Cursors" : {
                 "Enabled" : self.ChkB_Cursors_SW.isChecked(),
             },
+            "Value" : self.CB_Value.currentText(),
             "Measure list" : self.get_Measure_list()
         }
 
@@ -270,6 +323,8 @@ class mainProgram(QtWidgets.QMainWindow, Ui_MainWindow):
             self.SB_Time_Value_Fc.setValue(json_data[Freq]["Function_Setup"][Fun_name]["Horizontal"]["Time Scale"])
             self.CB_Time_Unit_Fc.setCurrentText(json_data[Freq]["Function_Setup"][Fun_name]["Horizontal"]["Time Scale Unit"])
             self.ChkB_Cursors_SW.setChecked(json_data[Freq]["Function_Setup"][Fun_name]["Cursors"]["Enabled"])
+            self.CB_AS.setChecked(json_data[Freq]["Function_Setup"][Fun_name]["Horizontal"]["Auto Scale"])
+            self.CB_Value.setCurrentText(json_data[Freq]["Function_Setup"][Fun_name]["Value"])
             self.Set_Measure_list(json_data[Freq]["Function_Setup"][Fun_name]["Measure list"])
 
         except Exception as e:
@@ -285,8 +340,10 @@ class mainProgram(QtWidgets.QMainWindow, Ui_MainWindow):
             self.SB_DATA_Position_Fc.setValue(0)
 
             self.SB_Time_Value_Fc.setValue(1)
-            self.CB_Time_Unit_Fc.setCurrentText("E+3")
+            self.CB_Time_Unit_Fc.setCurrentText("m")
             self.ChkB_Cursors_SW.setChecked(True)
+            self.CB_AS.setChecked(False)
+            self.CB_Value.setCurrentText("Cursors Delta")
 
             self.Get_Fnuction_UI_value(Freq,Fun_name)
 
@@ -323,6 +380,42 @@ class mainProgram(QtWidgets.QMainWindow, Ui_MainWindow):
             self.thread._ProgressBar.connect(self.Update_ProgressBar)
             self.thread._error_message.connect(self.error_message)
             self.thread.start()
+    
+    def Run_testplan(self):
+        test_plan_list = []
+        print(self.TW_Testplan.rowCount())
+        for currentRow in range(self.TW_Testplan.rowCount()):
+            #for currentRow in range(self.tableWidget.rowCount()):
+            value = self.TW_Testplan.item(currentRow, 0).text()
+            widget = self.TW_Testplan.cellWidget(currentRow, 7)
+            if isinstance(widget, QComboBox):
+                current_value = widget.currentText()
+                test_plan_list.append([currentRow, current_value])
+
+        self.thread = Runthread()
+        self.thread.visa_add        = self.CB_VIsa.currentText()
+        self.thread.function_name   = "Test_Plan"
+        self.thread.Freq            = self.CB_Freq.currentText()
+        self.thread.testplan_list   = test_plan_list
+        self.thread.UI_Value        = self.Get_Default_UI_value(self.CB_Freq.currentText())
+        self.thread._Draw_raw_data.connect(self.Draw_raw_data)
+        #self.thread._Draw_point_data.connect(self.Draw_point_data)
+        self.thread._Draw_Screenshot.connect(self.Draw_Screenshot)
+        self.thread._Decoder.connect(self.Decoder)
+        self.thread._done_trigger.connect(self.Done_trigger)
+        self.thread._ProgressBar.connect(self.Update_ProgressBar)
+        self.thread._error_message.connect(self.error_message)
+        self.thread._delta_value.connect(self.Update_delta_value)
+        self.thread.start()
+    
+    def Update_delta_value(self, msg):
+        item = QTableWidgetItem(str(msg[-1]))
+        self.TW_Testplan.setItem(msg[0], 8, item)
+    
+    def Clear_value(self):
+        for idx in range(self.TW_Testplan.rowCount()):
+            item = QTableWidgetItem("")
+            self.TW_Testplan.setItem(idx, 8, item)
 
     def Draw_raw_data(self, msg):
         color_pen = {"CH1":(255,255,0), "CH2":(0,255,255), "CH3":(255,0,255), "CH4":(0,255,0)}

@@ -175,7 +175,7 @@ class Controller(object):
 
         return Volts , Time
 
-    def Cursors_control(self, Delay_Time, pt_json, cursor_switch = True):
+    def Cursors_control(self, Delay_Time, pt_json, cursor_switch = True, AutoScale = False):
         VBArs_pos_1 = pt_json["Post1_time"]
         VBArs_pos_2 = pt_json["Post2_time"]
         HBARS_pos_1 = pt_json["Post1_volts"]
@@ -186,6 +186,9 @@ class Controller(object):
 
         # calculate point1 and point2 time scale
         self.scope.do_command('HORizontal:DELay:TIME %s' %(Delay_Time))
+
+        if AutoScale:
+            self.scope.do_command('HORizontal:SCALE %s' %((abs(VBArs_pos_2-VBArs_pos_1))))
         
         if cursor_switch:
             # Enable cursor on the screen
@@ -269,3 +272,14 @@ class Controller(object):
             Measure_list.append(self.get_MeasureValue(idx))
 
         return Measure_list
+    
+    def get_Cursors_Delta(self, value_switch):
+        time.sleep(0.5)
+        self.scope = DPO4000()
+        self.scope.connected(self.visa_add)
+        if "Measurement" in value_switch:
+            VALue = self.scope.do_query('MEASUrement:MEAS%s:VALue?' %(value_switch.split(' ')[-1]))
+        elif value_switch == "Cursors Delta":
+            VALue = self.scope.do_query('CURSor:VBArs:DELTa?')
+        self.scope.close()
+        return VALue

@@ -80,7 +80,7 @@ class signal_process():
                                        "Post2_ch"   : ch_name,
                                        "Post2_time" : POSITION2,
                                        "Post2_volts": post2_volts,}
-                
+
             if function_name == "tLOW":
                 if ch_name != None:
                     if ch_name == "CLK":
@@ -95,10 +95,10 @@ class signal_process():
                     
                     if ch_name == "CLK":
                         post1_volts = self.CLK_VIL
-                        post2_volts = self.CLK_VIH
+                        post2_volts = self.CLK_VIL
                     elif ch_name == "DATA":
-                        post1_volts = self.DATA_VIL # 30%
-                        post2_volts = self.DATA_VIH # 70%
+                        post1_volts = self.DATA_VIL
+                        post2_volts = self.DATA_VIL
 
                     return delay_time,{"Post1_ch"   : ch_name,
                                         "Post1_time" : POSITION1,

@@ -17,6 +17,7 @@ class Runthread(QtCore.QThread):
     _error_message = pyqtSignal(str)
     _ProgressBar = pyqtSignal(list)
     _Decoder = pyqtSignal(list)
+    _delta_value = pyqtSignal(list)
     
     def __init__(self):
         super(Runthread, self).__init__()
@@ -27,31 +28,48 @@ class Runthread(QtCore.QThread):
 
         self.function_name = None
         self.Freq = None
+        self.testplan_list = []
+
+        self.Rate_dict = {"1000":"1000","10K":"10E+3","100K":"100E+3",
+                            "1M":"1E+6", "5M":"5E+6", "10M":"10E+6"}
+        self.Bandwidth_dict = {"250M":"250E+6","500M":"500E+6","20M":"20E+6"}
+        self.Scale_unit_dict = {"m":"E-3","u":"E-6","n":"E-9","p":"E-12"}
 
     def run(self):
         print(self.function_name)
-        try:
-            if self.function_name == "Setup":
-                self.function_setup()
-            elif self.function_name == "Getdata":
-                self.Get_data()
-            elif self.function_name == "Single":
-                self.Single_data()
-            else:
-                self.function_switch(self.function_name)
-        except Exception as e:
-            print(e)
-            self._error_message.emit("Not found %s point data" %(self.function_name))
-        finally:
-            self._done_trigger.emit()
+        if self.function_name == "Test_Plan":
+            for item in self.testplan_list:
+                try:
+                    delta_value = self.function_switch(item[-1])
+                    self._delta_value.emit([item[0],delta_value])
+                except Exception as e:
+                    print(e)
+                    self._delta_value.emit([item[0],"None"])
+                finally:
+                    self._done_trigger.emit()
+        else:
+            try:
+                if self.function_name == "Setup":
+                    self.function_setup()
+                elif self.function_name == "Getdata":
+                    self.Get_data()
+                elif self.function_name == "Single":
+                    self.Single_data()
+                else:
+                    self.function_switch(self.function_name)
+            except Exception as e:
+                print(e)
+                self._error_message.emit("Not found %s point data" %(self.function_name))
+            finally:
+                self._done_trigger.emit()
     
     def function_setup(self):
         Defult_setting = self.UI_Value[self.Freq]["Default_Setup"]
         Control_model = Controller()
         Control_model.visa_add = self.visa_add
         Control_model.UI_Value = self.UI_Value
-        Control_model.setup(Defult_setting["Rate"]["Record"],
-                            Defult_setting["Rate"]["Sample"],
+        Control_model.setup(self.Rate_dict[Defult_setting["Rate"]["Record"]],
+                            self.Rate_dict[Defult_setting["Rate"]["Sample"]],
                             Defult_setting["Display"]["Wave"],
                             Defult_setting["Display"]["GRA"])
         
@@ -60,13 +78,13 @@ class Runthread(QtCore.QThread):
                                   Defult_setting["Signal"]["CLK"]["Scale"],
                                   Defult_setting["Signal"]["CLK"]["Offset"],
                                   Defult_setting["Signal"]["CLK"]["Position"],
-                                  Defult_setting["Signal"]["CLK"]["Bandwidth"])
+                                  self.Bandwidth_dict[Defult_setting["Signal"]["CLK"]["Bandwidth"]])
         # Setup I2C DATA Signal  
         Control_model.set_channel(Defult_setting["Signal"]["DATA"]["Channel"],
                                   Defult_setting["Signal"]["DATA"]["Scale"],
                                   Defult_setting["Signal"]["DATA"]["Offset"],
                                   Defult_setting["Signal"]["DATA"]["Position"],
-                                  Defult_setting["Signal"]["DATA"]["Bandwidth"])
+                                  self.Bandwidth_dict[Defult_setting["Signal"]["DATA"]["Bandwidth"]])
         
         # Setup channel names 
         Control_model.set_channel_label(Defult_setting["Signal"]["CLK"]["Channel"],
@@ -76,7 +94,7 @@ class Runthread(QtCore.QThread):
         
         # Setup Time Scale Signal
         Control_model.set_time_scale(Defult_setting["Horizontal"]["Time Scale"],
-                                     Defult_setting["Horizontal"]["Time Scale Unit"])
+                                     self.Scale_unit_dict[Defult_setting["Horizontal"]["Time Scale Unit"]])
 
         # Setup Trigger LV & SLOP
         Control_model.set_trigger(Defult_setting["Trigger"]["Source"],
@@ -85,10 +103,14 @@ class Runthread(QtCore.QThread):
         
     
     def Single_data(self):
-        Defult_setting = self.UI_Value[self.Freq]["Default_Setup"]
         Control_model = Controller()
         Control_model.visa_add = self.visa_add
         Control_model.single_data()
+    
+    def Get_Measurement(self):
+        Defult_setting = self.UI_Value[self.Freq]["Default_Setup"]
+        Control_model = Controller()
+        Control_model.visa_add = self.visa_add
 
         # Setup VIH VIL
         Control_model.Measure_setup(["HIGH_CLK", "LOW_CLK", "HIGH_DATA", "LOW_DATA"],
@@ -124,11 +146,8 @@ class Runthread(QtCore.QThread):
         self._Draw_Screenshot.emit(image)
 
     def function_switch(self, function_name):
-
         self.function_setup()
-        
-        Measure_list = self.Single_data()
-        print("Measure_list %s" %(Measure_list))
+        self.Single_data()
 
         CLK_Volts, CLK_Time, DATA_Volts, DATA_Time = self.Get_data()
 
@@ -140,7 +159,8 @@ class Runthread(QtCore.QThread):
         Control_model.UI_Value = self.UI_Value[self.Freq]["Default_Setup"]
         Control_model.Dispaly_ch_off()
 
-        print(Measure_list)
+        Measure_list = self.Get_Measurement()
+        print("Measure_list %s" %(Measure_list))
 
         Signal_model = signal_process()
         Signal_model.CLK_VIH    = Measure_list[0]*0.7
@@ -154,20 +174,21 @@ class Runthread(QtCore.QThread):
         Signal_model.Load_data()
 
         Control_model.set_time_scale(signal_setting["Horizontal"]["Time Scale"],
-                                     signal_setting["Horizontal"]["Time Scale Unit"])
+                                     self.Scale_unit_dict[signal_setting["Horizontal"]["Time Scale Unit"]])
 
         if signal_setting["Signal"]["CLK"]["Enabled"] == True:
             Control_model.set_channel(Default_signal_setting["CLK"]["Channel"],
                                       signal_setting["Signal"]["CLK"]["Scale"],
                                       signal_setting["Signal"]["CLK"]["Offset"],
                                       signal_setting["Signal"]["CLK"]["Position"],
-                                      Default_signal_setting["CLK"]["Bandwidth"])
+                                      self.Bandwidth_dict[Default_signal_setting["CLK"]["Bandwidth"]])
+            
         if signal_setting["Signal"]["DATA"]["Enabled"] == True:
             Control_model.set_channel(Default_signal_setting["DATA"]["Channel"],
                                       signal_setting["Signal"]["DATA"]["Scale"],
                                       signal_setting["Signal"]["DATA"]["Offset"],
                                       signal_setting["Signal"]["DATA"]["Position"],
-                                      Default_signal_setting["DATA"]["Bandwidth"])
+                                      self.Bandwidth_dict[Default_signal_setting["DATA"]["Bandwidth"]])
 
         if function_name == "fSCL":
             delay_time, pt_json = Signal_model.function_process("CLK", "tHIGH")
@@ -233,7 +254,14 @@ class Runthread(QtCore.QThread):
             self._Decoder.emit(decoder)
 
         Control_model.Cursors_control(delay_time, pt_json,
-                                      signal_setting["Cursors"]["Enabled"])
+                                      signal_setting["Cursors"]["Enabled"],
+                                      signal_setting["Horizontal"]["Auto Scale"])
+        
+        '''Measure_list = self.Get_Measurement()
+        print("Measure_list %s" %(Measure_list))
+
+        Control_model.Cursors_control(delay_time, pt_json,
+                                      signal_setting["Cursors"]["Enabled"])'''
 
         Control_model.Measure_setup(signal_setting["Measure list"],
                                     Default_signal_setting["CLK"]["Channel"],
@@ -241,3 +269,6 @@ class Runthread(QtCore.QThread):
 
         image = Control_model.get_Screenshot()
         self._Draw_Screenshot.emit(image)
+
+        delta_value = Control_model.get_Cursors_Delta(signal_setting["Value"])
+        return delta_value

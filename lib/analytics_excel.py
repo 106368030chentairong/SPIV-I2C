@@ -11,7 +11,7 @@ class open_excel():
     def read_excel(self, sheet_name):
         try:
             wb = openpyxl.load_workbook(self.excel_path, read_only=False)
-            ws = wb.worksheets[sheet_name]
+            ws = wb[sheet_name]
             return ws
         except Exception as e:
             print(e)
