@@ -242,9 +242,7 @@ class Controller(object):
     def get_Screenshot(self):
         self.scope = DPO4000()
         self.scope.connected(self.visa_add)
-
         time.sleep(0.5)
-        
         imgData = self.scope.get_HARDCopy()
         self.scope.close()
         return imgData

@@ -27,7 +27,7 @@
        <enum>QTabWidget::North</enum>
       </property>
       <property name="currentIndex">
-       <number>0</number>
+       <number>1</number>
       </property>
       <widget class="QWidget" name="tab_main">
        <attribute name="title">
@@ -133,7 +133,7 @@
                 </size>
                </property>
                <property name="currentIndex">
-                <number>2</number>
+                <number>0</number>
                </property>
                <widget class="QWidget" name="TW_TestPlan">
                 <attribute name="title">
@@ -2091,6 +2091,7 @@
     <property name="title">
      <string>Save</string>
     </property>
+    <addaction name="actionGet_Screenshot"/>
    </widget>
    <widget class="QMenu" name="menuSetting">
     <property name="title">
@@ -2149,6 +2150,11 @@
   <action name="actionToolBar_STOP">
    <property name="text">
     <string>STOP</string>
+   </property>
+  </action>
+  <action name="actionGet_Screenshot">
+   <property name="text">
+    <string>Get Screenshot</string>
    </property>
   </action>
  </widget>

@@ -156,6 +156,7 @@ cython_debug/
 *.npy
 tmp/*.npy
 compile
+dist
 dist/*
 *.png
 

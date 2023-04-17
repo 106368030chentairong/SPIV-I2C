@@ -17,7 +17,6 @@ from lib.analytics_excel import *
 
 from PIL import Image, ImageQt
 import numpy as np
-import binascii
 
 class mainProgram(QtWidgets.QMainWindow, Ui_MainWindow):
     def __init__(self, parent=None):
@@ -87,6 +86,9 @@ class mainProgram(QtWidgets.QMainWindow, Ui_MainWindow):
         self.actionToolBar_File.triggered.connect(self.menu_open_excel)
         self.actionToolBar_start.triggered.connect(self.Run_testplan)
         self.actionToolBar_Clear.triggered.connect(self.Clear_value)
+        self.actionToolBar_STOP.triggered.connect(self.stop_thread)
+
+        self.time_stemp = None
 
     def _connectActions(self):
         self.actionOpen_Test_Plan.triggered.connect(self.menu_open_excel)
@@ -125,14 +127,19 @@ class mainProgram(QtWidgets.QMainWindow, Ui_MainWindow):
         filename, filetype = QFileDialog.getOpenFileName(self, "Open file", "./")
         if filename != "":
             print(filename)
-            excel_model = open_excel()
-            excel_model.excel_path = filename
-            
-            selected_item, ok_pressed = QInputDialog.getItem(self, "Select Sheet Name", "Choose Sheet Name:", excel_model.read_sheet())
-            print(selected_item)
-            if ok_pressed:
-                sheet = excel_model.read_excel(selected_item)
-                self.excel2table(sheet)
+            try:
+                excel_model = open_excel()
+                excel_model.excel_path = filename
+                selected_item, ok_pressed = QInputDialog.getItem(self, "Select Sheet Name", "Choose Sheet Name:", excel_model.read_sheet())
+
+                print(selected_item)
+                if ok_pressed:
+                    sheet = excel_model.read_excel(selected_item)
+                    self.excel2table(sheet)
+
+            except Exception as e:
+                print(e)
+                self.error_message("Open Excel file failed !!")
     
     def excel2table(self, sheet):
         try:
@@ -378,7 +385,7 @@ class mainProgram(QtWidgets.QMainWindow, Ui_MainWindow):
             self.thread._Decoder.connect(self.Decoder)
             self.thread._done_trigger.connect(self.Done_trigger)
             self.thread._ProgressBar.connect(self.Update_ProgressBar)
-            self.thread._error_message.connect(self.error_message)
+            self.thread._error_message.connect(self.inf_message)
             self.thread.start()
     
     def Run_testplan(self):
@@ -392,30 +399,35 @@ class mainProgram(QtWidgets.QMainWindow, Ui_MainWindow):
                 current_value = widget.currentText()
                 test_plan_list.append([currentRow, current_value])
 
+        self.time_stemp = self.get_time_stemp()
+        self.Create_folder("%s/%s" %("Measurement data",self.time_stemp))
+
         self.thread = Runthread()
         self.thread.visa_add        = self.CB_VIsa.currentText()
         self.thread.function_name   = "Test_Plan"
         self.thread.Freq            = self.CB_Freq.currentText()
         self.thread.testplan_list   = test_plan_list
         self.thread.UI_Value        = self.Get_Default_UI_value(self.CB_Freq.currentText())
+        self.thread.time_stemp      = self.time_stemp
         self.thread._Draw_raw_data.connect(self.Draw_raw_data)
         #self.thread._Draw_point_data.connect(self.Draw_point_data)
         self.thread._Draw_Screenshot.connect(self.Draw_Screenshot)
         self.thread._Decoder.connect(self.Decoder)
         self.thread._done_trigger.connect(self.Done_trigger)
         self.thread._ProgressBar.connect(self.Update_ProgressBar)
-        self.thread._error_message.connect(self.error_message)
+        self.thread._error_message.connect(self.inf_message)
         self.thread._delta_value.connect(self.Update_delta_value)
         self.thread.start()
     
     def Update_delta_value(self, msg):
         item = QTableWidgetItem(str(msg[-1]))
         self.TW_Testplan.setItem(msg[0], 8, item)
-    
+
     def Clear_value(self):
-        for idx in range(self.TW_Testplan.rowCount()):
-            item = QTableWidgetItem("")
-            self.TW_Testplan.setItem(idx, 8, item)
+        if self.button_clicked("Are you sure you want clear test result ?"):
+            for idx in range(self.TW_Testplan.rowCount()):
+                item = QTableWidgetItem("")
+                self.TW_Testplan.setItem(idx, 8, item)
 
     def Draw_raw_data(self, msg):
         color_pen = {"CH1":(255,255,0), "CH2":(0,255,255), "CH3":(255,0,255), "CH4":(0,255,0)}
@@ -435,7 +447,7 @@ class mainProgram(QtWidgets.QMainWindow, Ui_MainWindow):
             self.graphWidget2.plot([msg[1][0][0]], pen=(0,0,200), symbolBrush=(0,0,200), symbolPen='w', symbol='o', symbolSize=14, name="symbol='o'")
             self.graphWidget2.plot([msg[1][0][1]], pen=(0,0,200), symbolBrush=(0,0,200), symbolPen='w', symbol='o', symbolSize=14, name="symbol='o'")
 
-    def Draw_Screenshot(self, byte_array):
+    def Draw_Screenshot(self, byte_array, test_list):
         h = 1024
         w = 768
         ui_w = 580
@@ -444,12 +456,24 @@ class mainProgram(QtWidgets.QMainWindow, Ui_MainWindow):
         newsize = (int(h*s),int(ui_w))
         png_data = self.raw_data.resize(newsize)
         png_data.save("tmp.png")
-        
+        if test_list != []:
+            png_data.save("%s/%s/%s_%s.png" %("Measurement data",self.time_stemp, test_list[0], test_list[1]))
+
         img = QtGui.QPixmap("tmp.png")
         scene = QtWidgets.QGraphicsScene()     
         #scene.setSceneRect(0, 0, 0, 0)          
         scene.addPixmap(img)                    
         self.graphWidget_Screenshot.setScene(scene) 
+
+    def get_time_stemp(self):
+        nowTime = int(time.time())
+        struct_time = time.localtime(nowTime)
+        timeString = time.strftime("%Y%m%d%I%M%S", struct_time)
+        return timeString
+    
+    def Create_folder(self, path):
+        if not os.path.exists(path):
+            os.makedirs(path)
 
     def Decoder(self, msg):
         tmp = ""
@@ -530,7 +554,7 @@ class mainProgram(QtWidgets.QMainWindow, Ui_MainWindow):
         self.thread._Draw_Screenshot.connect(self.Draw_Screenshot)
         self.thread.get_Screenshot()
 
-    def error_message(self, msg):
+    def inf_message(self, msg):
         message = QMessageBox(self)
         message.setWindowTitle("info")
         message.setIcon(QMessageBox.Information)
@@ -538,6 +562,31 @@ class mainProgram(QtWidgets.QMainWindow, Ui_MainWindow):
         message.setInformativeText(msg)
         message.show()
         message.exec_()
+    
+    def error_message(self, msg):
+        message = QMessageBox(self)
+        message.setWindowTitle("Error")
+        message.setIcon(QMessageBox.Critical)
+        message.setText('Error')
+        message.setInformativeText(msg)
+        message.show()
+        message.exec_()
+    
+    def button_clicked(self, msg):
+
+        button = QMessageBox.warning(self, 'Warn', msg,
+            QMessageBox.Ok | QMessageBox.Close, QMessageBox.Close)
+
+        if button == QMessageBox.Ok:
+            return True
+        elif button == QMessageBox.Close:
+            return False
+
+    def stop_thread(self):
+        if self.button_clicked("Are you sure you want to terminate the program ?"):
+            if self.thread is not None:
+                self.thread.terminate()
+                self.thread.exec_()
 
 if __name__ == "__main__":
     os.environ["QT_AUTO_SCREEN_SCALE_FACTOR"] = "1"

@@ -1039,8 +1039,11 @@ class Ui_MainWindow(object):
         self.actionToolBar_Clear.setObjectName("actionToolBar_Clear")
         self.actionToolBar_STOP = QtWidgets.QAction(MainWindow)
         self.actionToolBar_STOP.setObjectName("actionToolBar_STOP")
+        self.actionGet_Screenshot = QtWidgets.QAction(MainWindow)
+        self.actionGet_Screenshot.setObjectName("actionGet_Screenshot")
         self.menuFile.addAction(self.actionOpen_Test_Plan)
         self.menuFile.addSeparator()
+        self.menuSave.addAction(self.actionGet_Screenshot)
         self.menuSetting.addAction(self.actionStyle)
         self.menubar.addAction(self.menuFile.menuAction())
         self.menubar.addAction(self.menuSave.menuAction())
@@ -1051,8 +1054,8 @@ class Ui_MainWindow(object):
         self.toolBar.addAction(self.actionToolBar_Clear)
 
         self.retranslateUi(MainWindow)
-        self.tabWidget.setCurrentIndex(0)
-        self.TW_Function.setCurrentIndex(2)
+        self.tabWidget.setCurrentIndex(1)
+        self.TW_Function.setCurrentIndex(0)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
 
     def retranslateUi(self, MainWindow):
@@ -1144,7 +1147,7 @@ class Ui_MainWindow(object):
         self.PB_Function_6.setText(_translate("MainWindow", "tHIGH(CLK)"))
         self.PB_Function_4.setText(_translate("MainWindow", "VIH(DATA)"))
         self.PB_Function_14.setText(_translate("MainWindow", "tSU-DAT"))
-        self.PB_Function_5.setText(_translate("MainWindow", "VIH(DATA)"))
+        self.PB_Function_5.setText(_translate("MainWindow", "VIL(DATA)"))
         self.PB_Function_1.setText(_translate("MainWindow", "fSCL"))
         self.PB_Function_9.setText(_translate("MainWindow", "tFALL(CLK)"))
         self.PB_Function_10.setText(_translate("MainWindow", "tRISE(DATA)"))
@@ -1209,4 +1212,5 @@ class Ui_MainWindow(object):
         self.actionToolBar_File.setText(_translate("MainWindow", "File"))
         self.actionToolBar_Clear.setText(_translate("MainWindow", "Clear"))
         self.actionToolBar_STOP.setText(_translate("MainWindow", "STOP"))
+        self.actionGet_Screenshot.setText(_translate("MainWindow", "Get Screenshot"))
 from pyqtgraph import PlotWidget

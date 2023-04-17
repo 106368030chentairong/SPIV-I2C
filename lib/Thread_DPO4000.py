@@ -10,30 +10,32 @@ from lib.analytics_core import *
 from lib.Function_contrl import *
 
 class Runthread(QtCore.QThread):
-    _Draw_raw_data = pyqtSignal(list)
+    _Draw_raw_data      = pyqtSignal(list)
     #_Draw_point_data = pyqtSignal(list)
-    _Draw_Screenshot = pyqtSignal(QByteArray)
-    _done_trigger = pyqtSignal()
-    _error_message = pyqtSignal(str)
-    _ProgressBar = pyqtSignal(list)
-    _Decoder = pyqtSignal(list)
-    _delta_value = pyqtSignal(list)
+    _Draw_Screenshot    = pyqtSignal(QByteArray, list)
+    _done_trigger       = pyqtSignal()
+    _error_message      = pyqtSignal(str)
+    _ProgressBar        = pyqtSignal(list)
+    _Decoder            = pyqtSignal(list)
+    _delta_value        = pyqtSignal(list)
     
     def __init__(self):
         super(Runthread, self).__init__()
-        self.scope      = None
-        self.visa_add   = None
+        self.scope          = None
+        self.visa_add       = None
 
-        self.UI_Value   = None
+        self.UI_Value       = None
 
-        self.function_name = None
-        self.Freq = None
-        self.testplan_list = []
+        self.function_name  = None
+        self.Freq           = None
+        self.testplan_list  = []
 
-        self.Rate_dict = {"1000":"1000","10K":"10E+3","100K":"100E+3",
-                            "1M":"1E+6", "5M":"5E+6", "10M":"10E+6"}
-        self.Bandwidth_dict = {"250M":"250E+6","500M":"500E+6","20M":"20E+6"}
+        self.Rate_dict      = {"1000":"1000","10K":"10E+3","100K":"100E+3",
+                                "1M":"1E+6", "5M":"5E+6", "10M":"10E+6"}
+        self.Bandwidth_dict  = {"250M":"250E+6","500M":"500E+6","20M":"20E+6"}
         self.Scale_unit_dict = {"m":"E-3","u":"E-6","n":"E-9","p":"E-12"}
+
+        self.time_stemp     = None
 
     def run(self):
         print(self.function_name)
@@ -42,6 +44,7 @@ class Runthread(QtCore.QThread):
                 try:
                     delta_value = self.function_switch(item[-1])
                     self._delta_value.emit([item[0],delta_value])
+                    self.Set_Screenshot(item)
                 except Exception as e:
                     print(e)
                     self._delta_value.emit([item[0],"None"])
@@ -57,6 +60,7 @@ class Runthread(QtCore.QThread):
                     self.Single_data()
                 else:
                     self.function_switch(self.function_name)
+                    self.Set_Screenshot()
             except Exception as e:
                 print(e)
                 self._error_message.emit("Not found %s point data" %(self.function_name))
@@ -139,11 +143,11 @@ class Runthread(QtCore.QThread):
         
         return CLK_Volts, CLK_Time, DATA_Volts, DATA_Time
 
-    def get_Screenshot(self):
+    """ def get_Screenshot(self):
         Control_model = Controller()
         Control_model.visa_add = self.visa_add
         image = Control_model.get_Screenshot()
-        self._Draw_Screenshot.emit(image)
+        self._Draw_Screenshot.emit(image) """
 
     def function_switch(self, function_name):
         self.function_setup()
@@ -267,8 +271,13 @@ class Runthread(QtCore.QThread):
                                     Default_signal_setting["CLK"]["Channel"],
                                     Default_signal_setting["DATA"]["Channel"])
 
-        image = Control_model.get_Screenshot()
-        self._Draw_Screenshot.emit(image)
 
         delta_value = Control_model.get_Cursors_Delta(signal_setting["Value"])
         return delta_value
+    
+    def Set_Screenshot(self, test_list = []):
+        Control_model = Controller()
+        Control_model.visa_add = self.visa_add
+        image = Control_model.get_Screenshot()
+        self._Draw_Screenshot.emit(image, test_list)
+
