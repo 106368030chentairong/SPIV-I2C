@@ -14,9 +14,12 @@ from qt_material import apply_stylesheet
 # import from lib 
 from lib.Thread_DPO4000 import *
 from lib.analytics_excel import *
+from lib.log_custom import *
 
 from PIL import Image, ImageQt
 import numpy as np
+
+import logging
 
 class mainProgram(QtWidgets.QMainWindow, Ui_MainWindow):
     def __init__(self, parent=None):
@@ -25,11 +28,12 @@ class mainProgram(QtWidgets.QMainWindow, Ui_MainWindow):
         self.change_UI_styl("dark_purple.xml")
 
         # Set main window name
-        self.setWindowTitle("I2C_AutoTestingTool_V3.0.0 (Developer bate4)")
+        self.setWindowTitle("I2C_AutoTestingTool_V3.0.0 (Developer bate5)")
 
         self.file_name = './config/DPO4000_setup.json'
         self.raw_data = None
 
+        self.log_setup()
         self._connectActions()
 
         self.getusblist()
@@ -90,6 +94,19 @@ class mainProgram(QtWidgets.QMainWindow, Ui_MainWindow):
 
         self.time_stemp = None
 
+        self.logger.info("V3.0.0")
+
+    def log_setup(self):
+        # create logger with 'spam_application'
+        self.logger = logging.getLogger("Main")
+        self.logger.setLevel(logging.DEBUG)
+
+        # create console handler with a higher log level
+        ch = logging.StreamHandler()
+        ch.setLevel(logging.DEBUG)
+        ch.setFormatter(CustomFormatter())
+        self.logger.addHandler(ch)
+
     def _connectActions(self):
         self.actionOpen_Test_Plan.triggered.connect(self.menu_open_excel)
         self.actionStyle.triggered.connect(self.chooes_type)
@@ -126,19 +143,19 @@ class mainProgram(QtWidgets.QMainWindow, Ui_MainWindow):
     def menu_open_excel(self):
         filename, filetype = QFileDialog.getOpenFileName(self, "Open file", "./")
         if filename != "":
-            print(filename)
+            self.logger.debug(filename)
             try:
                 excel_model = open_excel()
                 excel_model.excel_path = filename
                 selected_item, ok_pressed = QInputDialog.getItem(self, "Select Sheet Name", "Choose Sheet Name:", excel_model.read_sheet())
 
-                print(selected_item)
+                self.logger.debug(selected_item)
                 if ok_pressed:
                     sheet = excel_model.read_excel(selected_item)
                     self.excel2table(sheet)
 
             except Exception as e:
-                print(e)
+                self.logger.error(e)
                 self.error_message("Open Excel file failed !!")
     
     def excel2table(self, sheet):
@@ -159,24 +176,26 @@ class mainProgram(QtWidgets.QMainWindow, Ui_MainWindow):
                 
                 if r_index > 0:
                     Test_item_name = ("%s|%s" %(row[0],row[1])).strip()
-                    print(Test_item_name)
+                    self.logger.debug(Test_item_name)
                     comboBox = QtWidgets.QComboBox()
                     comboBox.addItems(test_function)
                     try:
                         if Test_item_name in json_data["Test item dic"]:
                             comboBox.setCurrentText(json_data["Test item dic"][Test_item_name])
-
                         self.TW_Testplan.setCellWidget(r_index-1, sheet.max_column, comboBox)
                     except Exception as e:
-                        print(e)
+                        self.logger.error(e)
 
                     for c_index, col in enumerate(row):
                         item = QTableWidgetItem(str(col))
+                        if c_index == 0:
+                            item.setFlags(QtCore.Qt.ItemIsUserCheckable|QtCore.Qt.ItemIsEnabled)
+                            item.setCheckState(QtCore.Qt.Checked)
                         self.TW_Testplan.setItem(r_index-1, c_index, item)
                 else:
                     self.TW_Testplan.setHorizontalHeaderLabels(row)
         except Exception as e:
-            print(e)
+            self.logger.error(e)
             pass
         
     def getusblist(self):
@@ -261,7 +280,8 @@ class mainProgram(QtWidgets.QMainWindow, Ui_MainWindow):
                 "Enabled" : self.ChkB_Cursors_SW.isChecked(),
             },
             "Value" : self.CB_Value.currentText(),
-            "Measure list" : self.get_Measure_list()
+            "Measure list" : self.get_Measure_list(),
+            "Auto Single" : self.CB_AutoSingle.isChecked()
         }
 
         with open(self.file_name, "r", encoding='UTF-8') as config_file:
@@ -333,9 +353,10 @@ class mainProgram(QtWidgets.QMainWindow, Ui_MainWindow):
             self.CB_AS.setChecked(json_data[Freq]["Function_Setup"][Fun_name]["Horizontal"]["Auto Scale"])
             self.CB_Value.setCurrentText(json_data[Freq]["Function_Setup"][Fun_name]["Value"])
             self.Set_Measure_list(json_data[Freq]["Function_Setup"][Fun_name]["Measure list"])
+            self.CB_AutoSingle.setChecked(json_data[Freq]["Function_Setup"][Fun_name]["Auto Single"])
 
         except Exception as e:
-            print(e)
+            self.logger.debug(e)
             self.ChkB_CLK_SW_Fc.setChecked(True)
             self.SB_CLK_Scale_Fc.setValue(1)
             self.SB_CLK_Offset_Fc.setValue(0)
@@ -350,6 +371,7 @@ class mainProgram(QtWidgets.QMainWindow, Ui_MainWindow):
             self.CB_Time_Unit_Fc.setCurrentText("m")
             self.ChkB_Cursors_SW.setChecked(True)
             self.CB_AS.setChecked(False)
+            self.CB_AutoSingle.setChecked(True)
             self.CB_Value.setCurrentText("Cursors Delta")
 
             self.Get_Fnuction_UI_value(Freq,Fun_name)
@@ -390,17 +412,24 @@ class mainProgram(QtWidgets.QMainWindow, Ui_MainWindow):
     
     def Run_testplan(self):
         test_plan_list = []
-        print(self.TW_Testplan.rowCount())
+
         for currentRow in range(self.TW_Testplan.rowCount()):
+            check_state = self.TW_Testplan.item(currentRow,0).checkState()
             #for currentRow in range(self.tableWidget.rowCount()):
             value = self.TW_Testplan.item(currentRow, 0).text()
             widget = self.TW_Testplan.cellWidget(currentRow, 7)
             if isinstance(widget, QComboBox):
                 current_value = widget.currentText()
-                test_plan_list.append([currentRow, current_value])
+                if check_state:
+                    test_plan_list.append([currentRow, current_value])
 
-        self.time_stemp = self.get_time_stemp()
-        self.Create_folder("%s/%s" %("Measurement data",self.time_stemp))
+        if self.time_stemp != None:
+            if self.Que_message("創建新的量測記錄?"):
+                self.time_stemp = self.get_time_stemp()
+                self.Create_folder("%s/%s" %("Measurement data",self.time_stemp))
+        else:
+            self.time_stemp = self.get_time_stemp()
+            self.Create_folder("%s/%s" %("Measurement data",self.time_stemp))
 
         self.thread = Runthread()
         self.thread.visa_add        = self.CB_VIsa.currentText()
@@ -424,7 +453,7 @@ class mainProgram(QtWidgets.QMainWindow, Ui_MainWindow):
         self.TW_Testplan.setItem(msg[0], 8, item)
 
     def Clear_value(self):
-        if self.button_clicked("Are you sure you want clear test result ?"):
+        if self.Warn_massage("Are you sure you want clear test result ?"):
             for idx in range(self.TW_Testplan.rowCount()):
                 item = QTableWidgetItem("")
                 self.TW_Testplan.setItem(idx, 8, item)
@@ -474,6 +503,7 @@ class mainProgram(QtWidgets.QMainWindow, Ui_MainWindow):
     def Create_folder(self, path):
         if not os.path.exists(path):
             os.makedirs(path)
+            self.logger.info("Created %s" % path)
 
     def Decoder(self, msg):
         tmp = ""
@@ -518,7 +548,7 @@ class mainProgram(QtWidgets.QMainWindow, Ui_MainWindow):
             if ok_pressed :
                 selected_source, ok_pressed = QInputDialog.getItem(self, "Select Source", "Choose an source:", ["CLK","DATA"])
                 if ok_pressed :
-                    print("%s_%s" %(selected_item,selected_source))
+                    self.logger.info("%s_%s" %(selected_item,selected_source))
                     self.listWidget.addItem("%s_%s" %(selected_item,selected_source))
 
     def Measure_list_remove(self):
@@ -544,15 +574,17 @@ class mainProgram(QtWidgets.QMainWindow, Ui_MainWindow):
     
     def save2jpg(self):
         filename, _ = QFileDialog.getSaveFileName(self, filter="png(*.png)")
-        print(filename)
+        #self.logger.info(filename)
         if self.raw_data is not None and filename:
             self.raw_data.save(filename)
+            self.logger.info("Screenshot saved to %s" % filename)
     
     def get_screenshot(self):
         self.thread = Runthread()
         self.thread.visa_add        = self.CB_VIsa.currentText()
         self.thread._Draw_Screenshot.connect(self.Draw_Screenshot)
-        self.thread.get_Screenshot()
+        self.thread.Set_Screenshot()
+        self.logger.info("Get screenshot successfully")
 
     def inf_message(self, msg):
         message = QMessageBox(self)
@@ -572,21 +604,30 @@ class mainProgram(QtWidgets.QMainWindow, Ui_MainWindow):
         message.show()
         message.exec_()
     
-    def button_clicked(self, msg):
-
+    def Que_message(self, msg):
+        button = QMessageBox.question(self, 'Question', msg,
+            QMessageBox.Ok | QMessageBox.Close, QMessageBox.Close)
+        if button == QMessageBox.Ok:
+            return True
+        elif button == QMessageBox.Close:
+            return False
+    
+    def Warn_massage(self, msg):
         button = QMessageBox.warning(self, 'Warn', msg,
             QMessageBox.Ok | QMessageBox.Close, QMessageBox.Close)
-
         if button == QMessageBox.Ok:
             return True
         elif button == QMessageBox.Close:
             return False
 
     def stop_thread(self):
-        if self.button_clicked("Are you sure you want to terminate the program ?"):
-            if self.thread is not None:
+        if self.Warn_massage("Are you sure you want to terminate the program ?"):
+            try:
                 self.thread.terminate()
                 self.thread.exec_()
+                self.logger.critical("Program has been terminated !")
+            except Exception as e:
+                pass
 
 if __name__ == "__main__":
     os.environ["QT_AUTO_SCREEN_SCALE_FACTOR"] = "1"
