@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>1373</width>
-    <height>750</height>
+    <height>747</height>
    </rect>
   </property>
   <property name="contextMenuPolicy">
@@ -133,7 +133,7 @@
                 </size>
                </property>
                <property name="currentIndex">
-                <number>2</number>
+                <number>0</number>
                </property>
                <widget class="QWidget" name="TW_TestPlan">
                 <attribute name="title">

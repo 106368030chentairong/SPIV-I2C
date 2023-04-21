@@ -28,7 +28,7 @@ class mainProgram(QtWidgets.QMainWindow, Ui_MainWindow):
         self.change_UI_styl("dark_purple.xml")
 
         # Set main window name
-        self.setWindowTitle("I2C_AutoTestingTool_V3.0.0 (Developer bate5)")
+        self.setWindowTitle("I2C Auto Testing Tool V3.0.0")
 
         self.file_name = './config/DPO4000_setup.json'
         self.raw_data = None
@@ -170,7 +170,7 @@ class mainProgram(QtWidgets.QMainWindow, Ui_MainWindow):
             self.TW_Testplan.clearContents()
             self.TW_Testplan.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
             self.TW_Testplan.setRowCount(sheet.max_row-1)
-            self.TW_Testplan.setColumnCount(sheet.max_column+3)
+            self.TW_Testplan.setColumnCount(sheet.max_column+4)
 
             for r_index, row in enumerate(sheet.values):
                 
@@ -194,6 +194,7 @@ class mainProgram(QtWidgets.QMainWindow, Ui_MainWindow):
                         self.TW_Testplan.setItem(r_index-1, c_index, item)
                 else:
                     self.TW_Testplan.setHorizontalHeaderLabels(row)
+
         except Exception as e:
             self.logger.error(e)
             pass
@@ -449,14 +450,58 @@ class mainProgram(QtWidgets.QMainWindow, Ui_MainWindow):
         self.thread.start()
     
     def Update_delta_value(self, msg):
-        item = QTableWidgetItem(str(msg[-1]))
+        item = QTableWidgetItem("%s" %(msg[-1]))
         self.TW_Testplan.setItem(msg[0], 8, item)
+        minmun  = self.TW_Testplan.item(msg[0],3).text()
+        maxmun  = self.TW_Testplan.item(msg[0],5).text()
+        unit    = self.TW_Testplan.item(msg[0],6).text()
+        result_tmp = self.Judge_testplan(maxmun, minmun, msg[-1], unit)
+        print(result_tmp)
+        result_item = QTableWidgetItem("%s" %(result_tmp))
+        self.TW_Testplan.setItem(msg[0], 9, result_item)
+
+        if result_tmp.lower() == "pass":
+            pixmapi = getattr(QStyle, "SP_DialogApplyButton")
+        elif result_tmp.lower() == "fail":
+            pixmapi = getattr(QStyle, "SP_DialogCancelButton")
+        elif result_tmp.lower() == "none":
+            pixmapi = getattr(QStyle, "SP_MessageBoxQuestion")
+        icon = self.style().standardIcon(pixmapi)
+        result_item = QTableWidgetItem()
+        result_item.setIcon(QIcon(icon))
+        self.TW_Testplan.setItem(msg[0], 10, result_item)
+    
+    def Judge_testplan(self, maxmun, minmun, test_value, unit):
+        print(maxmun, minmun, test_value, unit)
+        self.unit = { "V":1,"kHz":1e+3,"ms":1e-3, "us":1e-6, "ns":1e-9, "ps":1e-12}
+
+        if test_value == 'None':
+            return 'None'
+      
+        result_tmp = 0
+
+        if maxmun != 'None':
+            if float(test_value) > (float(maxmun)*self.unit[unit]):
+                result_tmp += 1
+
+        if minmun != 'None':
+            if float(test_value) < (float(minmun)*self.unit[unit]):
+                result_tmp += 1
+        
+        if result_tmp == 0:
+            result_tmp = "Pass"
+        else:
+            result_tmp = "Fail"
+
+        return result_tmp
 
     def Clear_value(self):
         if self.Warn_massage("Are you sure you want clear test result ?"):
             for idx in range(self.TW_Testplan.rowCount()):
                 item = QTableWidgetItem("")
                 self.TW_Testplan.setItem(idx, 8, item)
+                item = QTableWidgetItem("")
+                self.TW_Testplan.setItem(idx, 9, item)
 
     def Draw_raw_data(self, msg):
         color_pen = {"CH1":(255,255,0), "CH2":(0,255,255), "CH3":(255,0,255), "CH4":(0,255,0)}
@@ -486,7 +531,7 @@ class mainProgram(QtWidgets.QMainWindow, Ui_MainWindow):
         png_data = self.raw_data.resize(newsize)
         png_data.save("tmp.png")
         if test_list != []:
-            png_data.save("%s/%s/%s_%s.png" %("Measurement data",self.time_stemp, test_list[0], test_list[1]))
+            png_data.save("%s/%s/%s_%s.png" %("Measurement data",self.time_stemp, test_list[0]+1, test_list[1]))
 
         img = QtGui.QPixmap("tmp.png")
         scene = QtWidgets.QGraphicsScene()     
@@ -625,7 +670,7 @@ class mainProgram(QtWidgets.QMainWindow, Ui_MainWindow):
             try:
                 self.thread.terminate()
                 self.thread.exec_()
-                self.logger.critical("Program has been terminated !")
+                #self.logger.critical("Program has been terminated !")
             except Exception as e:
                 pass
 

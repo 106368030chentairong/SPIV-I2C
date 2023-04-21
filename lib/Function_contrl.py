@@ -52,8 +52,10 @@ class Controller(object):
     def setup(self,RECOrdlength, SAMPLERate, Display_wav, Display_gra):
         self.scope = DPO4000()
         self.scope.connected(self.visa_add)
-        self.scope.do_command('FPAnel:PRESS DEFaultsetup')
-        self.scope.do_command('FPAnel:PRESS MENUOff')
+        self.scope.do_command("*CLS")
+        #self.scope.do_command("*RST")
+        #self.scope.do_command('FPAnel:PRESS DEFaultsetup')
+        #self.scope.do_command('FPAnel:PRESS MENUOff')
         self.scope.do_command('DISplay:INTENSITy:WAVEform %s'   %(Display_wav))
         self.scope.do_command('DISplay:INTENSITy:GRAticule %s'  %(Display_gra))
         self.scope.do_command('HORizontal:RECOrdlength %s'      %(RECOrdlength))
@@ -102,9 +104,9 @@ class Controller(object):
         check_trig_num = 0
         state = self.scope.do_query('ACQUIRE:STATE?')
 
-        while state == "1" and check_trig_num < 20:
+        while state == "1" and check_trig_num < 30:
             check_trig_num += 1
-            time.sleep(0.5)
+            time.sleep(1)
             state = self.scope.do_query('ACQUIRE:STATE?')
             print("(state)      : %s" %(state))
   
@@ -145,9 +147,8 @@ class Controller(object):
         self.scope.do_command('data:start 1')
         record = int(self.scope.do_query('horizontal:recordlength?'))
         self.scope.do_command('data:stop {}'.format(record)) 
-        self.scope.do_command('wfmoutpre:byt_n 1') 
+        self.scope.do_command('wfmoutpre:byt_n 1')
 
-        #bin_wave = self.scope.get_raw_bin()
         bin_wave = self.scope.get_raw_bin()
 
         # retrieve scaling factors
@@ -157,12 +158,6 @@ class Controller(object):
         voff = float(self.scope.do_query('wfmoutpre:yzero?')) # reference voltage
         vpos = float(self.scope.do_query('wfmoutpre:yoff?')) # reference position (level)
 
-        """ # error checking
-        r = int(self.scope.do_query('*esr?'))
-        print('event status register: 0b{:08b}'.format(r))
-        r = self.scope.do_query('allev?').strip()
-        print('all event messages: {}'.format(r)) """
-
         # create scaled vectors
         # horizontal (time)
         total_time = tscale * record
@@ -171,6 +166,7 @@ class Controller(object):
         # vertical (voltage)
         unscaled_wave = np.array(bin_wave, dtype='double') # data type conversion
         Volts = (unscaled_wave - vpos) * vscale + voff
+
         self.scope.close()
 
         return Volts , Time
@@ -250,6 +246,7 @@ class Controller(object):
     def get_usb_info(self):
         self.scope = DPO4000()
         usb_list = self.scope.list_devices()
+        self.scope.close()
         return usb_list
     
     def get_MeasureValue(self, idx):

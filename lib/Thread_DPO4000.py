@@ -164,10 +164,10 @@ class Runthread(QtCore.QThread):
             print("Measure_list %s" %(Measure_list))
 
             Signal_model = signal_process()
-            Signal_model.CLK_VIH    = Measure_list[0]*0.7
-            Signal_model.CLK_VIL    = Measure_list[0]*0.3
-            Signal_model.DATA_VIH   = Measure_list[2]*0.7
-            Signal_model.DATA_VIL   = Measure_list[2]*0.3
+            Signal_model.CLK_VIH    = round(Measure_list[0]*0.7)
+            Signal_model.CLK_VIL    = round(Measure_list[0]*0.3)
+            Signal_model.DATA_VIH   = round(Measure_list[2]*0.7)
+            Signal_model.DATA_VIL   = round(Measure_list[2]*0.3)
             Signal_model.CLK_Volts  = CLK_Volts
             Signal_model.CLK_Time   = CLK_Time
             Signal_model.DATA_Volts = DATA_Volts
@@ -267,7 +267,6 @@ class Runthread(QtCore.QThread):
             Control_model.Measure_setup(signal_setting["Measure list"],
                                         Default_signal_setting["CLK"]["Channel"],
                                         Default_signal_setting["DATA"]["Channel"])
-
 
         delta_value = Control_model.get_Cursors_Delta(signal_setting["Value"])
         return delta_value
