@@ -164,10 +164,10 @@ class Runthread(QtCore.QThread):
             print("Measure_list %s" %(Measure_list))
 
             Signal_model = signal_process()
-            Signal_model.CLK_VIH    = round(Measure_list[0]*0.7)
-            Signal_model.CLK_VIL    = round(Measure_list[0]*0.3)
-            Signal_model.DATA_VIH   = round(Measure_list[2]*0.7)
-            Signal_model.DATA_VIL   = round(Measure_list[2]*0.3)
+            Signal_model.CLK_VIH    = Measure_list[0]*0.7 #round(Measure_list[0]*0.7, 2)
+            Signal_model.CLK_VIL    = Measure_list[0]*0.3 #round(Measure_list[0]*0.3, 2)
+            Signal_model.DATA_VIH   = Measure_list[2]*0.7 #round(Measure_list[2]*0.7, 2)
+            Signal_model.DATA_VIL   = Measure_list[2]*0.3 #round(Measure_list[2]*0.3, 2)
             Signal_model.CLK_Volts  = CLK_Volts
             Signal_model.CLK_Time   = CLK_Time
             Signal_model.DATA_Volts = DATA_Volts

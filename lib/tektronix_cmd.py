@@ -15,7 +15,7 @@ class DPO4000():
 
         ## "tek" check num 
         self.reconnected_num = 0
-        self.cmd_timeout = 0.05
+        self.cmd_timeout = 0.1
     
     def open_json(self, file_name):
         try:
@@ -130,7 +130,7 @@ class DPO4000():
     def close(self):
         try:
             self.scope.close()
-            #self.rm.close()
+            self.rm.close()
             print("(close)      : USB - %s - Close !" %(self.visa_add))
         except Exception as e: 
             print("(close)      : USB - %s - Close !" %(self.visa_add))

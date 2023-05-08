@@ -1,1 +1,1 @@
-pyinstaller -D .\main.py
+pyinstaller -D --clean .\main.py

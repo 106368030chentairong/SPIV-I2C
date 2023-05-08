@@ -53,7 +53,7 @@ class Controller(object):
         self.scope = DPO4000()
         self.scope.connected(self.visa_add)
         self.scope.do_command("*CLS")
-        #self.scope.do_command("*RST")
+        self.scope.do_command("*RST")
         #self.scope.do_command('FPAnel:PRESS DEFaultsetup')
         #self.scope.do_command('FPAnel:PRESS MENUOff')
         self.scope.do_command('DISplay:INTENSITy:WAVEform %s'   %(Display_wav))
@@ -96,7 +96,7 @@ class Controller(object):
     def set_time_scale(self, T_scale, T_Unit):
         self.scope = DPO4000()
         self.scope.connected(self.visa_add)
-        self.scope.do_command('HORizontal:DELay:TIME %s%s'  %(int(T_scale)*10, T_Unit))
+        self.scope.do_command('HORizontal:DELay:TIME %s%s'  %(int(T_scale)*3, T_Unit))
         self.scope.do_command('HORIZONTAL:SCALE %s%s'       %(T_scale, T_Unit))
         self.scope.close()
 

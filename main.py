@@ -15,6 +15,7 @@ from qt_material import apply_stylesheet
 from lib.Thread_DPO4000 import *
 from lib.analytics_excel import *
 from lib.log_custom import *
+from lib.autoreport_core import *
 
 from PIL import Image, ImageQt
 import numpy as np
@@ -28,7 +29,7 @@ class mainProgram(QtWidgets.QMainWindow, Ui_MainWindow):
         self.change_UI_styl("dark_purple.xml")
 
         # Set main window name
-        self.setWindowTitle("I2C Auto Testing Tool V3.0.0")
+        self.setWindowTitle("I2C Auto Testing Tool V3.1.0 (bate 1)")
 
         self.file_name = './config/DPO4000_setup.json'
         self.raw_data = None
@@ -91,6 +92,13 @@ class mainProgram(QtWidgets.QMainWindow, Ui_MainWindow):
         self.actionToolBar_start.triggered.connect(self.Run_testplan)
         self.actionToolBar_Clear.triggered.connect(self.Clear_value)
         self.actionToolBar_STOP.triggered.connect(self.stop_thread)
+
+        # Autoreport Button
+        self.PB_Generate.clicked.connect(self.Autoreport_thread)
+        self.PB_excel_path.clicked.connect(lambda:self.open_file(self.LE_excel_path))
+        self.PB_Image_path.clicked.connect(lambda:self.open_folder(self.LE_Image_path))
+        self.PB_word_path.clicked.connect(lambda:self.open_file(self.LE_word_path))
+        self.PB_output_path.clicked.connect(lambda:self.open_folder(self.LE_output_path))
 
         self.time_stemp = None
 
@@ -157,6 +165,14 @@ class mainProgram(QtWidgets.QMainWindow, Ui_MainWindow):
             except Exception as e:
                 self.logger.error(e)
                 self.error_message("Open Excel file failed !!")
+    
+    def open_file(self, obj):
+        filename, filetype = QFileDialog.getOpenFileName(self, "Open file", "./")
+        obj.setText(filename)
+    
+    def open_folder(self, obj):
+        folder = QFileDialog.getExistingDirectory(self, "Open folder", "./")
+        obj.setText(folder)
     
     def excel2table(self, sheet):
         try:
@@ -411,6 +427,16 @@ class mainProgram(QtWidgets.QMainWindow, Ui_MainWindow):
             self.thread._error_message.connect(self.inf_message)
             self.thread.start()
     
+    def Autoreport_thread(self):
+        self.thread = Autoreport()
+        self.thread.timestemp       = self.get_time_stemp()
+        self.thread.excel_path      = self.LE_excel_path.text()
+        self.thread.Image_path      = self.LE_Image_path.text()
+        self.thread.template_path   = self.LE_word_path.text()
+        self.thread.output_path     = self.LE_output_path.text()
+        self.thread._progressBar.connect(self.Update_ProgressBar_report)
+        self.thread.start()
+    
     def Run_testplan(self):
         test_plan_list = []
 
@@ -569,6 +595,9 @@ class mainProgram(QtWidgets.QMainWindow, Ui_MainWindow):
                 self.PB_DATA.hide()
             elif msg[1] >= 1:
                 self.PB_DATA.show()
+    
+    def Update_ProgressBar_report(self, msg):
+        self.progressBar.setValue(msg)
             
     def Done_trigger(self):
         self.Diabled_Widget(True)
