@@ -44,6 +44,7 @@ class Autoreport(QtCore.QThread):
                         if f.split('_')[0] == Tag.split('_')[-1]:
                             self.context.setdefault(Tag, InlineImage(self.doc, os.path.join(dirPath, f),width=Mm(int(80))))
         self._progressBar.emit(50)
+
     def run(self):
         self._progressBar.emit(0)
         self.context = {}

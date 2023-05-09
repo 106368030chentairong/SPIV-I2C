@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>1400</width>
-    <height>750</height>
+    <height>753</height>
    </rect>
   </property>
   <property name="contextMenuPolicy">
@@ -17,8 +17,8 @@
    <string>MainWindow</string>
   </property>
   <widget class="QWidget" name="centralwidget">
-   <layout class="QVBoxLayout" name="verticalLayout_30">
-    <item>
+   <layout class="QGridLayout" name="gridLayout_10">
+    <item row="0" column="0">
      <widget class="QTabWidget" name="tabWidget">
       <property name="layoutDirection">
        <enum>Qt::LeftToRight</enum>
@@ -33,8 +33,8 @@
        <attribute name="title">
         <string>I2C Control</string>
        </attribute>
-       <layout class="QGridLayout" name="gridLayout_10">
-        <item row="0" column="0">
+       <layout class="QVBoxLayout" name="verticalLayout_32">
+        <item>
          <widget class="QFrame" name="frame">
           <property name="minimumSize">
            <size>
@@ -133,8 +133,37 @@
                 </size>
                </property>
                <property name="currentIndex">
-                <number>3</number>
+                <number>4</number>
                </property>
+               <widget class="QWidget" name="tab_info">
+                <attribute name="title">
+                 <string>Info</string>
+                </attribute>
+                <layout class="QGridLayout" name="gridLayout_22">
+                 <item row="0" column="0">
+                  <widget class="QTableWidget" name="TW_info">
+                   <property name="rowCount">
+                    <number>10</number>
+                   </property>
+                   <property name="columnCount">
+                    <number>2</number>
+                   </property>
+                   <row/>
+                   <row/>
+                   <row/>
+                   <row/>
+                   <row/>
+                   <row/>
+                   <row/>
+                   <row/>
+                   <row/>
+                   <row/>
+                   <column/>
+                   <column/>
+                  </widget>
+                 </item>
+                </layout>
+               </widget>
                <widget class="QWidget" name="TW_TestPlan">
                 <attribute name="title">
                  <string>Test Plan</string>
@@ -2338,6 +2367,7 @@
     <bool>false</bool>
    </attribute>
    <addaction name="actionToolBar_File"/>
+   <addaction name="actionExport"/>
    <addaction name="actionToolBar_start"/>
    <addaction name="actionToolBar_STOP"/>
    <addaction name="actionToolBar_Clear"/>
@@ -2379,6 +2409,11 @@
   <action name="actionGet_Screenshot">
    <property name="text">
     <string>Get Screenshot</string>
+   </property>
+  </action>
+  <action name="actionExport">
+   <property name="text">
+    <string>Export</string>
    </property>
   </action>
  </widget>

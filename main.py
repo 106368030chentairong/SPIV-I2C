@@ -33,6 +33,7 @@ class mainProgram(QtWidgets.QMainWindow, Ui_MainWindow):
 
         self.file_name = './config/DPO4000_setup.json'
         self.raw_data = None
+        self.excel_template = None
 
         self.log_setup()
         self._connectActions()
@@ -92,6 +93,7 @@ class mainProgram(QtWidgets.QMainWindow, Ui_MainWindow):
         self.actionToolBar_start.triggered.connect(self.Run_testplan)
         self.actionToolBar_Clear.triggered.connect(self.Clear_value)
         self.actionToolBar_STOP.triggered.connect(self.stop_thread)
+        self.actionExport.triggered.connect(self.export2excel)
 
         # Autoreport Button
         self.PB_Generate.clicked.connect(self.Autoreport_thread)
@@ -123,6 +125,7 @@ class mainProgram(QtWidgets.QMainWindow, Ui_MainWindow):
         self.actionToolBar_Clear.setIcon(self.style().standardIcon(getattr(QStyle, "SP_DialogResetButton")))
         self.actionToolBar_start.setIcon(self.style().standardIcon(getattr(QStyle, "SP_MediaPlay")))
         self.actionToolBar_STOP.setIcon(self.style().standardIcon(getattr(QStyle, "SP_MediaStop")))
+        self.actionExport.setIcon(self.style().standardIcon(getattr(QStyle, "SP_DialogSaveButton")))
 
     def chooes_type(self):
         themes = ['dark_amber.xml',
@@ -150,6 +153,7 @@ class mainProgram(QtWidgets.QMainWindow, Ui_MainWindow):
 
     def menu_open_excel(self):
         filename, filetype = QFileDialog.getOpenFileName(self, "Open file", "./")
+        self.excel_template = filename
         if filename != "":
             self.logger.debug(filename)
             try:
@@ -159,8 +163,8 @@ class mainProgram(QtWidgets.QMainWindow, Ui_MainWindow):
 
                 self.logger.debug(selected_item)
                 if ok_pressed:
-                    sheet = excel_model.read_excel(selected_item)
-                    self.excel2table(sheet)
+                    self.excel2table(excel_model.read_excel(selected_item))
+                    self.excel2info(excel_model.read_excel("Basic"))
 
             except Exception as e:
                 self.logger.error(e)
@@ -214,6 +218,26 @@ class mainProgram(QtWidgets.QMainWindow, Ui_MainWindow):
         except Exception as e:
             self.logger.error(e)
             pass
+
+    def excel2info(self, sheet):
+        try:
+            self.TW_info.clearContents()
+            self.TW_info.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
+            self.TW_info.setRowCount(sheet.max_row-1)
+            self.TW_info.setColumnCount(sheet.max_column)
+
+            for r_index, row in enumerate(sheet.values):
+                if r_index > 0:
+                    for c_index, col in enumerate(row):
+                        item = QTableWidgetItem(str(col))
+                        self.TW_info.setItem(r_index-1, c_index, item)
+                else:
+                    self.TW_info.setHorizontalHeaderLabels(row)
+
+        except Exception as e:
+            self.logger.error(e)
+            pass
+
         
     def getusblist(self):
         Control_model = Controller()
@@ -426,7 +450,49 @@ class mainProgram(QtWidgets.QMainWindow, Ui_MainWindow):
             self.thread._ProgressBar.connect(self.Update_ProgressBar)
             self.thread._error_message.connect(self.inf_message)
             self.thread.start()
-    
+
+    def table2excel(self, save_name):
+        logging.info(save_name)
+        wb_data = load_workbook(self.excel_template, data_only=True)
+        testsheet = wb_data["Testing"]
+
+        # Test plan table
+        col = self.TW_Testplan.columnCount()
+        row = self.TW_Testplan.rowCount()
+        for row_index in range(row):
+            for col_index in range(col):
+                try:
+                    teext = str(self.TW_Testplan.item(row_index, col_index).text())
+                    testsheet.cell(row=row_index+1, column=col_index+5).value = teext
+                except Exception as e:
+                    #logging.debug(e)
+                    continue
+        
+        # Information table 
+        col = self.TW_info.columnCount()
+        row = self.TW_info.rowCount()
+        for row_index in range(row):
+            for col_index in range(col):
+                try:
+                    teext = str(self.TW_info.item(row_index, col_index).text())
+                    if teext != "None":
+                        testsheet.cell(row=row_index+1, column=col_index+1).value = teext
+                except Exception as e:
+                    #logging.debug(e)
+                    continue
+
+        wb_data.save("%s.xlsx" %(save_name))
+
+    def export2excel(self):
+        save_name, _  = QFileDialog.getSaveFileName(self, 'Save File')
+        logging.info(save_name)
+        if save_name  != "" and self.excel_template != None:
+            try:
+                self.table2excel(save_name)
+            except Exception as e:
+                print(e)
+        pass
+
     def Autoreport_thread(self):
         self.thread = Autoreport()
         self.thread.timestemp       = self.get_time_stemp()
@@ -436,7 +502,7 @@ class mainProgram(QtWidgets.QMainWindow, Ui_MainWindow):
         self.thread.output_path     = self.LE_output_path.text()
         self.thread._progressBar.connect(self.Update_ProgressBar_report)
         self.thread.start()
-    
+        
     def Run_testplan(self):
         test_plan_list = []
 
