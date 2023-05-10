@@ -47,7 +47,7 @@ class Runthread(QtCore.QThread):
                     self.Set_Screenshot(item)
                 except Exception as e:
                     print(e)
-                    self._delta_value.emit([item[0],"None"])
+                    self._delta_value.emit([item[0],""])
                 finally:
                     self._done_trigger.emit()
         else:

@@ -29,7 +29,10 @@ class Autoreport(QtCore.QThread):
             self._progressBar.emit(70)
             for Tag in self.doc.get_undeclared_template_variables():
                 if Tag.split('_')[0] == "CL":
-                    self.context.setdefault(Tag ,sheet_data[Tag.split('_')[-1]].internal_value)
+                    cell_value = sheet_data[Tag.split('_')[-1]].internal_value
+                    if cell_value == None:
+                        cell_value = ""
+                    self.context.setdefault(Tag ,cell_value)
             self._progressBar.emit(80)
             self.doc.render(self.context)
             self.doc.save("%s/%s.docx" %(self.output_path, self.timestemp))

@@ -29,7 +29,7 @@ class mainProgram(QtWidgets.QMainWindow, Ui_MainWindow):
         self.change_UI_styl("dark_purple.xml")
 
         # Set main window name
-        self.setWindowTitle("I2C Auto Testing Tool V3.1.0 (bate 1)")
+        self.setWindowTitle("I2C Auto Testing Tool V3.1.0")
 
         self.file_name = './config/DPO4000_setup.json'
         self.raw_data = None
@@ -207,6 +207,8 @@ class mainProgram(QtWidgets.QMainWindow, Ui_MainWindow):
                         self.logger.error(e)
 
                     for c_index, col in enumerate(row):
+                        if col == None:
+                            col = ""
                         item = QTableWidgetItem(str(col))
                         if c_index == 0:
                             item.setFlags(QtCore.Qt.ItemIsUserCheckable|QtCore.Qt.ItemIsEnabled)
@@ -223,16 +225,13 @@ class mainProgram(QtWidgets.QMainWindow, Ui_MainWindow):
         try:
             self.TW_info.clearContents()
             self.TW_info.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
-            self.TW_info.setRowCount(sheet.max_row-1)
+            self.TW_info.setRowCount(sheet.max_row)
             self.TW_info.setColumnCount(sheet.max_column)
 
             for r_index, row in enumerate(sheet.values):
-                if r_index > 0:
-                    for c_index, col in enumerate(row):
-                        item = QTableWidgetItem(str(col))
-                        self.TW_info.setItem(r_index-1, c_index, item)
-                else:
-                    self.TW_info.setHorizontalHeaderLabels(row)
+                for c_index, col in enumerate(row):
+                    item = QTableWidgetItem(str(col))
+                    self.TW_info.setItem(r_index, c_index, item)
 
         except Exception as e:
             self.logger.error(e)
@@ -453,7 +452,7 @@ class mainProgram(QtWidgets.QMainWindow, Ui_MainWindow):
 
     def table2excel(self, save_name):
         logging.info(save_name)
-        wb_data = load_workbook(self.excel_template, data_only=True)
+        wb_data = load_workbook(self.excel_template)
         testsheet = wb_data["Testing"]
 
         # Test plan table
@@ -463,7 +462,7 @@ class mainProgram(QtWidgets.QMainWindow, Ui_MainWindow):
             for col_index in range(col):
                 try:
                     teext = str(self.TW_Testplan.item(row_index, col_index).text())
-                    testsheet.cell(row=row_index+1, column=col_index+5).value = teext
+                    testsheet.cell(row=row_index+2, column=col_index+5).value = teext
                 except Exception as e:
                     #logging.debug(e)
                     continue
@@ -542,6 +541,7 @@ class mainProgram(QtWidgets.QMainWindow, Ui_MainWindow):
         self.thread.start()
     
     def Update_delta_value(self, msg):
+
         item = QTableWidgetItem("%s" %(msg[-1]))
         self.TW_Testplan.setItem(msg[0], 8, item)
         minmun  = self.TW_Testplan.item(msg[0],3).text()
@@ -556,7 +556,7 @@ class mainProgram(QtWidgets.QMainWindow, Ui_MainWindow):
             pixmapi = getattr(QStyle, "SP_DialogApplyButton")
         elif result_tmp.lower() == "fail":
             pixmapi = getattr(QStyle, "SP_DialogCancelButton")
-        elif result_tmp.lower() == "none":
+        elif result_tmp == "":
             pixmapi = getattr(QStyle, "SP_MessageBoxQuestion")
         icon = self.style().standardIcon(pixmapi)
         result_item = QTableWidgetItem()
@@ -567,16 +567,16 @@ class mainProgram(QtWidgets.QMainWindow, Ui_MainWindow):
         print(maxmun, minmun, test_value, unit)
         self.unit = { "V":1,"kHz":1e+3,"ms":1e-3, "us":1e-6, "ns":1e-9, "ps":1e-12}
 
-        if test_value == 'None':
-            return 'None'
+        if test_value == "":
+            return ""
       
         result_tmp = 0
 
-        if maxmun != 'None':
+        if maxmun != 'None' or maxmun != '':
             if float(test_value) > (float(maxmun)*self.unit[unit]):
                 result_tmp += 1
 
-        if minmun != 'None':
+        if minmun != 'None' or maxmun != '':
             if float(test_value) < (float(minmun)*self.unit[unit]):
                 result_tmp += 1
         
