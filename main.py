@@ -541,9 +541,11 @@ class mainProgram(QtWidgets.QMainWindow, Ui_MainWindow):
         self.thread.start()
     
     def Update_delta_value(self, msg):
-
+        # value
         item = QTableWidgetItem("%s" %(msg[-1]))
         self.TW_Testplan.setItem(msg[0], 8, item)
+
+        # judge
         minmun  = self.TW_Testplan.item(msg[0],3).text()
         maxmun  = self.TW_Testplan.item(msg[0],5).text()
         unit    = self.TW_Testplan.item(msg[0],6).text()
@@ -552,11 +554,12 @@ class mainProgram(QtWidgets.QMainWindow, Ui_MainWindow):
         result_item = QTableWidgetItem("%s" %(result_tmp))
         self.TW_Testplan.setItem(msg[0], 9, result_item)
 
+        # icon
         if result_tmp.lower() == "pass":
             pixmapi = getattr(QStyle, "SP_DialogApplyButton")
         elif result_tmp.lower() == "fail":
             pixmapi = getattr(QStyle, "SP_DialogCancelButton")
-        elif result_tmp == "":
+        else:
             pixmapi = getattr(QStyle, "SP_MessageBoxQuestion")
         icon = self.style().standardIcon(pixmapi)
         result_item = QTableWidgetItem()
@@ -572,11 +575,11 @@ class mainProgram(QtWidgets.QMainWindow, Ui_MainWindow):
       
         result_tmp = 0
 
-        if maxmun != 'None' or maxmun != '':
+        if maxmun != '':
             if float(test_value) > (float(maxmun)*self.unit[unit]):
                 result_tmp += 1
 
-        if minmun != 'None' or maxmun != '':
+        if minmun != '':
             if float(test_value) < (float(minmun)*self.unit[unit]):
                 result_tmp += 1
         
