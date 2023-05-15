@@ -29,7 +29,7 @@ class mainProgram(QtWidgets.QMainWindow, Ui_MainWindow):
         self.change_UI_styl("dark_purple.xml")
 
         # Set main window name
-        self.setWindowTitle("I2C Auto Testing Tool V3.1.0")
+        self.setWindowTitle("I2C Auto Testing Tool V3.1.2")
 
         self.file_name = './config/DPO4000_setup.json'
         self.raw_data = None
@@ -225,6 +225,7 @@ class mainProgram(QtWidgets.QMainWindow, Ui_MainWindow):
         try:
             self.TW_info.clearContents()
             self.TW_info.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
+            #self.TW_info.verticalHeader().setSectionResizeMode(QHeaderView.Stretch)
             self.TW_info.setRowCount(sheet.max_row)
             self.TW_info.setColumnCount(sheet.max_column)
 
@@ -541,14 +542,21 @@ class mainProgram(QtWidgets.QMainWindow, Ui_MainWindow):
         self.thread.start()
     
     def Update_delta_value(self, msg):
+        self.unit = { "mv":1e-3,"v":1,"mhz":1e+6, "khz":1e+3,"ms":1e-3, "us":1e-6, "ns":1e-9, "ps":1e-12, "none":1}
+        unit = self.TW_Testplan.item(msg[0],6).text()
+
         # value
-        item = QTableWidgetItem("%s" %(msg[-1]))
+        if msg[-1] != "":
+            Display_value = ("%.2f" %(float(msg[-1])/self.unit[unit.lower()])) 
+        else:
+            Display_value = msg[-1]
+
+        item = QTableWidgetItem("%s" %(Display_value))
         self.TW_Testplan.setItem(msg[0], 8, item)
 
         # judge
         minmun  = self.TW_Testplan.item(msg[0],3).text()
         maxmun  = self.TW_Testplan.item(msg[0],5).text()
-        unit    = self.TW_Testplan.item(msg[0],6).text()
         result_tmp = self.Judge_testplan(maxmun, minmun, msg[-1], unit)
         print(result_tmp)
         result_item = QTableWidgetItem("%s" %(result_tmp))

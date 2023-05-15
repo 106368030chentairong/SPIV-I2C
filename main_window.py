@@ -81,9 +81,15 @@ class Ui_MainWindow(object):
         self.gridLayout_22 = QtWidgets.QGridLayout(self.tab_info)
         self.gridLayout_22.setObjectName("gridLayout_22")
         self.TW_info = QtWidgets.QTableWidget(self.tab_info)
+        self.TW_info.setEditTriggers(QtWidgets.QAbstractItemView.DoubleClicked)
+        self.TW_info.setWordWrap(True)
         self.TW_info.setRowCount(10)
         self.TW_info.setColumnCount(2)
         self.TW_info.setObjectName("TW_info")
+        self.TW_info.horizontalHeader().setCascadingSectionResizes(False)
+        self.TW_info.horizontalHeader().setSortIndicatorShown(False)
+        self.TW_info.horizontalHeader().setStretchLastSection(False)
+        self.TW_info.verticalHeader().setCascadingSectionResizes(False)
         self.gridLayout_22.addWidget(self.TW_info, 0, 0, 1, 1)
         self.TW_Function.addTab(self.tab_info, "")
         self.TW_TestPlan = QtWidgets.QWidget()
@@ -1185,7 +1191,7 @@ class Ui_MainWindow(object):
 
         self.retranslateUi(MainWindow)
         self.tabWidget.setCurrentIndex(0)
-        self.TW_Function.setCurrentIndex(4)
+        self.TW_Function.setCurrentIndex(0)
         self.listWidget.itemChanged['QListWidgetItem*'].connect(self.PB_RUN_Fc.hide) # type: ignore
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
 
