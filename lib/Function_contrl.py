@@ -52,8 +52,10 @@ class Controller(object):
     def setup(self,RECOrdlength, SAMPLERate, Display_wav, Display_gra):
         self.scope = DPO4000()
         self.scope.connected(self.visa_add)
-        self.scope.do_command('FPAnel:PRESS DEFaultsetup')
-        self.scope.do_command('FPAnel:PRESS MENUOff')
+        self.scope.do_command("*CLS")
+        self.scope.do_command("*RST")
+        #self.scope.do_command('FPAnel:PRESS DEFaultsetup')
+        #self.scope.do_command('FPAnel:PRESS MENUOff')
         self.scope.do_command('DISplay:INTENSITy:WAVEform %s'   %(Display_wav))
         self.scope.do_command('DISplay:INTENSITy:GRAticule %s'  %(Display_gra))
         self.scope.do_command('HORizontal:RECOrdlength %s'      %(RECOrdlength))
@@ -75,6 +77,12 @@ class Controller(object):
         self.scope.do_command('%s:BANdwidth %s'   %(ch_num, BANdwidth))
         self.scope.close()
     
+    def set_channel_label(self, ch_num, label_name):
+        self.scope = DPO4000()
+        self.scope.connected(self.visa_add)
+        self.scope.do_command('%s:LABel "%s"' %(ch_num, label_name))
+        self.scope.close()
+    
     def set_trigger(self, ch_num, LEVel, SLOpe):
         self.scope = DPO4000()
         self.scope.connected(self.visa_add)
@@ -88,17 +96,17 @@ class Controller(object):
     def set_time_scale(self, T_scale, T_Unit):
         self.scope = DPO4000()
         self.scope.connected(self.visa_add)
-        self.scope.do_command('HORizontal:DELay:TIME %s%s' %(int(T_scale)*10, T_Unit))
-        self.scope.do_command('HORIZONTAL:SCALE %s%s' %(T_scale, T_Unit))
+        self.scope.do_command('HORizontal:DELay:TIME %s%s'  %(int(T_scale)*3, T_Unit))
+        self.scope.do_command('HORIZONTAL:SCALE %s%s'       %(T_scale, T_Unit))
         self.scope.close()
 
     def check_single_state(self):
         check_trig_num = 0
         state = self.scope.do_query('ACQUIRE:STATE?')
 
-        while state == "1" and check_trig_num < 20:
+        while state == "1" and check_trig_num < 30:
             check_trig_num += 1
-            time.sleep(0.5)
+            time.sleep(1)
             state = self.scope.do_query('ACQUIRE:STATE?')
             print("(state)      : %s" %(state))
   
@@ -139,9 +147,8 @@ class Controller(object):
         self.scope.do_command('data:start 1')
         record = int(self.scope.do_query('horizontal:recordlength?'))
         self.scope.do_command('data:stop {}'.format(record)) 
-        self.scope.do_command('wfmoutpre:byt_n 1') 
+        self.scope.do_command('wfmoutpre:byt_n 1')
 
-        #bin_wave = self.scope.get_raw_bin()
         bin_wave = self.scope.get_raw_bin()
 
         # retrieve scaling factors
@@ -150,12 +157,6 @@ class Controller(object):
         vscale = float(self.scope.do_query('wfmoutpre:ymult?')) # volts / level
         voff = float(self.scope.do_query('wfmoutpre:yzero?')) # reference voltage
         vpos = float(self.scope.do_query('wfmoutpre:yoff?')) # reference position (level)
-
-        """ # error checking
-        r = int(self.scope.do_query('*esr?'))
-        print('event status register: 0b{:08b}'.format(r))
-        r = self.scope.do_query('allev?').strip()
-        print('all event messages: {}'.format(r)) """
 
         # create scaled vectors
         # horizontal (time)
@@ -170,7 +171,7 @@ class Controller(object):
 
         return Volts , Time
 
-    def Cursors_control(self, Delay_Time, pt_json, cursor_switch = True):
+    def Cursors_control(self, Delay_Time, pt_json, cursor_switch = True, AutoScale = False):
         VBArs_pos_1 = pt_json["Post1_time"]
         VBArs_pos_2 = pt_json["Post2_time"]
         HBARS_pos_1 = pt_json["Post1_volts"]
@@ -181,6 +182,9 @@ class Controller(object):
 
         # calculate point1 and point2 time scale
         self.scope.do_command('HORizontal:DELay:TIME %s' %(Delay_Time))
+
+        if AutoScale:
+            self.scope.do_command('HORizontal:SCALE %s' %((abs(VBArs_pos_2-VBArs_pos_1))))
         
         if cursor_switch:
             # Enable cursor on the screen
@@ -204,7 +208,7 @@ class Controller(object):
         for idx in range(1,9):
             self.scope.do_command('MEASUrement:MEAS%s:STATE OFF'    %(idx))
         for idx, function_value in enumerate(function_list):
-            sleep_num += 0.5
+            sleep_num += 0.25
             TYPe = function_value.split("_")[0]
             source = function_value.split("_")[-1]
             if source == "CLK":
@@ -234,9 +238,7 @@ class Controller(object):
     def get_Screenshot(self):
         self.scope = DPO4000()
         self.scope.connected(self.visa_add)
-
         time.sleep(0.5)
-        
         imgData = self.scope.get_HARDCopy()
         self.scope.close()
         return imgData
@@ -244,4 +246,35 @@ class Controller(object):
     def get_usb_info(self):
         self.scope = DPO4000()
         usb_list = self.scope.list_devices()
+        self.scope.close()
         return usb_list
+    
+    def get_MeasureValue(self, idx):
+        time.sleep(0.5)
+        self.scope = DPO4000()
+        self.scope.connected(self.visa_add)
+        VALue = self.scope.do_query('MEASUrement:MEAS%s:VALue?' %(idx+1))
+        self.scope.close()
+        if float(VALue) >= 9.9E+36:
+            return self.get_MeasureValue(idx)
+        else:
+            return float(VALue)
+
+    def get_Measurement(self):
+        Measure_list = []
+
+        for idx in range(4):
+            Measure_list.append(self.get_MeasureValue(idx))
+
+        return Measure_list
+    
+    def get_Cursors_Delta(self, value_switch):
+        time.sleep(0.5)
+        self.scope = DPO4000()
+        self.scope.connected(self.visa_add)
+        if "Measurement" in value_switch:
+            VALue = self.scope.do_query('MEASUrement:MEAS%s:VALue?' %(value_switch.split(' ')[-1]))
+        elif value_switch == "Cursors Delta":
+            VALue = self.scope.do_query('CURSor:VBArs:DELTa?')
+        self.scope.close()
+        return VALue

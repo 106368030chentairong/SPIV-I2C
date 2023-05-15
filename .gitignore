@@ -156,6 +156,7 @@ cython_debug/
 *.npy
 tmp/*.npy
 compile
+dist
 dist/*
 *.png
 
@@ -166,5 +167,6 @@ dist/*
 #  option (not recommended) you can uncomment the following to ignore the entire idea folder.
 #.idea/
 
-
-
+*.doc
+*.docx
+*.xlsx

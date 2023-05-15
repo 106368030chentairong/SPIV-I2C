@@ -2,19 +2,20 @@ import os
 import time
 import numpy as np
 
-VIH = 1.8*0.7
-VIL = 1.8*0.3
-
 class signal_process():
     def __init__(self) -> None:
+        self.CLK_VIH    = 1.8*0.7
+        self.CLK_VIL    = 1.8*0.3
+        self.DATA_VIH   = 1.8*0.7
+        self.DATA_VIL   = 1.8*0.3
         self.CLK_Volts  = None
         self.CLK_Time   = None
         self.DATA_Volts = None
         self.DATA_Time  = None
 
-        self.CLK_rows = None
-        self.DATA_rows = None
-        self.CLK_Tf_pt = None
+        self.CLK_rows   = None
+        self.DATA_rows  = None
+        self.CLK_Tf_pt  = None
         self.DATA_Tf_pt = None
 
         self.DATA_PT_TMP = None
@@ -28,8 +29,8 @@ class signal_process():
         print("Process Time: %s" %(end_time-start_time))
 
         start_time = time.time()
-        self.CLK_Tf_pt = self.get_pt(self.CLK_rows)
-        self.DATA_Tf_pt = self.get_pt(self.DATA_rows)
+        self.CLK_Tf_pt = self.get_pt(self.CLK_rows, self.CLK_VIH, self.CLK_VIL)
+        self.DATA_Tf_pt = self.get_pt(self.DATA_rows, self.DATA_VIH, self.DATA_VIL)
         self.DATA_PT_TMP, self.CLK_PT_TMP = self.plot_pt(self.DATA_rows, self.CLK_rows,
                                                           self.DATA_Tf_pt, self.CLK_Tf_pt)
         end_time = time.time()
@@ -49,6 +50,12 @@ class signal_process():
                             POSITION1  = self.DATA_Time[tr_tmp[0][0]]
                             POSITION2  = self.DATA_Time[tr_tmp[0][1]]
                         delay_time = POSITION1 + abs((POSITION2 - POSITION1)/2)
+                        if ch_name == "CLK":
+                            post1_volts = self.CLK_VIL
+                            post2_volts = self.CLK_VIH
+                        elif ch_name == "DATA":
+                            post1_volts = self.DATA_VIL # 30%
+                            post2_volts = self.DATA_VIH # 70%
                     elif function_name == "tFALL":
                         if ch_name == "CLK":
                             _, tf_tmp, tr_tmp = self.get_tr_tf(self.CLK_PT_TMP)
@@ -60,14 +67,20 @@ class signal_process():
                             POSITION2  = self.DATA_Time[tf_tmp[0][1]]
                         delay_time = POSITION1 + abs((POSITION2 - POSITION1)/2)
 
+                        if ch_name == "CLK":
+                            post2_volts = self.CLK_VIL
+                            post1_volts = self.CLK_VIH
+                        elif ch_name == "DATA":
+                            post2_volts = self.DATA_VIL # 30%
+                            post1_volts = self.DATA_VIH # 70%
 
                     return delay_time,{"Post1_ch"   : ch_name,
                                        "Post1_time" : POSITION1,
-                                       "Post1_volts": 0.54,
+                                       "Post1_volts": post1_volts,
                                        "Post2_ch"   : ch_name,
                                        "Post2_time" : POSITION2,
-                                       "Post2_volts": 1.26,}
-                
+                                       "Post2_volts": post2_volts,}
+
             if function_name == "tLOW":
                 if ch_name != None:
                     if ch_name == "CLK":
@@ -79,12 +92,20 @@ class signal_process():
                         POSITION1  = self.DATA_Time[L_time[0][0]]
                         POSITION2  = self.DATA_Time[L_time[0][1]]
                     delay_time = POSITION1 + abs((POSITION2 - POSITION1)/2)
+                    
+                    if ch_name == "CLK":
+                        post1_volts = self.CLK_VIL
+                        post2_volts = self.CLK_VIL
+                    elif ch_name == "DATA":
+                        post1_volts = self.DATA_VIL
+                        post2_volts = self.DATA_VIL
+
                     return delay_time,{"Post1_ch"   : ch_name,
                                         "Post1_time" : POSITION1,
-                                        "Post1_volts": 0.54,
+                                        "Post1_volts": post1_volts,
                                         "Post2_ch"   : ch_name,
                                         "Post2_time" : POSITION2,
-                                        "Post2_volts": 0.54,}
+                                        "Post2_volts": post2_volts,}
 
             if function_name == "tHIGH":
                 if ch_name != None:
@@ -97,12 +118,20 @@ class signal_process():
                         POSITION1  = self.DATA_Time[H_time[0][0]]
                         POSITION2  = self.DATA_Time[H_time[0][1]]
                     delay_time = POSITION1 + abs((POSITION2 - POSITION1)/2)
+                    
+                    if ch_name == "CLK":
+                        post1_volts = self.CLK_VIH
+                        post2_volts = self.CLK_VIH
+                    elif ch_name == "DATA":
+                        post1_volts = self.DATA_VIH # 30%
+                        post2_volts = self.DATA_VIH # 70%
+
                     return delay_time,{"Post1_ch"   : ch_name,
                                         "Post1_time" : POSITION1,
-                                        "Post1_volts": 1.26,
+                                        "Post1_volts": post1_volts,
                                         "Post2_ch"   : ch_name,
                                         "Post2_time" : POSITION2,
-                                        "Post2_volts": 1.26,}
+                                        "Post2_volts": post2_volts,}
 
             if function_name == "tHOLD_STA":
                 data_all_pt, data_tf_tmp, data_tr_tmp = self.get_tr_tf(self.DATA_PT_TMP)
@@ -111,15 +140,16 @@ class signal_process():
                 tSU_STA = self.get_tHD_STA(data_tf_tmp, clk_all_pt,
                                            self.DATA_rows, self.CLK_rows)
                 POSITION1  = self.DATA_Time[tSU_STA[0][0]]
-                POSITION2  = self.DATA_Time[tSU_STA[0][1]]
+                POSITION2  = self.CLK_Time[tSU_STA[0][1]]
                 delay_time = POSITION1 + abs((POSITION2 - POSITION1)/2)
+                
                 return delay_time,{"Post1_ch"   : "DATA",
                                     "Post1_time" : POSITION1,
-                                    "Post1_volts": 0.54,
+                                    "Post1_volts": self.DATA_VIL,
                                     "Post2_ch"   : "CLK",
                                     "Post2_time" : POSITION2,
-                                    "Post2_volts": 1.26,}
-            
+                                    "Post2_volts": self.CLK_VIH,}
+
             if function_name == "tHOLD_DAT":
                 data_all_pt, data_tf_tmp, data_tr_tmp = self.get_tr_tf(self.DATA_PT_TMP)
                 clk_all_pt, clk_tf_tmp, clk_tr_tmp    = self.get_tr_tf(self.CLK_PT_TMP)     
@@ -127,15 +157,15 @@ class signal_process():
                 tHD_DAT = self.get_tHD_DAT(data_tf_tmp, clk_all_pt,
                                            self.DATA_rows, self.CLK_rows)
                 POSITION1  = self.DATA_Time[tHD_DAT[0][0]]
-                POSITION2  = self.DATA_Time[tHD_DAT[0][1]]
+                POSITION2  = self.CLK_Time[tHD_DAT[0][1]]
                 delay_time = POSITION2 + abs((POSITION2 - POSITION1)/2)
                 return delay_time,{"Post1_ch"   : "DATA",
                                     "Post1_time" : POSITION1,
-                                    "Post1_volts": 0.54,
+                                    "Post1_volts": self.DATA_VIH,
                                     "Post2_ch"   : "CLK",
                                     "Post2_time" : POSITION2,
-                                    "Post2_volts": 0.54,}
-
+                                    "Post2_volts": self.CLK_VIL,}
+            
             if function_name == "tSETUP_DAT":
                 data_all_pt, data_tf_tmp, data_tr_tmp = self.get_tr_tf(self.DATA_PT_TMP)
                 clk_all_pt, clk_tf_tmp, clk_tr_tmp    = self.get_tr_tf(self.CLK_PT_TMP)     
@@ -143,14 +173,14 @@ class signal_process():
                 tSU_DAT = self.get_tSU_DAT(data_tf_tmp, clk_all_pt,
                                            self.DATA_rows, self.CLK_rows)
                 POSITION1  = self.DATA_Time[tSU_DAT[0][0]]
-                POSITION2  = self.DATA_Time[tSU_DAT[0][1]]
+                POSITION2  = self.CLK_Time[tSU_DAT[0][1]]
                 delay_time = POSITION1 + abs((POSITION2 - POSITION1)/2)
                 return delay_time,{"Post1_ch"   : "DATA",
                                     "Post1_time" : POSITION1,
-                                    "Post1_volts": 0.54,
+                                    "Post1_volts": self.DATA_VIL,
                                     "Post2_ch"   : "CLK",
                                     "Post2_time" : POSITION2,
-                                    "Post2_volts": 0.54,}
+                                    "Post2_volts": self.CLK_VIL,}
 
             if function_name == "tSETUP_STA":
                 data_all_pt, data_tf_tmp, data_tr_tmp = self.get_tr_tf(self.DATA_PT_TMP)
@@ -163,11 +193,10 @@ class signal_process():
                 delay_time = POSITION2 + abs((POSITION2 - POSITION1)/2)
                 return delay_time,{"Post1_ch"   : "DATA",
                                     "Post1_time" : POSITION1,
-                                    "Post1_volts": 1.26,
+                                    "Post1_volts": self.DATA_VIH,
                                     "Post2_ch"   : "CLK",
                                     "Post2_time" : POSITION2,
-                                    "Post2_volts": 1.26,}
-
+                                    "Post2_volts": self.CLK_VIH,}
 
             if function_name == "tSETUP_STO":
                 data_all_pt, data_tf_tmp, data_tr_tmp = self.get_tr_tf(self.DATA_PT_TMP)
@@ -176,14 +205,52 @@ class signal_process():
                 tSU_STO = self.get_tSU_STO(data_tr_tmp, clk_all_pt,
                                            self.DATA_rows, self.CLK_rows)
                 POSITION1  = self.DATA_Time[tSU_STO[0][0]]
-                POSITION2  = self.DATA_Time[tSU_STO[0][1]]
+                POSITION2  = self.CLK_Time[tSU_STO[0][1]]
                 delay_time = POSITION2 + abs((POSITION2 - POSITION1)/2)
                 return delay_time,{"Post1_ch"   : "DATA",
                                     "Post1_time" : POSITION1,
-                                    "Post1_volts": 0.54,
+                                    "Post1_volts": self.DATA_VIL,
                                     "Post2_ch"   : "CLK",
                                     "Post2_time" : POSITION2,
-                                    "Post2_volts": 1.26,}
+                                    "Post2_volts": self.CLK_VIH,}
+            
+            if function_name == "tVD_DAT":
+                data_all_pt, data_tf_tmp, data_tr_tmp = self.get_tr_tf(self.DATA_PT_TMP)
+                clk_all_pt, clk_tf_tmp, clk_tr_tmp    = self.get_tr_tf(self.CLK_PT_TMP)     
+
+                tVD_DAT = self.get_tVD_DAT(data_tf_tmp, clk_all_pt,
+                                self.DATA_rows, self.CLK_rows)
+                POSITION1  = self.CLK_Time[tVD_DAT[0][0]]
+                POSITION2  = self.DATA_Time[tVD_DAT[0][1]]
+                delay_time = POSITION1 + abs((POSITION2 - POSITION1)/2)
+                return delay_time,{"Post1_ch"   : "CLK",
+                                    "Post1_time" : POSITION1,
+                                    "Post1_volts": self.CLK_VIL,
+                                    "Post2_ch"   : "DATA",
+                                    "Post2_time" : POSITION2,
+                                    "Post2_volts": self.DATA_VIL,}
+            
+            if function_name == "tVD_ACK":
+                data_all_pt, data_tf_tmp, data_tr_tmp = self.get_tr_tf(self.DATA_PT_TMP)
+                clk_all_pt, clk_tf_tmp, clk_tr_tmp    = self.get_tr_tf(self.CLK_PT_TMP)     
+
+                tHD_STA = self.get_tHD_STA(data_tf_tmp, clk_all_pt,
+                                           self.DATA_rows, self.CLK_rows)
+
+                H_time, _ = self.get_HL_Time(self.CLK_PT_TMP)
+
+                tVD_DAT = self.get_tVD_ACK(tHD_STA, H_time, data_tf_tmp, clk_all_pt,
+                                        self.DATA_rows, self.CLK_rows)
+
+                POSITION1  = self.CLK_Time[tVD_DAT[0][0]]
+                POSITION2  = self.DATA_Time[tVD_DAT[0][1]]
+                delay_time = POSITION1 + abs((POSITION2 - POSITION1)/2)
+                return delay_time,{"Post1_ch"   : "CLK",
+                                    "Post1_time" : POSITION1,
+                                    "Post1_volts": self.CLK_VIL,
+                                    "Post2_ch"   : "DATA",
+                                    "Post2_time" : POSITION2,
+                                    "Post2_volts": self.DATA_VIL,}
 
             if function_name == "tBUF":
                 H_time, _ = self.get_HL_Time(self.CLK_PT_TMP)
@@ -195,24 +262,55 @@ class signal_process():
                 clk_all_pt, clk_tf_tmp, clk_tr_tmp    = self.get_tr_tf(self.CLK_PT_TMP)     
 
                 tBUF = self.get_tBUF(data_all_pt, clk_all_pt,
-                                           self.DATA_rows, self.CLK_rows, Htime)
+                                    self.DATA_rows, self.CLK_rows, Htime)
                 POSITION1  = self.DATA_Time[tBUF[0][0]]
                 POSITION2  = self.DATA_Time[tBUF[0][1]]
                 delay_time = POSITION1 + abs((POSITION2 - POSITION1)/2)
                 return delay_time,{"Post1_ch"   : "DATA",
                                     "Post1_time" : POSITION1,
-                                    "Post1_volts": 1.26,
+                                    "Post1_volts": self.DATA_VIH,
                                     "Post2_ch"   : "DATA",
                                     "Post2_time" : POSITION2,
-                                    "Post2_volts": 1.26,}
+                                    "Post2_volts": self.DATA_VIH,}
+                                    
+            if function_name == "Test":
+                data_all_pt, data_tf_tmp, data_tr_tmp = self.get_tr_tf(self.DATA_PT_TMP)
+                clk_all_pt, clk_tf_tmp, clk_tr_tmp    = self.get_tr_tf(self.CLK_PT_TMP)     
 
-    def get_pt(self, rows):
+                tHD_STA = self.get_tHD_STA(data_tf_tmp, clk_all_pt,
+                                           self.DATA_rows, self.CLK_rows)
+                print(tHD_STA)
+
+                tSU_STO = self.get_tSU_STO(data_tr_tmp, clk_all_pt,
+                                           self.DATA_rows, self.CLK_rows)
+                print(tSU_STO)
+
+                H_time, _ = self.get_HL_Time(self.CLK_PT_TMP)
+                print(H_time)
+
+                decoder = self.get_bit(tHD_STA, tSU_STO, H_time,
+                                    self.DATA_rows, self.CLK_rows)
+                
+                POSITION1  = self.CLK_Time[H_time[8][0]]
+                POSITION2  = self.CLK_Time[H_time[8][1]]
+                
+                #POSITION1  = self.DATA_Time[tSU_STA[0][0]]
+                #POSITION2  = self.DATA_Time[tSU_STA[0][1]]
+                delay_time = POSITION1 + abs((POSITION2 - POSITION1)/2)
+                
+                return delay_time,{"Post1_ch"   : "CLK",
+                                    "Post1_time" : POSITION1,
+                                    "Post1_volts": self.CLK_VIH,
+                                    "Post2_ch"   : "CLK",
+                                    "Post2_time" : POSITION2,
+                                    "Post2_volts": self.CLK_VIH,},decoder
+
+    def get_pt(self, rows, VIH, VIL):
         tmp = []
-        VIH_list = [] 
+        VIH_list = []
         for i in range(len(rows)-1):
             if rows[i][1] >= VIH:
                 tmp.append(rows[i])
-
             if rows[i][1] <= VIL:
                 tmp.append(rows[i])
 
@@ -244,25 +342,20 @@ class signal_process():
             all_one_counter.append(one_counter)
             all_zero_counter.append(zero_counter)
             all_L_counter.append(L_counter)
-            if CLK_rows[i][1] <= VIH and CLK_rows[i][1] >= VIL:
+            if CLK_rows[i][1] <= self.CLK_VIH and CLK_rows[i][1] >= self.CLK_VIL:
                 one_counter += 1
                 zero_counter = 0
-                #if rows[i][1] == VIH :
-                #    H_counter=0
-                if one_counter == 1 and CLK_rows[i][1] <= VIH and L_counter == 1:
+                if one_counter == 1 and CLK_rows[i][1] <= self.CLK_VIH and L_counter == 1:
                     CLK_Tf_pt.append(CLK_rows[i])
-                    #print(CLK_rows[i], int(one_counter), int(zero_counter))
                     L_counter = 0
-
             else:
                 zero_counter += 1
                 if zero_counter >= zero_shift:
                     if zero_counter == zero_shift and one_counter >= 1:
                         CLK_Tf_pt.append(CLK_rows[i-zero_shift])
-                        #print(rows[i-zero_shift], int(one_counter), int(zero_counter))
                         zero_counter = 0
                         one_counter = 0
-                        if CLK_rows[i-zero_shift][1] <= VIH:
+                        if CLK_rows[i-zero_shift][1] <= self.VIH:
                             L_counter = 1
         return CLK_Tf_pt
 
@@ -384,7 +477,8 @@ class signal_process():
                     for clk_pt in clk_all_pt:
                         if clk_pt[0] <= pt[1] and clk_pt[1] <= pt[1]:
                             clk_tp_tmp = clk_pt[1]
-                    tHD_DAT.append([pt[1],clk_tp_tmp])
+                    print(pt)
+                    tHD_DAT.append([pt[0],clk_tp_tmp])
                     break
         return tHD_DAT
 
@@ -487,3 +581,67 @@ class signal_process():
                     pt_1 = None
 
         return tBUF
+
+    def get_bit(self, tHD_STA, tSU_STO, H_time, DATA_rows, CLK_rows):
+        CLK_point_1 = tHD_STA[0][1]
+        CLK_point_2 = tSU_STO[0][1]
+        aws = []
+        for pt in H_time:
+            sum_ = 0
+            num = 0
+            if pt[0] > CLK_point_2:
+                break
+            if pt[0] > CLK_point_1:
+                for data in DATA_rows[pt[0]:pt[1]]:
+                    sum_ += data[1]
+                    num += 1
+                if sum_/num > 0.5 :
+                    aws.append(1)
+                else:
+                    aws.append(0)
+        print(aws)
+        return aws
+
+    def get_tVD_DAT(self, data_tf_tmp, clk_all_pt, DATA_rows, CLK_rows):
+        tVD_DAT = []
+        for pt in data_tf_tmp[2:]:
+            sum_ = 0
+            num = 0
+            for data in CLK_rows[pt[0]:pt[1]]:
+                sum_ += data[1]
+                num  += 1
+            if sum_/num <= 0.5:
+                for clk_pt in clk_all_pt:
+                    if clk_pt[0] < pt[0] :
+                        clk_tp_tmp = clk_pt[1]
+                    else:
+                        break
+            tVD_DAT.append([clk_tp_tmp,pt[1]])
+        return tVD_DAT
+
+    def get_tVD_ACK(self,tHD_STA, H_time, data_tf_tmp, clk_all_pt, DATA_rows, CLK_rows):
+        tVD_DAT = []
+        CLK_num_7 = []
+        CLK_point_1 = tHD_STA[0][1]
+        num = 0
+        for pt in H_time:
+            if pt[0] > CLK_point_1:
+                num += 1
+            if num == 7:
+                CLK_num_7 = pt
+
+        for pt in data_tf_tmp:
+            if pt[1] > CLK_num_7[0]:
+                sum_ = 0
+                num  = 0
+                for data in CLK_rows[pt[0]:pt[1]]:
+                    sum_ += data[1]
+                    num  += 1
+                if sum_/num <= 0.5:
+                    for clk_pt in clk_all_pt:
+                        if clk_pt[0] < pt[0] :
+                            clk_tp_tmp = clk_pt[1]
+                        else:
+                            break
+                tVD_DAT.append([clk_tp_tmp,pt[1]])
+        return tVD_DAT
