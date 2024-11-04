@@ -69,7 +69,7 @@ Ensure that your Tektronix VISA drivers are properly installed and that the osci
 
 Below is an example of an I2C signal captured and displayed by the script:
 
-![I2C Signal](captures/i2c_waveform.png)
+![I2C Signal](i2c_waveform.jpeg)
 
 The decoded I2C data can be exported as a CSV file for further analysis.
 
